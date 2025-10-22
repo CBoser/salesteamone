@@ -208,6 +208,78 @@
                     <span>Material pricing is sourced from Random Lengths reports and vendor quotes. Review regularly for accuracy.</span>
                 </div>
 
+                <!-- Holt BAT Import Section -->
+                <div class="section" style="background: #f8f9fa; margin-bottom: 20px;">
+                    <div class="section-header" style="cursor: pointer;" onclick="document.getElementById('import-panel').style.display = document.getElementById('import-panel').style.display === 'none' ? 'block' : 'none';">
+                        <h3 class="section-title" style="font-size: 1.2em;">📥 Import Holt BAT Data</h3>
+                        <span style="font-size: 0.9em; color: #666;">Click to expand/collapse</span>
+                    </div>
+
+                    <div id="import-panel" style="display: none; padding: 20px; background: white; border-radius: 5px; margin-top: 15px;">
+                        <p style="margin-bottom: 20px; color: #666;">Import your complete Holt BAT system including pricing, plans, materials, and Random Lengths commodity data</p>
+
+                        <h4 style="margin: 15px 0 10px; color: #2c3e50;">Core BAT Files (Required)</h4>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">1. Unconverted Pricing Import</label>
+                                <input type="file" id="pricing-file" accept=".csv" style="display: block; margin: 8px 0; padding: 8px;">
+                                <span id="pricing-status" style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">No file selected</span>
+                            </div>
+                            <div style="padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">2. Holt Homes Plan Index</label>
+                                <input type="file" id="plans-file" accept=".csv" style="display: block; margin: 8px 0; padding: 8px;">
+                                <span id="plans-status" style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">No file selected</span>
+                            </div>
+                            <div style="padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">3. Holt Material Index</label>
+                                <input type="file" id="materials-file" accept=".csv" style="display: block; margin: 8px 0; padding: 8px;">
+                                <span id="materials-status" style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">No file selected</span>
+                            </div>
+                        </div>
+
+                        <h4 style="margin: 25px 0 10px; color: #2c3e50;">Random Lengths Data (Optional)</h4>
+                        <div style="display: grid; gap: 15px;">
+                            <div style="padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">4. Holt RL Adders (Current Pricing)</label>
+                                <input type="file" id="rl-adders-file" accept=".csv" style="display: block; margin: 8px 0; padding: 8px;">
+                                <span id="rl-adders-status" style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">No file selected</span>
+                            </div>
+                            <div style="padding: 15px; background: #f5f5f5; border-radius: 4px;">
+                                <label style="display: block; font-weight: 600; margin-bottom: 8px;">5. RL Average (Historical Data)</label>
+                                <input type="file" id="rl-average-file" accept=".csv" style="display: block; margin: 8px 0; padding: 8px;">
+                                <span id="rl-average-status" style="display: block; font-size: 0.9em; color: #666; margin-top: 5px;">No file selected</span>
+                            </div>
+                        </div>
+
+                        <h4 style="margin: 25px 0 10px; color: #2c3e50;">Import Options</h4>
+                        <div style="padding: 15px; background: #f9f9f9; border-radius: 4px;">
+                            <label style="display: block; margin: 10px 0;"><input type="checkbox" id="replace-data" checked> Replace existing data</label>
+                            <label style="display: block; margin: 10px 0;"><input type="checkbox" id="link-rl" checked> Link RL pricing to materials</label>
+                            <label style="display: block; margin: 10px 0;"><input type="checkbox" id="include-freight" checked> Include freight in material costs</label>
+                            <label style="display: block; margin: 10px 0;">Default Margin: <input type="number" id="default-margin" value="15" min="0" max="100" style="width:60px; padding: 5px;">%</label>
+                        </div>
+
+                        <div style="margin: 20px 0; display: flex; gap: 10px;">
+                            <button onclick="importAllData()" class="btn btn-primary">🚀 Import All Files</button>
+                            <button onclick="importCoreOnly()" class="btn btn-secondary">📦 Import Core Data Only</button>
+                            <button onclick="importRLOnly()" class="btn btn-secondary">📊 Import/Update RL Data Only</button>
+                        </div>
+
+                        <div id="import-progress" style="display:none; margin-top: 20px;">
+                            <h4 style="color: #2c3e50; margin-bottom: 10px;">Import Progress</h4>
+                            <div style="width: 100%; background: #eee; border-radius: 10px; overflow: hidden; margin: 10px 0;">
+                                <div id="progress-fill" style="width:0%; background:#2d5a3d; height:20px; transition:width 0.3s;"></div>
+                            </div>
+                            <div id="progress-status" style="padding: 10px; font-size: 0.9em; color: #666;">Starting import...</div>
+                        </div>
+
+                        <div id="import-results" style="display:none; margin-top: 20px;">
+                            <h4 style="color: #2c3e50; margin-bottom: 10px;">Import Results</h4>
+                            <div id="results-content" style="background: #f5f5f5; padding: 15px; border-radius: 4px; font-family: monospace; white-space: pre-wrap;"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -679,5 +751,175 @@
     <script src="js/calculators.js"></script>
     <script src="js/reports.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- Enhanced Import Modules -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="js/holt-importer.js"></script>
+    <script src="js/rl-importer.js"></script>
+
+    <!-- Import Functionality -->
+    <script>
+        // File status updates
+        document.getElementById('pricing-file')?.addEventListener('change', (e) => {
+            document.getElementById('pricing-status').textContent = e.target.files[0]?.name || 'No file';
+        });
+        document.getElementById('plans-file')?.addEventListener('change', (e) => {
+            document.getElementById('plans-status').textContent = e.target.files[0]?.name || 'No file';
+        });
+        document.getElementById('materials-file')?.addEventListener('change', (e) => {
+            document.getElementById('materials-status').textContent = e.target.files[0]?.name || 'No file';
+        });
+        document.getElementById('rl-adders-file')?.addEventListener('change', (e) => {
+            document.getElementById('rl-adders-status').textContent = e.target.files[0]?.name || 'No file';
+        });
+        document.getElementById('rl-average-file')?.addEventListener('change', (e) => {
+            document.getElementById('rl-average-status').textContent = e.target.files[0]?.name || 'No file';
+        });
+
+        async function importAllData() {
+            const progress = document.getElementById('import-progress');
+            const results = document.getElementById('import-results');
+            const progressFill = document.getElementById('progress-fill');
+            const progressStatus = document.getElementById('progress-status');
+
+            progress.style.display = 'block';
+            results.style.display = 'none';
+
+            try {
+                const pricingFile = document.getElementById('pricing-file').files[0];
+                const plansFile = document.getElementById('plans-file').files[0];
+                const materialsFile = document.getElementById('materials-file').files[0];
+                const rlAddersFile = document.getElementById('rl-adders-file').files[0];
+                const rlAverageFile = document.getElementById('rl-average-file').files[0];
+
+                if (!pricingFile || !plansFile || !materialsFile) {
+                    alert('Please select all 3 core BAT files (Pricing, Plans, Materials)');
+                    progress.style.display = 'none';
+                    return;
+                }
+
+                // Step 1: Import core data
+                progressStatus.textContent = 'Importing core BAT data...';
+                progressFill.style.width = '20%';
+
+                const coreData = await HoltImporter.importAllHoltData(pricingFile, plansFile, materialsFile);
+
+                // Step 2: Import RL data if provided
+                if (rlAddersFile) {
+                    progressStatus.textContent = 'Importing Random Lengths pricing...';
+                    progressFill.style.width = '40%';
+
+                    const rlPricing = await RLImporter.importRLAdders(rlAddersFile);
+                    Storage.setRLPricing(rlPricing);
+
+                    if (document.getElementById('link-rl').checked) {
+                        progressStatus.textContent = 'Linking RL pricing to materials...';
+                        progressFill.style.width = '60%';
+
+                        coreData.materials = RLImporter.linkRLToMaterials(rlPricing, coreData.materials);
+                    }
+                }
+
+                if (rlAverageFile) {
+                    progressStatus.textContent = 'Importing RL historical data...';
+                    progressFill.style.width = '70%';
+
+                    const rlHistory = await RLImporter.importRLAverage(rlAverageFile);
+                    Storage.setRLHistory(rlHistory);
+                }
+
+                // Step 3: Save to storage
+                progressStatus.textContent = 'Saving to database...';
+                progressFill.style.width = '90%';
+
+                HoltImporter.saveToStorage(coreData);
+
+                // Step 4: Complete
+                progressFill.style.width = '100%';
+                progressStatus.textContent = '✓ Import complete!';
+
+                // Show results
+                const resultsText = `
+✓ Import Successful!
+
+Core Data:
+  • ${coreData.plans.length} floor plans
+  • ${coreData.categories.length} categories
+  • ${coreData.materials.length} materials
+  • ${coreData.pricing.length} pricing items
+  • ${coreData.packs.length} packs
+
+${rlAddersFile ? `Random Lengths Data:
+  • ${Storage.getRLPricing().length} RL pricing items
+  • ${coreData.materials.filter(m => m.rlTag).length} materials linked to RL
+` : ''}
+
+Your Holt BAT data is now ready to use!
+                `;
+
+                document.getElementById('results-content').textContent = resultsText;
+                results.style.display = 'block';
+
+                alert('Import complete! Your data is ready.');
+
+            } catch (error) {
+                console.error('Import error:', error);
+                progressStatus.textContent = '❌ Import failed: ' + error.message;
+                alert('Import failed. Check console for details.');
+            }
+        }
+
+        async function importCoreOnly() {
+            const pricingFile = document.getElementById('pricing-file').files[0];
+            const plansFile = document.getElementById('plans-file').files[0];
+            const materialsFile = document.getElementById('materials-file').files[0];
+
+            if (!pricingFile || !plansFile || !materialsFile) {
+                alert('Please select all 3 core BAT files');
+                return;
+            }
+
+            try {
+                const coreData = await HoltImporter.importAllHoltData(pricingFile, plansFile, materialsFile);
+                HoltImporter.saveToStorage(coreData);
+
+                alert(`Imported ${coreData.materials.length} materials, ${coreData.plans.length} plans, ${coreData.packs.length} packs!`);
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Import failed: ' + error.message);
+            }
+        }
+
+        async function importRLOnly() {
+            const rlAddersFile = document.getElementById('rl-adders-file').files[0];
+            const rlAverageFile = document.getElementById('rl-average-file').files[0];
+
+            if (!rlAddersFile) {
+                alert('Please select RL Adders file');
+                return;
+            }
+
+            try {
+                const rlPricing = await RLImporter.importRLAdders(rlAddersFile);
+                Storage.setRLPricing(rlPricing);
+
+                if (rlAverageFile) {
+                    const rlHistory = await RLImporter.importRLAverage(rlAverageFile);
+                    Storage.setRLHistory(rlHistory);
+                }
+
+                if (document.getElementById('link-rl').checked) {
+                    const materials = Storage.getMaterials();
+                    const updated = RLImporter.linkRLToMaterials(rlPricing, materials);
+                    Storage.setMaterials(updated);
+                }
+
+                alert(`Imported ${rlPricing.length} RL pricing items!`);
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Import failed: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
