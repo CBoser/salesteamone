@@ -209,13 +209,13 @@
                 </div>
 
                 <!-- Holt BAT Import Section -->
-                <div class="section" style="background: #f8f9fa; margin-bottom: 20px;">
-                    <div class="section-header" style="cursor: pointer;" onclick="document.getElementById('import-panel').style.display = document.getElementById('import-panel').style.display === 'none' ? 'block' : 'none';">
-                        <h3 class="section-title" style="font-size: 1.2em;">📥 Import Holt BAT Data</h3>
-                        <span style="font-size: 0.9em; color: #666;">Click to expand/collapse</span>
+                <div class="section" style="background: #f8f9fa; margin-bottom: 20px; border: 2px solid #2d5a3d;">
+                    <div class="section-header" style="cursor: pointer; background: #2d5a3d; color: white; padding: 15px; margin: -25px -25px 15px -25px; border-radius: 8px 8px 0 0;" onclick="document.getElementById('import-panel').style.display = document.getElementById('import-panel').style.display === 'none' ? 'block' : 'none';">
+                        <h3 class="section-title" style="font-size: 1.2em; color: white; margin: 0;">📥 Import Holt BAT Data</h3>
+                        <span style="font-size: 0.9em; color: #e0e0e0;">Click to expand/collapse import options</span>
                     </div>
 
-                    <div id="import-panel" style="display: none; padding: 20px; background: white; border-radius: 5px; margin-top: 15px;">
+                    <div id="import-panel" style="display: block; padding: 20px; background: white; border-radius: 5px; margin-top: 15px;">
                         <p style="margin-bottom: 20px; color: #666;">Import your complete Holt BAT system including pricing, plans, materials, and Random Lengths commodity data</p>
 
                         <h4 style="margin: 15px 0 10px; color: #2c3e50;">Core BAT Files (Required)</h4>
@@ -759,21 +759,51 @@
 
     <!-- Import Functionality -->
     <script>
-        // File status updates
-        document.getElementById('pricing-file')?.addEventListener('change', (e) => {
-            document.getElementById('pricing-status').textContent = e.target.files[0]?.name || 'No file';
-        });
-        document.getElementById('plans-file')?.addEventListener('change', (e) => {
-            document.getElementById('plans-status').textContent = e.target.files[0]?.name || 'No file';
-        });
-        document.getElementById('materials-file')?.addEventListener('change', (e) => {
-            document.getElementById('materials-status').textContent = e.target.files[0]?.name || 'No file';
-        });
-        document.getElementById('rl-adders-file')?.addEventListener('change', (e) => {
-            document.getElementById('rl-adders-status').textContent = e.target.files[0]?.name || 'No file';
-        });
-        document.getElementById('rl-average-file')?.addEventListener('change', (e) => {
-            document.getElementById('rl-average-status').textContent = e.target.files[0]?.name || 'No file';
+        // Wait for DOM to be fully loaded before attaching event listeners
+        window.addEventListener('load', function() {
+            // File status updates
+            const pricingFile = document.getElementById('pricing-file');
+            const plansFile = document.getElementById('plans-file');
+            const materialsFile = document.getElementById('materials-file');
+            const rlAddersFile = document.getElementById('rl-adders-file');
+            const rlAverageFile = document.getElementById('rl-average-file');
+
+            if (pricingFile) {
+                pricingFile.addEventListener('change', (e) => {
+                    document.getElementById('pricing-status').textContent = e.target.files[0]?.name || 'No file selected';
+                    console.log('Pricing file selected:', e.target.files[0]?.name);
+                });
+            }
+
+            if (plansFile) {
+                plansFile.addEventListener('change', (e) => {
+                    document.getElementById('plans-status').textContent = e.target.files[0]?.name || 'No file selected';
+                    console.log('Plans file selected:', e.target.files[0]?.name);
+                });
+            }
+
+            if (materialsFile) {
+                materialsFile.addEventListener('change', (e) => {
+                    document.getElementById('materials-status').textContent = e.target.files[0]?.name || 'No file selected';
+                    console.log('Materials file selected:', e.target.files[0]?.name);
+                });
+            }
+
+            if (rlAddersFile) {
+                rlAddersFile.addEventListener('change', (e) => {
+                    document.getElementById('rl-adders-status').textContent = e.target.files[0]?.name || 'No file selected';
+                    console.log('RL Adders file selected:', e.target.files[0]?.name);
+                });
+            }
+
+            if (rlAverageFile) {
+                rlAverageFile.addEventListener('change', (e) => {
+                    document.getElementById('rl-average-status').textContent = e.target.files[0]?.name || 'No file selected';
+                    console.log('RL Average file selected:', e.target.files[0]?.name);
+                });
+            }
+
+            console.log('File upload event listeners attached successfully');
         });
 
         async function importAllData() {
