@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Builder Bid Assistance Tool</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <h1>Multi-Builder Bid Assistance Tool</h1>
+                <p>Comprehensive pricing and bidding management system</p>
+            </div>
+            <div class="builder-selector">
+                <label>Builder:</label>
+                <select id="builderSelect">
+                    <option value="holt">Holt Homes</option>
+                    <option value="richmond">Richmond American</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="nav-tabs">
+        <div class="nav-tabs-content">
+            <button class="nav-tab active" onclick="showTab('dashboard')">Dashboard</button>
+            <button class="nav-tab" onclick="showTab('plans')">Plans Library</button>
+            <button class="nav-tab" onclick="showTab('pricing')">Pricing Management</button>
+            <button class="nav-tab" onclick="showTab('options')">Options & Upgrades</button>
+            <button class="nav-tab" onclick="showTab('communities')">Communities</button>
+            <button class="nav-tab" onclick="showTab('packs')">Pack Definitions</button>
+            <button class="nav-tab" onclick="showTab('materials')">Material Database</button>
+            <button class="nav-tab" onclick="showTab('calculators')">Calculators</button>
+            <button class="nav-tab" onclick="showTab('reports')">Reports</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="section">
+                <div class="stats-grid" id="statsGrid"></div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Activity</h2>
+                </div>
+                <div id="recentActivity">
+                    <p style="color: #7f8c8d; padding: 20px;">No recent activity. Start by adding plans, pricing, or communities.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plans Tab -->
+        <div id="plans-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Plan Library</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-export btn-small" onclick="exportPlans()">📥 Export Plans</button>
+                        <button class="btn btn-primary" onclick="openPlanModal()">+ Add New Plan</button>
+                    </div>
+                </div>
+
+                <div class="filters">
+                    <input type="text" class="search-input" id="planSearch" placeholder="Search plans..." oninput="filterPlans()">
+                    <div class="filter-group">
+                        <label class="filter-label">Type:</label>
+                        <select class="filter-select" id="planTypeFilter" onchange="filterPlans()">
+                            <option value="">All Types</option>
+                            <option value="Single Story">Single Story</option>
+                            <option value="Two Story">Two Story</option>
+                            <option value="Townhome">Townhome</option>
+                            <option value="Duplex">Duplex</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="plan-grid" id="planGrid"></div>
+            </div>
+        </div>
+
+        <!-- Pricing Tab -->
+        <div id="pricing-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Pricing Management</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-small" onclick="importPricing()">📤 Import Pricing</button>
+                        <button class="btn btn-export btn-small" onclick="exportPricing()">📥 Export Pricing</button>
+                        <button class="btn btn-primary" onclick="Modals.openPricingModal()">+ Add Item</button>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <span>ℹ️</span>
+                    <span>Pricing reflects current commodity rates and vendor quotes. Last updated: <strong id="pricingLastUpdated">Never</strong></span>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Item Number</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>UM</th>
+                            <th>Unit Cost</th>
+                            <th>Margin %</th>
+                            <th>Unit Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pricingTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Options Tab -->
+        <div id="options-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Options & Upgrades Catalog</h2>
+                    <button class="btn btn-primary" onclick="Modals.openOptionModal()">+ Add New Option</button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Option Code</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Base Price</th>
+                            <th>Triggers Packs</th>
+                            <th>Applies To Plans</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="optionsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Communities Tab -->
+        <div id="communities-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Community Requirements</h2>
+                    <button class="btn btn-primary" onclick="Modals.openCommunityModal()">+ Add Community</button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Community Name</th>
+                            <th>Builder</th>
+                            <th>Shipping Yard</th>
+                            <th>Active Plans</th>
+                            <th>Special Requirements</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="communitiesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Packs Tab -->
+        <div id="packs-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Pack Definitions & Scheduling</h2>
+                    <button class="btn btn-primary" onclick="Modals.openPackModal()">+ Define New Pack</button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Pack Name</th>
+                            <th>Category</th>
+                            <th>Day# (Single/Two Story)</th>
+                            <th>Lead Time</th>
+                            <th>Material Count</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="packsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Materials Tab -->
+        <div id="materials-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Material Database</h2>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-small" onclick="importMaterials()">📤 Import from Excel</button>
+                        <button class="btn btn-export btn-small" onclick="exportMaterials()">📥 Export Materials</button>
+                        <button class="btn btn-primary" onclick="Modals.openMaterialModal()">+ Add Material</button>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <span>⚠️</span>
+                    <span>Material pricing is sourced from Random Lengths reports and vendor quotes. Review regularly for accuracy.</span>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Subcategory</th>
+                            <th>UM</th>
+                            <th>Vendor Cost</th>
+                            <th>Freight</th>
+                            <th>Total Cost</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="materialsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Calculators Tab -->
+        <div id="calculators-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Specialty Calculators</h2>
+                </div>
+
+                <div class="plan-grid">
+                    <div class="plan-card" onclick="openCalculator('ponyWall')">
+                        <div class="plan-header">
+                            <span class="plan-code">Pony Wall Calculator</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Calculate materials and costs for pony wall installations</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="openCalculator('fencing')">
+                        <div class="plan-header">
+                            <span class="plan-code">Fencing Calculator</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Estimate fencing materials and labor costs</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="openCalculator('deck')">
+                        <div class="plan-header">
+                            <span class="plan-code">Deck Calculator</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Calculate deck framing, surface materials, and railings</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="openCalculator('stairs')">
+                        <div class="plan-header">
+                            <span class="plan-code">Stairs & Landing Calculator</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Compute materials for stairs and landing structures</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reports-tab" class="tab-content">
+            <div class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Reports & Analytics</h2>
+                </div>
+
+                <div class="plan-grid">
+                    <div class="plan-card" onclick="generateReport('margin')">
+                        <div class="plan-header">
+                            <span class="plan-code">Margin Analysis</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Review margins by category, plan, and time period</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="generateReport('pricing')">
+                        <div class="plan-header">
+                            <span class="plan-code">Pricing Summary</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Export current pricing across all materials and options</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="generateReport('comparison')">
+                        <div class="plan-header">
+                            <span class="plan-code">Plan Comparison</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Compare costs and materials across multiple plans</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-card" onclick="generateReport('options')">
+                        <div class="plan-header">
+                            <span class="plan-code">Options Pricing Report</span>
+                        </div>
+                        <div class="plan-details">
+                            <p>Review all options pricing by quarter and category</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plan Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="planModalTitle">Add New Plan</h3>
+                <button class="modal-close" onclick="closePlanModal()">&times;</button>
+            </div>
+
+            <div class="form-section">
+                <h4 class="form-title">Plan Information</h4>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label required">Plan Code</label>
+                        <input type="text" class="form-input" id="planCode" placeholder="e.g., G21D">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Plan Name</label>
+                        <input type="text" class="form-input" id="planName" placeholder="e.g., Daniel">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Plan Type</label>
+                        <select class="form-select" id="planType">
+                            <option value="Single Story">Single Story</option>
+                            <option value="Two Story">Two Story</option>
+                            <option value="Three Story">Three Story</option>
+                            <option value="Duplex">Duplex</option>
+                            <option value="Townhome">Townhome</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Square Footage</label>
+                        <input type="number" class="form-input" id="planSqft" placeholder="1890">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bedrooms</label>
+                        <input type="number" class="form-input" id="planBedrooms" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bathrooms</label>
+                        <input type="number" class="form-input" id="planBathrooms" step="0.5" min="1" max="10">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Garage</label>
+                        <select class="form-select" id="planGarage">
+                            <option value="">Select...</option>
+                            <option value="None">None</option>
+                            <option value="1-Car">1-Car</option>
+                            <option value="2-Car">2-Car</option>
+                            <option value="3-Car">3-Car</option>
+                            <option value="4-Car">4-Car</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Style</label>
+                        <input type="text" class="form-input" id="planStyle" placeholder="e.g., Ranch, Modern">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label required">Elevations (comma-separated)</label>
+                    <input type="text" class="form-input" id="planElevations" placeholder="A, B, C, D">
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-textarea" id="planNotes" placeholder="Additional notes about this plan..."></textarea>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closePlanModal()">Cancel</button>
+                <button class="btn btn-success" onclick="savePlan()">Save Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Modal -->
+    <div id="communityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="communityModalTitle">Add Community</h3>
+                <button class="modal-close" onclick="Modals.closeModal('communityModal')">&times;</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required">Community Name</label>
+                    <input type="text" class="form-input" id="communityName" placeholder="e.g., Willow Ridge">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Builder</label>
+                    <input type="text" class="form-input" id="communityBuilder" placeholder="e.g., Holt Homes">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Shipping Yard</label>
+                    <input type="text" class="form-input" id="communityYard" placeholder="e.g., FOGRORYD">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Active Plans</label>
+                    <input type="number" class="form-input" id="communityActivePlans" min="0" value="0">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label">Special Requirements</label>
+                <textarea class="form-textarea" id="communityRequirements" placeholder="Any special requirements or notes..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="Modals.closeModal('communityModal')">Cancel</button>
+                <button class="btn btn-success" onclick="Modals.saveCommunity()">Save Community</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Option Modal -->
+    <div id="optionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="optionModalTitle">Add Option</h3>
+                <button class="modal-close" onclick="Modals.closeModal('optionModal')">&times;</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required">Option Code</label>
+                    <input type="text" class="form-input" id="optionCode" placeholder="e.g., DECK-12X12">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Description</label>
+                    <input type="text" class="form-input" id="optionDescription" placeholder="e.g., 12x12 Deck Package">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="optionCategory">
+                        <option value="Deck">Deck</option>
+                        <option value="Fencing">Fencing</option>
+                        <option value="Room Addition">Room Addition</option>
+                        <option value="Garage">Garage</option>
+                        <option value="Patio">Patio</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Base Price</label>
+                    <input type="number" class="form-input" id="optionBasePrice" step="0.01" min="0" placeholder="0.00">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label">Triggers Packs (comma-separated)</label>
+                <input type="text" class="form-input" id="optionTriggersPacks" placeholder="e.g., Deck Frame, Deck Surface">
+            </div>
+
+            <div class="form-group" style="margin-top: 15px;">
+                <label class="form-label">Applies To Plans (comma-separated, leave blank for all)</label>
+                <input type="text" class="form-input" id="optionAppliesTo" placeholder="e.g., 1670, 2184, G21D">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="Modals.closeModal('optionModal')">Cancel</button>
+                <button class="btn btn-success" onclick="Modals.saveOption()">Save Option</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pack Modal -->
+    <div id="packModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="packModalTitle">Define Pack</h3>
+                <button class="modal-close" onclick="Modals.closeModal('packModal')">&times;</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required">Pack Name</label>
+                    <input type="text" class="form-input" id="packName" placeholder="e.g., P&B">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="packCategory">
+                        <option value="Foundation">Foundation</option>
+                        <option value="Framing">Framing</option>
+                        <option value="Envelope">Envelope</option>
+                        <option value="Roof">Roof</option>
+                        <option value="Deck">Deck</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Day # (Single Story)</label>
+                    <input type="number" class="form-input" id="packDaySingle" min="1" placeholder="Leave blank if N/A">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Day # (Two Story)</label>
+                    <input type="number" class="form-input" id="packDayTwo" min="1" placeholder="Leave blank if N/A">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lead Time (days)</label>
+                    <input type="number" class="form-input" id="packLeadTime" min="0" value="5">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Material Count</label>
+                    <input type="number" class="form-input" id="packMaterialCount" min="0" value="0">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="Modals.closeModal('packModal')">Cancel</button>
+                <button class="btn btn-success" onclick="Modals.savePack()">Save Pack</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Modal -->
+    <div id="pricingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="pricingModalTitle">Add Pricing Item</h3>
+                <button class="modal-close" onclick="Modals.closeModal('pricingModal')">&times;</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required">Item Number</label>
+                    <input type="text" class="form-input" id="pricingItemNumber" placeholder="e.g., 2X4-8-SPF">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Description</label>
+                    <input type="text" class="form-input" id="pricingDescription" placeholder="e.g., 2x4x8 SPF Stud">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="pricingCategory">
+                        <option value="Lumber">Lumber</option>
+                        <option value="Panels">Panels</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Concrete">Concrete</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit of Measure</label>
+                    <select class="form-select" id="pricingUM">
+                        <option value="EA">EA (Each)</option>
+                        <option value="SHT">SHT (Sheet)</option>
+                        <option value="LF">LF (Linear Foot)</option>
+                        <option value="SF">SF (Square Foot)</option>
+                        <option value="CY">CY (Cubic Yard)</option>
+                        <option value="TON">TON</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Unit Cost</label>
+                    <input type="number" class="form-input" id="pricingUnitCost" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Margin %</label>
+                    <input type="number" class="form-input" id="pricingMargin" step="0.1" min="0" max="100" value="15">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="Modals.closeModal('pricingModal')">Cancel</button>
+                <button class="btn btn-success" onclick="Modals.savePricing()">Save Pricing</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Material Modal -->
+    <div id="materialModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="materialModalTitle">Add Material</h3>
+                <button class="modal-close" onclick="Modals.closeModal('materialModal')">&times;</button>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label required">SKU</label>
+                    <input type="text" class="form-input" id="materialSKU" placeholder="e.g., 2X4-8-SPF">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Description</label>
+                    <input type="text" class="form-input" id="materialDescription" placeholder="e.g., 2x4x8 SPF Stud">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" id="materialCategory">
+                        <option value="Dimensional Lumber">Dimensional Lumber</option>
+                        <option value="Engineered Lumber">Engineered Lumber</option>
+                        <option value="Sheathing">Sheathing</option>
+                        <option value="Pressure Treated">Pressure Treated</option>
+                        <option value="Hardware">Hardware</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subcategory</label>
+                    <input type="text" class="form-input" id="materialSubcategory" placeholder="e.g., Framing">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit of Measure</label>
+                    <select class="form-select" id="materialUM">
+                        <option value="EA">EA (Each)</option>
+                        <option value="SHT">SHT (Sheet)</option>
+                        <option value="LF">LF (Linear Foot)</option>
+                        <option value="SF">SF (Square Foot)</option>
+                        <option value="CY">CY (Cubic Yard)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">Vendor Cost</label>
+                    <input type="number" class="form-input" id="materialVendorCost" step="0.01" min="0" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Freight Cost</label>
+                    <input type="number" class="form-input" id="materialFreight" step="0.01" min="0" placeholder="0.00">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 30px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="Modals.closeModal('materialModal')">Cancel</button>
+                <button class="btn btn-success" onclick="Modals.saveMaterial()">Save Material</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="calculatorModalTitle">Calculator</h3>
+                <button class="modal-close" onclick="Calculators.closeCalculator()">&times;</button>
+            </div>
+            <div id="calculatorContent"></div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content" style="max-width: 1200px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="reportModalTitle">Report</h3>
+                <button class="modal-close" onclick="Reports.closeReport()">&times;</button>
+            </div>
+            <div id="reportContent"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/storage.js"></script>
+    <script src="js/modals.js"></script>
+    <script src="js/calculators.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
