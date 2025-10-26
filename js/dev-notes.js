@@ -435,7 +435,10 @@ class DevNotes {
             dockSelect.addEventListener('change', (e) => {
                 this.dockPosition = e.target.value;
                 this.saveToStorage('dev-notes-dock', this.dockPosition);
-                this.render();
+                // Defer render to allow change event to complete
+                requestAnimationFrame(() => {
+                    this.render();
+                });
             });
         }
 
