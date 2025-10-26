@@ -156,6 +156,18 @@ class DevNotes {
         }
     }
 
+    updatePosition() {
+        // Update position styles without re-rendering HTML
+        const styles = this.getPositionStyle();
+        Object.assign(this.panel.style, styles);
+
+        // Update header cursor style
+        const header = this.panel.querySelector('.dev-notes-header');
+        if (header) {
+            header.style.cursor = this.dockPosition === 'floating' ? 'move' : 'default';
+        }
+    }
+
     render() {
         if (!this.panel) return;
 
@@ -435,10 +447,8 @@ class DevNotes {
             dockSelect.addEventListener('change', (e) => {
                 this.dockPosition = e.target.value;
                 this.saveToStorage('dev-notes-dock', this.dockPosition);
-                // Defer render to allow change event to complete
-                requestAnimationFrame(() => {
-                    this.render();
-                });
+                // Update position only, don't re-render HTML
+                this.updatePosition();
             });
         }
 
