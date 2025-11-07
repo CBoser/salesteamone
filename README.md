@@ -1,281 +1,274 @@
-# Multi-Builder Bid Assistance Tool
+# MindFlow - Construction Management Platform
 
-A comprehensive web-based pricing and bidding management system designed for construction companies managing multiple builders and housing projects.
+A full-stack construction management platform built with modern web technologies. MindFlow helps construction companies manage multiple builders, housing projects, pricing, materials, and bidding processes.
 
-## Features
+## Tech Stack
 
-### Core Functionality
+### Frontend
+- **React 18** - Modern UI library
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Fast build tool and dev server
+- **TailwindCSS** - Utility-first CSS framework
+- **React Router** - Client-side routing
 
-- **Multi-Builder Support**: Easily switch between different builders (Holt Homes, Richmond American) with isolated data sets
-- **Plan Library Management**: Create, edit, and organize floor plans with detailed specifications
-- **Pricing Management**: Track material costs, margins, and calculated pricing
-- **Options & Upgrades**: Manage optional features and upgrades with pricing
-- **Community Management**: Track community-specific requirements and active plans
-- **Pack Definitions**: Define material packs with scheduling and lead times
-- **Material Database**: Comprehensive material catalog with vendor costs and freight
+### Backend
+- **Node.js** - JavaScript runtime
+- **Express** - Web application framework
+- **TypeScript** - Type-safe server code
+- **PostgreSQL** - Relational database
+- **Prisma** - Modern ORM
 
-### Specialty Calculators
-
-Built-in calculators for common construction scenarios:
-
-- **Pony Wall Calculator**: Calculate materials and costs for pony wall installations
-- **Fencing Calculator**: Estimate fencing materials based on linear feet and specifications
-- **Deck Calculator**: Compute deck framing, surface materials, and railing costs
-- **Stairs & Landing Calculator**: Calculate stair stringers, treads, risers, and landing materials
-
-### Reporting & Analytics
-
-- **Margin Analysis**: Review profit margins by category and overall performance
-- **Pricing Summary**: Export current pricing across all materials and options
-- **Plan Comparison**: Compare plans side-by-side with statistics
-- **Options Pricing Report**: Analyze options by category with pricing details
-
-### Data Management
-
-- **CSV Export**: Export all data types to CSV for external analysis
-- **CSV Import**: Import pricing and material data from spreadsheets (planned)
-- **Local Storage**: All data persists in browser localStorage
-- **Builder Isolation**: Each builder maintains separate data sets
+### Deployment
+- **Frontend**: Vercel
+- **Backend**: Railway
+- **Database**: Railway PostgreSQL
 
 ## Project Structure
 
 ```
 salesteamone/
-├── index.html              # Main application entry point
-├── css/
-│   └── styles.css         # Application styles
-├── js/
-│   ├── app.js            # Main application logic
-│   ├── storage.js        # Data storage and management
-│   ├── modals.js         # Modal dialogs and forms
-│   ├── calculators.js    # Specialty calculators
-│   └── reports.js        # Report generation
-├── data/                  # Data directory (for future use)
-└── README.md             # This file
+├── frontend/               # React frontend application
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Page components
+│   │   ├── services/      # API service layer
+│   │   ├── hooks/         # Custom React hooks
+│   │   ├── types/         # Frontend-specific types
+│   │   ├── utils/         # Utility functions
+│   │   └── App.tsx        # Main app component
+│   ├── public/            # Static assets
+│   └── package.json
+│
+├── backend/               # Express backend API
+│   ├── src/
+│   │   ├── routes/        # API route definitions
+│   │   ├── controllers/   # Route controllers
+│   │   ├── services/      # Business logic layer
+│   │   ├── middleware/    # Express middleware
+│   │   ├── types/         # Backend-specific types
+│   │   └── index.ts       # Server entry point
+│   ├── prisma/
+│   │   └── schema.prisma  # Database schema
+│   └── package.json
+│
+├── shared/                # Shared code between frontend & backend
+│   └── types/             # Shared TypeScript interfaces
+│
+├── legacy/                # Original static HTML application
+│
+└── package.json           # Root package scripts
 ```
 
 ## Getting Started
 
+### Prerequisites
+
+- **Node.js** 18+ and npm
+- **PostgreSQL** 14+ (for production database)
+- **Git** for version control
+
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/CBoser/salesteamone.git
    cd salesteamone
    ```
 
-2. Open `index.html` in a modern web browser:
-   - Chrome (recommended)
-   - Firefox
-   - Safari
-   - Edge
+2. **Install dependencies**
+   ```bash
+   # Install all dependencies (frontend + backend)
+   npm install
+   ```
 
-No build process or server required - this is a pure client-side application.
+3. **Configure environment variables**
 
-### First Steps
+   Create a `.env` file in the `backend` directory:
+   ```env
+   PORT=3001
+   NODE_ENV=development
+   DATABASE_URL="postgresql://user:password@localhost:5432/mindflow?schema=public"
+   FRONTEND_URL=http://localhost:5173
+   ```
 
-1. **Select Your Builder**: Use the builder dropdown in the header to select which builder's data to work with
+4. **Set up the database**
+   ```bash
+   cd backend
+   npm run prisma:migrate
+   npm run prisma:generate
+   cd ..
+   ```
 
-2. **Add Plans**: Navigate to "Plans Library" and click "Add New Plan" to create your first floor plan
+### Development
 
-3. **Set Up Materials**: Go to "Material Database" and add materials with vendor costs
+**Start both frontend and backend servers:**
+```bash
+npm run dev
+```
 
-4. **Configure Pricing**: In "Pricing Management", add pricing items with costs and margins
+This will start:
+- Frontend at http://localhost:5173
+- Backend at http://localhost:3001
 
-5. **Define Communities**: Add communities with their specific requirements
+**Or run them separately:**
+```bash
+# Terminal 1 - Frontend
+npm run dev:frontend
 
-6. **Create Options**: Set up optional features and upgrades in "Options & Upgrades"
+# Terminal 2 - Backend
+npm run dev:backend
+```
 
-## Usage Guide
+### Testing
 
-### Managing Plans
+**Health check the API:**
+```bash
+curl http://localhost:3001/health
+```
 
-Plans are the foundation of your bidding system. Each plan includes:
+Expected response:
+```json
+{
+  "status": "ok",
+  "message": "MindFlow API is running",
+  "timestamp": "2025-11-07T12:00:00.000Z"
+}
+```
 
-- Plan code (unique identifier)
-- Plan name
-- Type (Single Story, Two Story, etc.)
-- Square footage
-- Bedrooms and bathrooms
-- Garage configuration
-- Style
-- Available elevations
+### Building for Production
 
-**To add a plan:**
-1. Click "Plans Library" tab
-2. Click "Add New Plan"
-3. Fill in the form
-4. Click "Save Plan"
+**Build both frontend and backend:**
+```bash
+npm run build
+```
 
-### Pricing Management
+**Or build separately:**
+```bash
+npm run build:frontend
+npm run build:backend
+```
 
-Pricing items link to materials and include markup calculations:
+## Available Scripts
 
-- **Unit Cost**: Your actual cost from vendor
-- **Margin %**: Your desired profit margin
-- **Unit Price**: Automatically calculated selling price
+### Root Level
+- `npm run dev` - Run both frontend and backend in development mode
+- `npm run dev:frontend` - Run only frontend dev server
+- `npm run dev:backend` - Run only backend dev server
+- `npm run build` - Build both frontend and backend for production
+- `npm run build:frontend` - Build frontend only
+- `npm run build:backend` - Build backend only
 
-Formula: `Unit Price = Unit Cost / (1 - Margin%/100)`
+### Frontend (in /frontend directory)
+- `npm run dev` - Start Vite dev server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-Example: $10 cost with 20% margin = $12.50 selling price
+### Backend (in /backend directory)
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Compile TypeScript to JavaScript
+- `npm run start` - Run compiled production server
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:migrate` - Run database migrations
+- `npm run prisma:studio` - Open Prisma Studio GUI
 
-### Using Calculators
+## Features
 
-Each calculator is designed for specific construction scenarios:
+### Core Functionality
+- Multi-builder support with isolated data sets
+- Plan library management with detailed specifications
+- Pricing management with margins and calculations
+- Options & upgrades catalog
+- Community requirements tracking
+- Pack definitions with scheduling
+- Material database with vendor costs
 
-**Pony Wall Example:**
-1. Navigate to "Calculators" tab
-2. Click "Pony Wall Calculator"
-3. Enter linear feet and height
-4. Select stud spacing and wall type
-5. Click "Calculate"
-6. Review material list and estimated cost
+### Calculators
+- Pony Wall Calculator
+- Fencing Calculator
+- Deck Calculator
+- Stairs & Landing Calculator
 
-### Generating Reports
+### Reports & Analytics
+- Margin analysis
+- Pricing summaries
+- Plan comparisons
+- Options pricing reports
 
-Reports provide insights into your pricing and margins:
+## API Endpoints
 
-1. Navigate to "Reports" tab
-2. Click the desired report type
-3. Review the analysis
-4. Click "Export to CSV" to download
+### Health Check
+```
+GET /health
+```
+Returns API health status.
 
-### Data Export/Import
+### Core Endpoints (Coming Soon)
+```
+GET    /api/plans          - Get all plans
+POST   /api/plans          - Create new plan
+GET    /api/plans/:id      - Get plan by ID
+PUT    /api/plans/:id      - Update plan
+DELETE /api/plans/:id      - Delete plan
 
-**Export Data:**
-- Click the "Export" button on any data table
-- CSV file downloads automatically
-- Open in Excel, Google Sheets, or similar
+GET    /api/materials      - Get all materials
+POST   /api/materials      - Create material
+...
+```
 
-**Import Data** (Coming Soon):
-- Prepare CSV in the correct format (export first to see structure)
-- Use Import button to select file
-- Data validates and imports
+## Database Schema
 
-## Data Storage
+The Prisma schema defines the following main models:
+- **User** - User accounts and authentication
+- **Project** - Construction projects
+- **Plan** - Floor plans (to be added)
+- **Material** - Material database (to be added)
+- **Pricing** - Pricing items (to be added)
+- **Community** - Communities (to be added)
+- **Pack** - Pack definitions (to be added)
+- **Option** - Options and upgrades (to be added)
 
-All data is stored locally in your browser's localStorage:
+## Deployment
 
-- Data persists between sessions
-- Each builder has isolated data
-- No server required
-- No data sent externally
+### Frontend (Vercel)
+1. Connect your GitHub repository to Vercel
+2. Set build command: `cd frontend && npm run build`
+3. Set output directory: `frontend/dist`
+4. Add environment variables as needed
 
-### Clearing Data
+### Backend (Railway)
+1. Create a new project on Railway
+2. Add PostgreSQL database
+3. Connect your GitHub repository
+4. Set build command: `cd backend && npm run build`
+5. Set start command: `cd backend && npm run start`
+6. Add environment variables from `.env`
 
-To reset all data:
-1. Open browser Developer Tools (F12)
-2. Go to Application/Storage tab
-3. Select Local Storage
-4. Right-click and clear
+## Migration from Legacy
 
-Or clear browser data through browser settings.
+The original static HTML application has been moved to the `/legacy` folder. To migrate data:
 
-## Browser Compatibility
+1. Export data from the legacy app (localStorage to CSV)
+2. Transform data format to match new schema
+3. Import via API endpoints or database seeding
 
-- **Chrome/Edge**: Fully supported
-- **Firefox**: Fully supported
-- **Safari**: Fully supported
-- **Mobile**: Responsive design works on tablets and phones
+## Contributing
 
-Minimum browser versions:
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-## Tips & Best Practices
-
-1. **Regular Backups**: Export your data regularly as CSV backups
-2. **Consistent Naming**: Use consistent naming conventions for plans and materials
-3. **Update Pricing**: Review and update material costs quarterly
-4. **Builder Separation**: Keep builder data completely separate
-5. **Documentation**: Use the Notes field in plans for important details
-
-## Troubleshooting
-
-### Data Not Saving
-- Check browser localStorage is enabled
-- Verify you're not in Private/Incognito mode
-- Check available storage space
-
-### Missing Features
-- Ensure JavaScript is enabled
-- Clear browser cache and reload
-- Check browser console for errors (F12)
-
-### Performance Issues
-- Limit materials shown (first 50 displayed)
-- Use search filters to narrow results
-- Export old data and clear if needed
-
-## Future Enhancements
-
-Planned features for future releases:
-
-- [ ] Excel file import functionality
-- [ ] Advanced search and filtering
-- [ ] Batch operations
-- [ ] Print-friendly views
-- [ ] Builder comparison reports
-- [ ] Historical pricing tracking
-- [ ] User authentication (multi-user)
-- [ ] Cloud storage integration
-- [ ] Mobile app version
-- [ ] API integration with builder systems
-
-## Technical Details
-
-### Technologies Used
-
-- **HTML5**: Semantic markup
-- **CSS3**: Modern styling with flexbox and grid
-- **Vanilla JavaScript**: No frameworks required
-- **localStorage API**: Client-side data persistence
-
-### File Organization
-
-- **Modular Architecture**: Separate concerns (storage, UI, business logic)
-- **Event-Driven**: Clean event handling and delegation
-- **Responsive Design**: Mobile-first CSS approach
-- **Progressive Enhancement**: Works without JavaScript for basic content
-
-## Support
-
-For issues, questions, or feature requests:
-
-- Create an issue on GitHub
-- Contact the development team
-- Check documentation in code comments
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
 Copyright 2025 - All rights reserved
 
-## Contributing
+## Support
 
-Contributions welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## Changelog
-
-### Version 1.0.0 (Current)
-
-- Initial release
-- Multi-builder support
-- Plan management
-- Pricing and materials management
-- Community and options management
-- Pack definitions
-- Four specialty calculators
-- Four report types
-- CSV export functionality
-- Responsive design
+For issues, questions, or feature requests:
+- Create an issue on GitHub
+- Contact the development team
 
 ---
 
