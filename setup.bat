@@ -113,6 +113,15 @@ echo.
 
 REM Start PostgreSQL
 echo [5/7] Starting PostgreSQL database...
+echo.
+echo Stopping any existing database containers...
+docker compose down 2>nul
+echo.
+echo Removing old database volume (if exists)...
+echo This ensures fresh credentials are used.
+docker volume rm constructionplatform_postgres_data 2>nul
+echo.
+echo Starting fresh PostgreSQL instance...
 docker compose up -d
 if %errorlevel% neq 0 (
     echo ERROR: Failed to start PostgreSQL
@@ -125,8 +134,8 @@ echo.
 
 REM Wait for database to be ready
 echo Waiting for database to be ready...
-echo (This takes about 10 seconds for PostgreSQL to fully start)
-timeout /t 10 /nobreak >nul
+echo (This takes about 15 seconds for PostgreSQL to fully initialize)
+timeout /t 15 /nobreak >nul
 echo.
 
 REM Generate Prisma Client

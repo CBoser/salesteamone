@@ -121,7 +121,7 @@ class ProjectManager:
 
             # Delete volume
             self.print_info("[2/5] Deleting database volume...")
-            self.run_command(['docker', 'volume', 'rm', 'salesteamone_postgres_data'],
+            self.run_command(['docker', 'volume', 'rm', 'constructionplatform_postgres_data'],
                            check=False)
             self.print_success("Database volume deleted")
 
@@ -130,7 +130,7 @@ class ProjectManager:
             self.run_command(['docker', 'compose', 'up', '-d'])
             self.print_info("Waiting for database to be ready...")
             import time
-            time.sleep(5)
+            time.sleep(15)
             self.print_success("Database started")
 
             # Run migrations

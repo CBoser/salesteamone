@@ -545,6 +545,45 @@ docker-compose restart
 docker-compose logs postgres
 ```
 
+### Database Authentication Errors
+
+**Problem:** Prisma migrations fail with "Authentication failed against database server" or "provided database credentials are not valid" error.
+
+**Cause:** An old PostgreSQL Docker volume exists with different credentials than the current `.env` file.
+
+**Solution (Windows):**
+```powershell
+# Use the database reset script (recommended)
+.\db-reset.bat
+
+# OR manually:
+docker compose down
+docker volume rm constructionplatform_postgres_data
+docker compose up -d
+# Wait 15 seconds for database to initialize
+cd backend
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+**Solution (Linux/Mac):**
+```bash
+# Stop and remove old database
+docker compose down
+docker volume rm constructionplatform_postgres_data
+
+# Start fresh database
+docker compose up -d
+sleep 15  # Wait for database to initialize
+
+# Run migrations
+cd backend
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+**Note:** The `setup.bat` script now automatically cleans old volumes, so this issue should only occur if you had previously set up the database with different credentials.
+
 ### Frontend Not Loading
 ```bash
 # Clear cache and rebuild
