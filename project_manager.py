@@ -111,6 +111,9 @@ class ProjectManager:
             return
 
         try:
+            # Setup environment files first
+            self.setup_env_files()
+
             # Stop database
             self.print_info("[1/5] Stopping database...")
             self.run_command(['docker', 'compose', 'down'])
@@ -247,11 +250,38 @@ class ProjectManager:
         self.print_info("  1. Run 'python project_manager.py --install' to reinstall dependencies")
         self.print_info("  2. Or run 'setup.bat' on Windows")
 
+    def setup_env_files(self):
+        """Create .env files from .env.example if they don't exist"""
+        self.print_info("Checking environment files...")
+
+        env_configs = [
+            (self.backend_dir / '.env.example', self.backend_dir / '.env', 'backend'),
+            (self.frontend_dir / '.env.example', self.frontend_dir / '.env', 'frontend'),
+        ]
+
+        created_any = False
+        for example_file, env_file, location in env_configs:
+            if example_file.exists():
+                if not env_file.exists():
+                    shutil.copy(example_file, env_file)
+                    self.print_success(f"Created {location}/.env from .env.example")
+                    created_any = True
+                else:
+                    self.print_info(f"{location}/.env already exists")
+            else:
+                self.print_warning(f"{location}/.env.example not found")
+
+        if not created_any:
+            self.print_info("All .env files already exist")
+
     def install_dependencies(self):
         """Install all project dependencies"""
         self.print_header("Install Dependencies")
 
         try:
+            # Setup environment files first
+            self.setup_env_files()
+
             # Root dependencies
             self.print_info("[1/3] Installing root dependencies...")
             self.run_command(['npm', 'install'], shell=True)
