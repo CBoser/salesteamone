@@ -100,7 +100,8 @@ echo.
 
 REM Wait for database to be ready
 echo Waiting for database to be ready...
-timeout /t 5 /nobreak >nul
+echo (This takes about 10 seconds for PostgreSQL to fully start)
+timeout /t 10 /nobreak >nul
 echo.
 
 REM Generate Prisma Client
@@ -109,28 +110,48 @@ cd backend
 set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 call npx prisma generate
 if %errorlevel% neq 0 (
-    echo WARNING: Prisma client generation failed
-    echo You may need to run this manually: cd backend ^&^& npm run prisma:generate
+    echo.
+    echo ERROR: Prisma client generation failed!
+    echo.
+    echo This is required for the backend to start.
+    echo Please try running manually:
+    echo   cd backend
+    echo   set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+    echo   npx prisma generate
+    echo.
     cd ..
-    goto :migrations
+    pause
+    exit /b 1
 )
-echo ✓ Prisma Client generated
+echo ✓ Prisma Client generated successfully
 cd ..
 echo.
 
-:migrations
 REM Run database migrations
 echo [6/6] Running database migrations...
+echo (Creating database schema from prisma/schema.prisma)
 cd backend
 call npm run prisma:migrate
 if %errorlevel% neq 0 (
-    echo WARNING: Migrations failed
-    echo You may need to run this manually when database is available:
-    echo   cd backend ^&^& npm run prisma:migrate
+    echo.
+    echo ERROR: Database migrations failed!
+    echo.
+    echo Possible causes:
+    echo   1. Database not ready yet (try again in 10 seconds)
+    echo   2. Database connection issue (check docker compose logs postgres)
+    echo   3. Schema errors (check backend/prisma/schema.prisma)
+    echo.
+    echo To retry manually:
+    echo   cd backend
+    echo   npm run prisma:migrate
+    echo.
+    echo You can still use the app, but database tables won't exist.
+    echo.
     cd ..
+    pause
     goto :complete
 )
-echo ✓ Migrations completed
+echo ✓ Database migrations completed successfully
 cd ..
 echo.
 

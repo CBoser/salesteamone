@@ -26,15 +26,38 @@ if %errorlevel% neq 0 (
     echo PostgreSQL container not running. Starting...
     docker compose up -d
     echo Waiting for database to be ready...
-    timeout /t 5 /nobreak >nul
+    timeout /t 10 /nobreak >nul
     echo ✓ PostgreSQL started
 ) else (
     echo ✓ PostgreSQL is already running
 )
 echo.
 
+REM Check if Prisma Client is generated
+echo [3/4] Checking Prisma Client...
+if not exist "backend\node_modules\.prisma\client\index.js" (
+    echo.
+    echo ERROR: Prisma Client not found!
+    echo.
+    echo You need to run 'setup.bat' first to initialize the project.
+    echo.
+    echo Quick fix:
+    echo   cd backend
+    echo   set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+    echo   npx prisma generate
+    echo   npm run prisma:migrate
+    echo   cd ..
+    echo.
+    echo Or just run: setup.bat
+    echo.
+    pause
+    exit /b 1
+)
+echo ✓ Prisma Client found
+echo.
+
 REM Start development servers
-echo [3/3] Starting development servers...
+echo [4/4] Starting development servers...
 echo.
 echo ========================================
 echo  Frontend: http://localhost:5173
