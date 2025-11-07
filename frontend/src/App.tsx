@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, ProtectedRoute } from './contexts/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
 import MainLayout from './components/layout/MainLayout';
 
@@ -55,13 +55,15 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Main app routes - with layout */}
+            {/* Main app routes - with layout and authentication */}
             <Route
               path="/"
               element={
-                <MainLayout>
-                  <Dashboard />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Dashboard />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
 
@@ -69,33 +71,41 @@ function App() {
             <Route
               path="/foundation/customers"
               element={
-                <MainLayout>
-                  <Customers />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Customers />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/foundation/customers/:id"
               element={
-                <MainLayout>
-                  <CustomerDetail />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <CustomerDetail />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/foundation/plans"
               element={
-                <MainLayout>
-                  <Plans />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Plans />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/foundation/materials"
               element={
-                <MainLayout>
-                  <Materials />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Materials />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
 
@@ -103,17 +113,21 @@ function App() {
             <Route
               path="/operations/jobs"
               element={
-                <MainLayout>
-                  <Jobs />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Jobs />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/operations/takeoffs"
               element={
-                <MainLayout>
-                  <Takeoffs />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Takeoffs />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
 
@@ -121,17 +135,21 @@ function App() {
             <Route
               path="/transactions/purchase-orders"
               element={
-                <MainLayout>
-                  <PurchaseOrders />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <PurchaseOrders />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/transactions/schedule"
               element={
-                <MainLayout>
-                  <Schedule />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Schedule />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
 
@@ -139,25 +157,31 @@ function App() {
             <Route
               path="/reports"
               element={
-                <MainLayout>
-                  <Reports />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Reports />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/settings"
               element={
-                <MainLayout>
-                  <Settings />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/settings/profile"
               element={
-                <MainLayout>
-                  <Settings />
-                </MainLayout>
+                <ProtectedRoute>
+                  <MainLayout>
+                    <Settings />
+                  </MainLayout>
+                </ProtectedRoute>
               }
             />
 

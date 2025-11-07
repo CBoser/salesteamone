@@ -1,4 +1,5 @@
-import { PrismaClient, CustomerType } from '@prisma/client';
+import { PrismaClient, CustomerType, UserRole } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -6,11 +7,79 @@ async function main() {
   console.log('🌱 Starting seed...');
 
   // Clean existing data (optional - comment out if you want to keep existing data)
-  console.log('🗑️  Cleaning existing customer data...');
+  console.log('🗑️  Cleaning existing data...');
   await prisma.customerExternalId.deleteMany({});
   await prisma.customerPricingTier.deleteMany({});
   await prisma.customerContact.deleteMany({});
   await prisma.customer.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  // ============================================================================
+  // Test Users - Create users with different roles for testing
+  // ============================================================================
+  console.log('👤 Creating test users...');
+
+  const adminUser = await prisma.user.create({
+    data: {
+      email: 'admin@mindflow.com',
+      passwordHash: await bcrypt.hash('Admin123!', 10),
+      firstName: 'Admin',
+      lastName: 'User',
+      role: UserRole.ADMIN,
+      isActive: true,
+    },
+  });
+  console.log(`✅ Created user: ${adminUser.email} (${adminUser.role})`);
+
+  const estimatorUser = await prisma.user.create({
+    data: {
+      email: 'estimator@mindflow.com',
+      passwordHash: await bcrypt.hash('Estimator123!', 10),
+      firstName: 'John',
+      lastName: 'Estimator',
+      role: UserRole.ESTIMATOR,
+      isActive: true,
+    },
+  });
+  console.log(`✅ Created user: ${estimatorUser.email} (${estimatorUser.role})`);
+
+  const pmUser = await prisma.user.create({
+    data: {
+      email: 'pm@mindflow.com',
+      passwordHash: await bcrypt.hash('ProjectManager123!', 10),
+      firstName: 'Sarah',
+      lastName: 'ProjectManager',
+      role: UserRole.PROJECT_MANAGER,
+      isActive: true,
+    },
+  });
+  console.log(`✅ Created user: ${pmUser.email} (${pmUser.role})`);
+
+  const fieldUser = await prisma.user.create({
+    data: {
+      email: 'field@mindflow.com',
+      passwordHash: await bcrypt.hash('FieldUser123!', 10),
+      firstName: 'Mike',
+      lastName: 'FieldUser',
+      role: UserRole.FIELD_USER,
+      isActive: true,
+    },
+  });
+  console.log(`✅ Created user: ${fieldUser.email} (${fieldUser.role})`);
+
+  const viewerUser = await prisma.user.create({
+    data: {
+      email: 'viewer@mindflow.com',
+      passwordHash: await bcrypt.hash('Viewer123!', 10),
+      firstName: 'Jane',
+      lastName: 'Viewer',
+      role: UserRole.VIEWER,
+      isActive: true,
+    },
+  });
+  console.log(`✅ Created user: ${viewerUser.email} (${viewerUser.role})`);
+
+  console.log('');
 
   // ============================================================================
   // Customer 1: RICHMOND (Production Builder)
@@ -201,11 +270,13 @@ async function main() {
   // Summary
   // ============================================================================
   console.log('\n📊 Seed Summary:');
+  const totalUsers = await prisma.user.count();
   const totalCustomers = await prisma.customer.count();
   const totalContacts = await prisma.customerContact.count();
   const totalPricingTiers = await prisma.customerPricingTier.count();
   const totalExternalIds = await prisma.customerExternalId.count();
 
+  console.log(`   Users: ${totalUsers}`);
   console.log(`   Customers: ${totalCustomers}`);
   console.log(`   Contacts: ${totalContacts}`);
   console.log(`   Pricing Tiers: ${totalPricingTiers}`);
