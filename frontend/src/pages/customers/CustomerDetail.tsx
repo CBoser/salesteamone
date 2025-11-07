@@ -8,6 +8,7 @@ import Table from '../../components/ui/Table';
 import { useToast } from '../../components/ui/Toast';
 import CustomerFormModal from '../../components/customers/CustomerFormModal';
 import ContactFormModal from '../../components/customers/ContactFormModal';
+import ExternalIdManager from '../../components/customers/ExternalIdManager';
 import {
   useCustomer,
   useDeleteContact,
@@ -19,7 +20,7 @@ import type {
   CustomerType,
 } from '../../../../shared/types/customer';
 
-type TabType = 'overview' | 'contacts' | 'pricing';
+type TabType = 'overview' | 'contacts' | 'pricing' | 'external';
 
 const CustomerDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -266,6 +267,12 @@ const CustomerDetail: React.FC = () => {
           >
             Pricing History ({pricingTiers?.length || 0})
           </button>
+          <button
+            className={`tab ${activeTab === 'external' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('external')}
+          >
+            External Systems ({customer.externalIds?.length || 0})
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -393,6 +400,11 @@ const CustomerDetail: React.FC = () => {
                 </div>
               )}
             </Card>
+          )}
+
+          {/* External Systems Tab */}
+          {activeTab === 'external' && (
+            <ExternalIdManager customerId={id!} onRefresh={() => refetch()} />
           )}
         </div>
       </div>
