@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import StatCard from '../components/StatCard';
 import Alert from '../components/Alert';
 import ActivityItem from '../components/ActivityItem';
@@ -7,48 +6,8 @@ import ScheduleItem from '../components/ScheduleItem';
 import QuickAction from '../components/QuickAction';
 
 const Dashboard: React.FC = () => {
-  const { user, logout } = useAuth();
-
-  // Get current time for greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
-  };
-
-  // Get current time display
-  const getCurrentTime = () => {
-    return new Date().toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
   return (
     <div>
-      {/* Header */}
-      <header className="header">
-        <div className="header-content">
-          <div>
-            <h1>MindFlow Construction Platform</h1>
-            <p>Real-time project management & variance tracking</p>
-          </div>
-          <div className="greeting">
-            <div>{getGreeting()}, {user?.firstName || 'Guest'}</div>
-            <div className="time">{getCurrentTime()}</div>
-            {user && (
-              <button onClick={logout} className="btn btn-secondary btn-sm" style={{ marginTop: '8px' }}>
-                Logout
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <div className="container">
         {/* Stats Grid */}
         <div className="stats-grid">
           <StatCard
@@ -199,7 +158,6 @@ const Dashboard: React.FC = () => {
             Chart visualization coming soon - Variance tracking & cost analysis
           </div>
         </section>
-      </div>
     </div>
   );
 };
