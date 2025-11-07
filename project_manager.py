@@ -114,6 +114,16 @@ class ProjectManager:
         """Run comprehensive diagnostics and identify issues"""
         self.print_header("System Diagnostics")
 
+        print(f"{Colors.OKBLUE}Running comprehensive health check...{Colors.ENDC}")
+        print(f"{Colors.OKBLUE}This will check:{Colors.ENDC}")
+        print(f"  • Node.js and npm installation")
+        print(f"  • Docker installation and status")
+        print(f"  • Environment files (.env)")
+        print(f"  • Database configuration")
+        print(f"  • Installed dependencies")
+        print(f"  • Port availability")
+        print()
+
         issues = []
         warnings = []
         info = []
@@ -330,7 +340,7 @@ class ProjectManager:
 
         # Summarize results
         print(f"\n{Colors.BOLD}{'=' * 60}{Colors.ENDC}")
-        print(f"{Colors.BOLD}Diagnostic Summary{Colors.ENDC}")
+        print(f"{Colors.BOLD}📊 Diagnostic Summary{Colors.ENDC}")
         print(f"{Colors.BOLD}{'=' * 60}{Colors.ENDC}\n")
 
         critical_issues = [i for i in issues if i['type'] == 'critical']
@@ -363,12 +373,31 @@ class ProjectManager:
             print()
 
         if not critical_issues and not errors and not warning_issues:
-            print(f"{Colors.OKGREEN}✓ No issues found! System is ready.{Colors.ENDC}\n")
+            print(f"{Colors.OKGREEN}{'=' * 60}{Colors.ENDC}")
+            print(f"{Colors.OKGREEN}✓ No issues found! System is ready.{Colors.ENDC}")
+            print(f"{Colors.OKGREEN}{'=' * 60}{Colors.ENDC}\n")
+            print(f"{Colors.BOLD}Next steps:{Colors.ENDC}")
+            print(f"  • Run: {Colors.OKCYAN}python project_manager.py --install{Colors.ENDC} (if dependencies needed)")
+            print(f"  • Run: {Colors.OKCYAN}python project_manager.py --reset-db{Colors.ENDC} (to setup database)")
+            print(f"  • Run: {Colors.OKCYAN}launch.bat{Colors.ENDC} or {Colors.OKCYAN}npm run dev{Colors.ENDC} (to start servers)")
+            print()
 
         if warnings:
             print(f"{Colors.WARNING}Additional Warnings:{Colors.ENDC}")
             for warning in warnings:
                 print(f"  ⚠ {warning}")
+            print()
+
+        # Show recommended next steps if issues found
+        if critical_issues or errors or warning_issues:
+            print(f"{Colors.BOLD}Recommended Actions:{Colors.ENDC}")
+            if critical_issues:
+                print(f"  {Colors.FAIL}1. Fix critical issues above (install Node.js/Docker){Colors.ENDC}")
+            if fixable_issues := [i for i in issues if i.get('fix') == 'auto']:
+                print(f"  {Colors.OKGREEN}2. Run: python project_manager.py --fix{Colors.ENDC}")
+                print(f"     This will automatically fix {len(fixable_issues)} issue(s)")
+            if errors and not critical_issues:
+                print(f"  {Colors.WARNING}3. Review errors above and follow suggested fixes{Colors.ENDC}")
             print()
 
         return {
@@ -1012,9 +1041,43 @@ Common Workflows:
         if args.studio:
             manager.open_db_studio()
 
-        # If no arguments, show help
+        # If no arguments, show help with diagnostic emphasis
         if not any(vars(args).values()):
-            parser.print_help()
+            print(f"\n{Colors.HEADER}{'=' * 60}{Colors.ENDC}")
+            print(f"{Colors.HEADER}MindFlow Platform - Project Management Tool{Colors.ENDC}")
+            print(f"{Colors.HEADER}{'=' * 60}{Colors.ENDC}\n")
+
+            print(f"{Colors.BOLD}🔍 Quick Start - Diagnostic & Setup:{Colors.ENDC}")
+            print(f"  {Colors.OKCYAN}python project_manager.py --diagnose{Colors.ENDC}")
+            print(f"     └─ Run comprehensive system diagnostics")
+            print(f"  {Colors.OKCYAN}python project_manager.py --fix{Colors.ENDC}")
+            print(f"     └─ Auto-fix detected issues")
+            print(f"  {Colors.OKCYAN}python project_manager.py --install{Colors.ENDC}")
+            print(f"     └─ Install all dependencies")
+            print(f"  {Colors.OKCYAN}python project_manager.py --reset-db{Colors.ENDC}")
+            print(f"     └─ Setup database (drop, migrate, seed)")
+            print()
+
+            print(f"{Colors.BOLD}📦 Maintenance Commands:{Colors.ENDC}")
+            print(f"  {Colors.OKBLUE}--clean{Colors.ENDC}          Clean node_modules")
+            print(f"  {Colors.OKBLUE}--analyze{Colors.ENDC}        Analyze project structure")
+            print(f"  {Colors.OKBLUE}--studio{Colors.ENDC}         Open Prisma Studio")
+            print(f"  {Colors.OKBLUE}--all{Colors.ENDC}            Full reset (clean + install + reset-db)")
+            print()
+
+            print(f"{Colors.BOLD}💡 Common Workflows:{Colors.ENDC}")
+            print(f"  {Colors.WARNING}First time setup or troubleshooting:{Colors.ENDC}")
+            print(f"    1. python project_manager.py --diagnose")
+            print(f"    2. python project_manager.py --fix")
+            print(f"    3. python project_manager.py --install")
+            print(f"    4. python project_manager.py --reset-db")
+            print()
+            print(f"  {Colors.WARNING}Clean slate reset:{Colors.ENDC}")
+            print(f"    python project_manager.py --all")
+            print()
+
+            print(f"{Colors.OKGREEN}For detailed help:{Colors.ENDC} python project_manager.py --help")
+            print()
 
     except KeyboardInterrupt:
         print(f"\n{Colors.WARNING}Operation cancelled by user{Colors.ENDC}")
