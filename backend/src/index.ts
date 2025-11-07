@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { dbService } from './services/database';
+import authRoutes from './routes/auth';
 
 dotenv.config();
 
@@ -33,10 +34,14 @@ app.get('/', (req: Request, res: Response) => {
     description: 'Construction Management Platform - Foundation Layer',
     endpoints: {
       health: '/health',
+      auth: '/api/auth',
       docs: '/api-docs (coming soon)'
     }
   });
 });
+
+// API Routes
+app.use('/api/auth', authRoutes);
 
 // Initialize database and start server
 async function startServer() {
