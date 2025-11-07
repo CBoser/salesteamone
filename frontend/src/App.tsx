@@ -1,7 +1,19 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
 import MainLayout from './components/layout/MainLayout';
+
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Auth pages
 import Login from './pages/Login';
@@ -13,6 +25,7 @@ import NotFound from './pages/NotFound';
 
 // Foundation pages
 import Customers from './pages/foundation/Customers';
+import CustomerDetail from './pages/customers/CustomerDetail';
 import Plans from './pages/foundation/Plans';
 import Materials from './pages/foundation/Materials';
 
@@ -33,10 +46,11 @@ import './design-system.css';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <ToastProvider>
-          <Routes>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <ToastProvider>
+            <Routes>
             {/* Auth routes - public, no layout */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -57,6 +71,14 @@ function App() {
               element={
                 <MainLayout>
                   <Customers />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="/foundation/customers/:id"
+              element={
+                <MainLayout>
+                  <CustomerDetail />
                 </MainLayout>
               }
             />
@@ -145,6 +167,7 @@ function App() {
         </ToastProvider>
       </AuthProvider>
     </Router>
+    </QueryClientProvider>
   );
 }
 
