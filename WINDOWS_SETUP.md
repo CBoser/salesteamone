@@ -71,6 +71,23 @@ This stops:
 
 ## Useful Scripts
 
+### Prisma Setup (Database Client & Migrations)
+
+```bash
+prisma-setup.bat
+```
+
+Generates Prisma Client and runs database migrations. Use this when:
+- You skipped setup.bat but need database access
+- Prisma generation failed during setup
+- Backend fails to start with "Prisma Client not initialized" error
+- You've updated the database schema (backend/prisma/schema.prisma)
+
+This script:
+- ✓ Starts PostgreSQL if needed
+- ✓ Generates Prisma Client
+- ✓ Runs database migrations
+
 ### Check System Status
 
 ```bash
@@ -194,16 +211,52 @@ taskkill /PID <PID> /F
 2. Make sure to check "Add to PATH" during installation
 3. Restart Command Prompt
 
+### "Prisma Client did not initialize yet" or "Backend crashes on startup"
+
+**Issue:** Backend fails to start with error:
+```
+Error: @prisma/client did not initialize yet. Please run "prisma generate"
+```
+
+**Root Cause:** You ran `launch.bat` without running `setup.bat` first, or Prisma Client generation failed during setup.
+
+**Solution - Quick Fix:**
+```bash
+prisma-setup.bat
+```
+
+**Solution - Manual:**
+```bash
+cd backend
+set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+npx prisma generate
+npm run prisma:migrate
+cd ..
+launch.bat
+```
+
+**Prevention:** Always run `setup.bat` first before running `launch.bat` for the first time. The `launch.bat` script now checks for this and will warn you.
+
+---
+
 ### "Prisma Client generation failed"
 
-**Solution:** Run manually:
+**Issue:** During setup, Prisma Client generation fails with timeout or network errors.
 
+**Solution:**
 ```bash
 cd backend
 set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 npx prisma generate
 cd ..
 ```
+
+If this fails repeatedly:
+1. Check internet connection (Prisma downloads binaries)
+2. Try running setup.bat again
+3. Check firewall/antivirus isn't blocking downloads
+
+---
 
 ### "Cannot connect to database"
 
