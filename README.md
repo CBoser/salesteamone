@@ -553,6 +553,53 @@ npm install
 npm run dev
 ```
 
+### Windows-Specific: npm install Failures
+
+**Problem:** npm install fails with `EBUSY: resource busy or locked` or `EPERM: operation not permitted` errors on Windows.
+
+**Common Causes:**
+- Files locked by IDEs (VS Code, WebStorm, etc.)
+- Development servers still running
+- Windows Defender or antivirus scanning
+- Insufficient permissions
+
+**Solutions:**
+
+1. **Close all development processes:**
+   ```powershell
+   # Stop any running dev servers (Ctrl+C in terminals)
+   # Close your IDE/editor
+   # Wait 10 seconds for file handles to release
+   ```
+
+2. **Delete node_modules and try again:**
+   ```powershell
+   # In PowerShell, navigate to frontend directory
+   cd frontend
+   Remove-Item -Recurse -Force node_modules
+   npm install
+   ```
+
+3. **Run as Administrator (if permission errors persist):**
+   - Right-click on PowerShell/Command Prompt
+   - Select "Run as Administrator"
+   - Navigate to project and retry `npm install`
+
+4. **Temporarily disable Windows Defender real-time scanning:**
+   - Open Windows Security
+   - Virus & threat protection → Manage settings
+   - Turn off Real-time protection temporarily
+   - Run `npm install`
+   - Re-enable protection after installation
+
+5. **Clear npm cache:**
+   ```powershell
+   npm cache clean --force
+   npm install
+   ```
+
+**Note:** The project now includes patch-package as a dependency and an .npmrc file with Windows-optimized settings to minimize these issues.
+
 ### API Errors
 ```bash
 # Check backend logs
