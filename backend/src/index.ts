@@ -3,6 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { dbService } from './services/database';
 import authRoutes from './routes/auth';
+import customerRoutes from './routes/customer';
+import planRoutes from './routes/plan';
+import materialRoutes from './routes/material';
 
 dotenv.config();
 
@@ -35,6 +38,9 @@ app.get('/', (req: Request, res: Response) => {
     endpoints: {
       health: '/health',
       auth: '/api/auth',
+      customers: '/api/customers',
+      plans: '/api/plans',
+      materials: '/api/materials',
       docs: '/api-docs (coming soon)'
     }
   });
@@ -42,6 +48,11 @@ app.get('/', (req: Request, res: Response) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+
+// Foundation Layer Routes
+app.use('/api/customers', customerRoutes);
+app.use('/api/plans', planRoutes);
+app.use('/api/materials', materialRoutes);
 
 // Initialize database and start server
 async function startServer() {
