@@ -52,11 +52,11 @@ class AuthService {
    */
   generateTokens(payload: JWTPayload): AuthTokens {
     const accessToken = jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
+      expiresIn: JWT_EXPIRES_IN as string,
     });
 
     const refreshToken = jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_REFRESH_EXPIRES_IN,
+      expiresIn: JWT_REFRESH_EXPIRES_IN as string,
     });
 
     return { accessToken, refreshToken };
