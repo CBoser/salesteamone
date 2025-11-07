@@ -131,8 +131,10 @@ class ProjectManager:
         # Check Node.js and npm
         self.print_info("Checking Node.js installation...")
         try:
-            node_result = self.run_command(['node', '--version'], check=False)
-            npm_result = self.run_command(['npm', '--version'], check=False)
+            # Use shell=True on Windows to find executables in PATH
+            use_shell = sys.platform == 'win32'
+            node_result = self.run_command(['node', '--version'], check=False, shell=use_shell)
+            npm_result = self.run_command(['npm', '--version'], check=False, shell=use_shell)
 
             if node_result.returncode == 0:
                 node_version = node_result.stdout.strip()
@@ -170,13 +172,14 @@ class ProjectManager:
         # Check Docker
         self.print_info("\nChecking Docker installation...")
         try:
-            docker_result = self.run_command(['docker', '--version'], check=False)
+            use_shell = sys.platform == 'win32'
+            docker_result = self.run_command(['docker', '--version'], check=False, shell=use_shell)
             if docker_result.returncode == 0:
                 docker_version = docker_result.stdout.strip()
                 self.print_success(f"Docker: {docker_version}")
 
                 # Check if Docker is running
-                ps_result = self.run_command(['docker', 'ps'], check=False)
+                ps_result = self.run_command(['docker', 'ps'], check=False, shell=use_shell)
                 if ps_result.returncode == 0:
                     self.print_success("Docker is running")
                 else:
@@ -289,13 +292,14 @@ class ProjectManager:
         # Check for database volume conflicts
         self.print_info("\nChecking database status...")
         try:
-            volume_result = self.run_command(['docker', 'volume', 'ls'], check=False)
+            use_shell = sys.platform == 'win32'
+            volume_result = self.run_command(['docker', 'volume', 'ls'], check=False, shell=use_shell)
             if volume_result.returncode == 0:
                 if 'constructionplatform_postgres_data' in volume_result.stdout:
                     self.print_info("Database volume exists")
 
                     # Check if containers are running
-                    ps_result = self.run_command(['docker', 'ps', '-a'], check=False)
+                    ps_result = self.run_command(['docker', 'ps', '-a'], check=False, shell=use_shell)
                     if 'mindflow-postgres' in ps_result.stdout:
                         if 'Up' in ps_result.stdout:
                             self.print_success("PostgreSQL container is running")
