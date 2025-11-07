@@ -31,8 +31,33 @@ if %errorlevel% neq 0 (
 echo ✓ Docker found
 echo.
 
+REM Setup environment files
+echo [3/7] Setting up environment files...
+if not exist "backend\.env" (
+    if exist "backend\.env.example" (
+        copy "backend\.env.example" "backend\.env" >nul
+        echo ✓ Created backend\.env from .env.example
+    ) else (
+        echo WARNING: backend\.env.example not found
+    )
+) else (
+    echo ✓ backend\.env already exists
+)
+
+if not exist "frontend\.env" (
+    if exist "frontend\.env.example" (
+        copy "frontend\.env.example" "frontend\.env" >nul
+        echo ✓ Created frontend\.env from .env.example
+    ) else (
+        echo ✓ frontend\.env.example not found (optional)
+    )
+) else (
+    echo ✓ frontend\.env already exists
+)
+echo.
+
 REM Install dependencies
-echo [3/6] Installing dependencies...
+echo [4/7] Installing dependencies...
 echo This may take a few minutes...
 echo.
 
@@ -87,7 +112,7 @@ echo ✓ Backend dependencies installed
 echo.
 
 REM Start PostgreSQL
-echo [4/6] Starting PostgreSQL database...
+echo [5/7] Starting PostgreSQL database...
 docker compose up -d
 if %errorlevel% neq 0 (
     echo ERROR: Failed to start PostgreSQL
@@ -105,7 +130,7 @@ timeout /t 10 /nobreak >nul
 echo.
 
 REM Generate Prisma Client
-echo [5/6] Generating Prisma Client...
+echo [6/7] Generating Prisma Client...
 cd backend
 set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 call npx prisma generate
@@ -128,7 +153,7 @@ cd ..
 echo.
 
 REM Run database migrations
-echo [6/6] Running database migrations...
+echo [7/7] Running database migrations...
 echo (Creating database schema from prisma/schema.prisma)
 cd backend
 call npm run prisma:migrate
