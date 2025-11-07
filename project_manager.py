@@ -321,7 +321,7 @@ class ProjectManager:
         ports_to_check = [
             (3001, 'Backend API'),
             (5173, 'Frontend Dev Server'),
-            (5432, 'PostgreSQL'),
+            (5433, 'PostgreSQL (Docker)'),
         ]
 
         for port, service in ports_to_check:
