@@ -1,0 +1,24 @@
+import React from 'react';
+
+interface AlertProps {
+  type: 'critical' | 'warning' | 'info';
+  icon: string;
+  title: string;
+  message: string;
+  time: string;
+}
+
+const Alert: React.FC<AlertProps> = ({ type, icon, title, message, time }) => {
+  return (
+    <div className={`alert alert-${type}`}>
+      <div className="alert-icon">{icon}</div>
+      <div className="alert-content">
+        <div className="alert-title">{title}</div>
+        <div>{message}</div>
+        <div className="alert-time">{time}</div>
+      </div>
+    </div>
+  );
+};
+
+export default Alert;
