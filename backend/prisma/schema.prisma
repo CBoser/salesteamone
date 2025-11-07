@@ -78,6 +78,7 @@ model Customer {
   jobs              Job[]
   communities       Community[]
   customerPricing   CustomerPricing[]
+  variancePatterns  VariancePattern[]
 
   @@index([code])
   @@index([pricingTier])
@@ -344,7 +345,8 @@ model Vendor {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  materials   Material[]
+  materials      Material[]
+  purchaseOrders PurchaseOrder[]
 
   @@index([code])
 }
@@ -429,9 +431,10 @@ model Community {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  lots     Lot[]
-  jobs     Job[]
+  customer         Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  lots             Lot[]
+  jobs             Job[]
+  variancePatterns VariancePattern[]
 
   @@index([customerId])
   @@index([isActive])
