@@ -1821,3 +1821,131 @@ h4 { font-size: 1.3em; font-weight: 600; color: var(--dark); }
 .mt-2 { margin-top: 8px; }
 .mt-4 { margin-top: 16px; }
 .ml-2 { margin-left: 8px; }
+
+/* ============================================================================
+   EXTERNAL ID MAPPING STYLES
+   ============================================================================ */
+
+/* External ID Info Box */
+.external-id-info {
+  background-color: var(--background-dark);
+  border-left: 3px solid var(--info);
+  padding: var(--space-md);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-lg);
+}
+
+.external-id-info p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Warning Box */
+.warning-box {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  margin-top: var(--space-sm);
+  font-size: 14px;
+  color: #856404;
+}
+
+.warning-box strong {
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+/* External System Cell */
+.external-system-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Monospace Text */
+.monospace {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: var(--background-dark);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+/* Card Description */
+.card-description {
+  font-size: 14px;
+  color: var(--gray);
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* External ID Help Section */
+.external-id-help {
+  margin-top: var(--space-2xl);
+  padding: var(--space-lg);
+  background-color: var(--background-dark);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--primary);
+}
+
+.external-id-help h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: var(--space-md);
+}
+
+.external-id-help ul {
+  margin: 0;
+  padding-left: var(--space-lg);
+  list-style: none;
+}
+
+.external-id-help li {
+  margin-bottom: var(--space-sm);
+  font-size: 14px;
+  line-height: 1.6;
+  position: relative;
+}
+
+.external-id-help li::before {
+  content: '✓';
+  position: absolute;
+  left: -20px;
+  color: var(--success);
+  font-weight: bold;
+}
+
+.external-id-help li strong {
+  color: var(--primary);
+}
+
+.external-id-help p {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Empty State Icon */
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-md);
+}
+
+/* Spinner for loading */
+.spinner {
+  border: 3px solid var(--gray-lighter);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
