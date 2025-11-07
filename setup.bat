@@ -34,13 +34,56 @@ echo.
 REM Install dependencies
 echo [3/6] Installing dependencies...
 echo This may take a few minutes...
+echo.
+
+echo Installing root dependencies (concurrently)...
+call npm install --no-save concurrently
+if %errorlevel% neq 0 (
+    echo WARNING: Failed to install root dependencies
+    echo You may need to close IDEs/terminals and try again
+)
+echo.
+
+echo Installing frontend dependencies...
+cd frontend
 call npm install
 if %errorlevel% neq 0 (
-    echo ERROR: Failed to install dependencies
+    echo.
+    echo ERROR: Failed to install frontend dependencies
+    echo.
+    echo Common Windows fixes:
+    echo   1. Close all IDEs and terminals
+    echo   2. Delete frontend\node_modules folder manually
+    echo   3. Run: rmdir /s /q frontend\node_modules
+    echo   4. Try setup again
+    echo.
+    cd ..
     pause
     exit /b 1
 )
-echo ✓ Dependencies installed
+cd ..
+echo ✓ Frontend dependencies installed
+echo.
+
+echo Installing backend dependencies...
+cd backend
+call npm install
+if %errorlevel% neq 0 (
+    echo.
+    echo ERROR: Failed to install backend dependencies
+    echo.
+    echo Common Windows fixes:
+    echo   1. Close all IDEs and terminals
+    echo   2. Delete backend\node_modules folder manually
+    echo   3. Run: rmdir /s /q backend\node_modules
+    echo   4. Try setup again
+    echo.
+    cd ..
+    pause
+    exit /b 1
+)
+cd ..
+echo ✓ Backend dependencies installed
 echo.
 
 REM Start PostgreSQL

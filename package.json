@@ -4,7 +4,7 @@
   "description": "A comprehensive web-based pricing and bidding management system designed for construction companies managing multiple builders and housing projects.",
   "main": "index.js",
   "scripts": {
-    "install": "npm install --prefix frontend && npm install --prefix backend",
+    "setup-deps": "npm install --prefix frontend && npm install --prefix backend",
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
