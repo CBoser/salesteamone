@@ -6,6 +6,7 @@ import authRoutes from './routes/auth';
 import customerRoutes from './routes/customer';
 import planRoutes from './routes/plan';
 import materialRoutes from './routes/material';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 dotenv.config();
 
@@ -53,6 +54,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/plans', planRoutes);
 app.use('/api/materials', materialRoutes);
+
+// Error handling middleware (must be AFTER all routes)
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 // Initialize database and start server
 async function startServer() {

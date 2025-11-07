@@ -1,283 +1,248 @@
-import { Router, Request, Response } from 'express';
-import { customerService } from '../services/customer';
+import { Router } from 'express';
+import { PrismaClient, UserRole } from '@prisma/client';
+import { CustomerController } from '../controllers/CustomerController';
 import { authenticateToken, requireRole } from '../middleware/auth';
-import { UserRole } from '@prisma/client';
 
 const router = Router();
+const prisma = new PrismaClient();
+const customerController = new CustomerController(prisma);
+
+/**
+ * Customer API Routes
+ * Base path: /api/customers
+ *
+ * Authentication: All routes require authentication
+ * Authorization:
+ *   - Read operations: All authenticated users
+ *   - Write operations (POST, PUT, DELETE): ADMIN and ESTIMATOR only
+ */
+
+// ============================================================================
+// Customer CRUD Routes
+// ============================================================================
+
+/**
+ * @route   GET /api/customers
+ * @desc    Get all customers with optional filtering and pagination
+ * @access  Private (All authenticated users)
+ * @query   page (number) - Page number (default: 1)
+ * @query   limit (number) - Items per page (default: 50)
+ * @query   search (string) - Search by name or notes
+ * @query   customerType (string) - Filter by type (PRODUCTION, SEMI_CUSTOM, FULL_CUSTOM)
+ * @query   isActive (boolean) - Filter by active status
+ */
+router.get('/', authenticateToken, customerController.getAllCustomers);
+
+/**
+ * @route   GET /api/customers/:id
+ * @desc    Get customer by ID with all relations
+ * @access  Private (All authenticated users)
+ */
+router.get('/:id', authenticateToken, customerController.getCustomer);
 
 /**
  * @route   POST /api/customers
  * @desc    Create a new customer
  * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { customerName, customerType, pricingTier?, notes? }
  */
 router.post(
   '/',
   authenticateToken,
   requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
-  async (req: Request, res: Response) => {
-    try {
-      const { name, contactEmail, contactPhone, address, city, state, zipCode, notes, isActive } =
-        req.body;
-
-      // Validation
-      if (!name || name.trim().length === 0) {
-        return res.status(400).json({
-          success: false,
-          error: 'Customer name is required',
-        });
-      }
-
-      const customer = await customerService.createCustomer({
-        name: name.trim(),
-        contactEmail: contactEmail?.trim(),
-        contactPhone: contactPhone?.trim(),
-        address: address?.trim(),
-        city: city?.trim(),
-        state: state?.trim(),
-        zipCode: zipCode?.trim(),
-        notes: notes?.trim(),
-        isActive,
-      });
-
-      res.status(201).json({
-        success: true,
-        data: customer,
-      });
-    } catch (error) {
-      console.error('Create customer error:', error);
-      res.status(400).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create customer',
-      });
-    }
-  }
+  customerController.createCustomer
 );
 
 /**
- * @route   GET /api/customers
- * @desc    List customers with filtering and pagination
- * @access  Private
- */
-router.get('/', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const {
-      page = '1',
-      limit = '50',
-      search,
-      isActive,
-      sortBy = 'name',
-      sortOrder = 'asc',
-    } = req.query;
-
-    const result = await customerService.listCustomers({
-      page: parseInt(page as string),
-      limit: parseInt(limit as string),
-      search: search as string,
-      isActive: isActive === 'true' ? true : isActive === 'false' ? false : undefined,
-      sortBy: sortBy as 'name' | 'createdAt' | 'updatedAt',
-      sortOrder: sortOrder as 'asc' | 'desc',
-    });
-
-    res.status(200).json({
-      success: true,
-      ...result,
-    });
-  } catch (error) {
-    console.error('List customers error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to list customers',
-    });
-  }
-});
-
-/**
- * @route   GET /api/customers/:id
- * @desc    Get customer by ID
- * @access  Private
- */
-router.get('/:id', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { includeRelations = 'false' } = req.query;
-
-    const customer = await customerService.getCustomerById(
-      id,
-      includeRelations === 'true'
-    );
-
-    if (!customer) {
-      return res.status(404).json({
-        success: false,
-        error: 'Customer not found',
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: customer,
-    });
-  } catch (error) {
-    console.error('Get customer error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get customer',
-    });
-  }
-});
-
-/**
- * @route   GET /api/customers/:id/stats
- * @desc    Get customer statistics
- * @access  Private
- */
-router.get('/:id/stats', authenticateToken, async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const stats = await customerService.getCustomerStats(id);
-
-    res.status(200).json({
-      success: true,
-      data: stats,
-    });
-  } catch (error) {
-    console.error('Get customer stats error:', error);
-    res.status(404).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to get customer statistics',
-    });
-  }
-});
-
-/**
  * @route   PUT /api/customers/:id
- * @desc    Update customer
+ * @desc    Update an existing customer
  * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { customerName?, customerType?, pricingTier?, primaryContactId?, isActive?, notes? }
  */
 router.put(
   '/:id',
   authenticateToken,
   requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { name, contactEmail, contactPhone, address, city, state, zipCode, notes, isActive } =
-        req.body;
-
-      // Build update object (only include provided fields)
-      const updateData: any = {};
-      if (name !== undefined) updateData.name = name.trim();
-      if (contactEmail !== undefined) updateData.contactEmail = contactEmail.trim();
-      if (contactPhone !== undefined) updateData.contactPhone = contactPhone.trim();
-      if (address !== undefined) updateData.address = address.trim();
-      if (city !== undefined) updateData.city = city.trim();
-      if (state !== undefined) updateData.state = state.trim();
-      if (zipCode !== undefined) updateData.zipCode = zipCode.trim();
-      if (notes !== undefined) updateData.notes = notes.trim();
-      if (isActive !== undefined) updateData.isActive = isActive;
-
-      const customer = await customerService.updateCustomer(id, updateData);
-
-      res.status(200).json({
-        success: true,
-        data: customer,
-      });
-    } catch (error) {
-      console.error('Update customer error:', error);
-      res.status(400).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update customer',
-      });
-    }
-  }
-);
-
-/**
- * @route   POST /api/customers/:id/deactivate
- * @desc    Deactivate customer
- * @access  Private (ADMIN)
- */
-router.post(
-  '/:id/deactivate',
-  authenticateToken,
-  requireRole(UserRole.ADMIN),
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-
-      const customer = await customerService.deactivateCustomer(id);
-
-      res.status(200).json({
-        success: true,
-        data: customer,
-      });
-    } catch (error) {
-      console.error('Deactivate customer error:', error);
-      res.status(400).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to deactivate customer',
-      });
-    }
-  }
-);
-
-/**
- * @route   POST /api/customers/:id/activate
- * @desc    Activate customer
- * @access  Private (ADMIN)
- */
-router.post(
-  '/:id/activate',
-  authenticateToken,
-  requireRole(UserRole.ADMIN),
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-
-      const customer = await customerService.activateCustomer(id);
-
-      res.status(200).json({
-        success: true,
-        data: customer,
-      });
-    } catch (error) {
-      console.error('Activate customer error:', error);
-      res.status(400).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to activate customer',
-      });
-    }
-  }
+  customerController.updateCustomer
 );
 
 /**
  * @route   DELETE /api/customers/:id
- * @desc    Delete customer (hard delete - use with caution)
+ * @desc    Delete a customer (soft delete by default)
  * @access  Private (ADMIN only)
+ * @query   hard (boolean) - If true, permanently delete (default: false)
  */
 router.delete(
   '/:id',
   authenticateToken,
   requireRole(UserRole.ADMIN),
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
+  customerController.deleteCustomer
+);
 
-      await customerService.deleteCustomer(id);
+// ============================================================================
+// Customer Contact Routes
+// ============================================================================
 
-      res.status(200).json({
-        success: true,
-        message: 'Customer deleted successfully',
-      });
-    } catch (error) {
-      console.error('Delete customer error:', error);
-      res.status(400).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete customer',
-      });
-    }
-  }
+/**
+ * @route   GET /api/customers/:id/contacts
+ * @desc    Get all contacts for a customer
+ * @access  Private (All authenticated users)
+ */
+router.get('/:id/contacts', authenticateToken, customerController.getCustomerContacts);
+
+/**
+ * @route   POST /api/customers/:id/contacts
+ * @desc    Add a contact to a customer
+ * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { contactName, role?, email?, phone?, receivesNotifications?, isPrimary? }
+ */
+router.post(
+  '/:id/contacts',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.addCustomerContact
+);
+
+/**
+ * @route   PUT /api/customers/:id/contacts/:contactId
+ * @desc    Update a customer contact
+ * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { contactName?, role?, email?, phone?, receivesNotifications?, isPrimary? }
+ */
+router.put(
+  '/:id/contacts/:contactId',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.updateCustomerContact
+);
+
+/**
+ * @route   DELETE /api/customers/:id/contacts/:contactId
+ * @desc    Delete a customer contact
+ * @access  Private (ADMIN, ESTIMATOR)
+ */
+router.delete(
+  '/:id/contacts/:contactId',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.deleteCustomerContact
+);
+
+// ============================================================================
+// Customer Pricing Tier Routes
+// ============================================================================
+
+/**
+ * @route   GET /api/customers/:id/pricing-tiers
+ * @desc    Get all pricing tiers for a customer
+ * @access  Private (All authenticated users)
+ */
+router.get('/:id/pricing-tiers', authenticateToken, customerController.getCustomerPricingTiers);
+
+/**
+ * @route   POST /api/customers/:id/pricing-tiers
+ * @desc    Add a pricing tier to a customer
+ * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { tierName, discountPercentage, effectiveDate, expirationDate? }
+ */
+router.post(
+  '/:id/pricing-tiers',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.addCustomerPricingTier
+);
+
+/**
+ * @route   GET /api/customers/:id/current-pricing
+ * @desc    Get the current active pricing tier for a customer
+ * @access  Private (All authenticated users)
+ */
+router.get('/:id/current-pricing', authenticateToken, customerController.getCurrentPricingTier);
+
+/**
+ * @route   PUT /api/customers/:id/pricing-tiers/:tierId
+ * @desc    Update a pricing tier
+ * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { tierName?, discountPercentage?, effectiveDate?, expirationDate? }
+ */
+router.put(
+  '/:id/pricing-tiers/:tierId',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.updateCustomerPricingTier
+);
+
+/**
+ * @route   DELETE /api/customers/:id/pricing-tiers/:tierId
+ * @desc    Delete a pricing tier
+ * @access  Private (ADMIN, ESTIMATOR)
+ */
+router.delete(
+  '/:id/pricing-tiers/:tierId',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.deleteCustomerPricingTier
+);
+
+// ============================================================================
+// Customer External ID Routes
+// ============================================================================
+
+/**
+ * @route   GET /api/customers/:id/external-ids
+ * @desc    Get all external IDs for a customer
+ * @access  Private (All authenticated users)
+ */
+router.get('/:id/external-ids', authenticateToken, customerController.getCustomerExternalIds);
+
+/**
+ * @route   POST /api/customers/:id/external-ids
+ * @desc    Map a customer to an external system
+ * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { externalSystem, externalCustomerId, externalCustomerName?, isPrimary? }
+ */
+router.post(
+  '/:id/external-ids',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.addCustomerExternalId
+);
+
+/**
+ * @route   PUT /api/customers/:id/external-ids/:externalIdId
+ * @desc    Update an external ID mapping
+ * @access  Private (ADMIN, ESTIMATOR)
+ * @body    { externalCustomerId?, externalCustomerName?, isPrimary? }
+ */
+router.put(
+  '/:id/external-ids/:externalIdId',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.updateCustomerExternalId
+);
+
+/**
+ * @route   DELETE /api/customers/:id/external-ids/:externalIdId
+ * @desc    Delete an external ID mapping
+ * @access  Private (ADMIN, ESTIMATOR)
+ */
+router.delete(
+  '/:id/external-ids/:externalIdId',
+  authenticateToken,
+  requireRole(UserRole.ADMIN, UserRole.ESTIMATOR),
+  customerController.deleteCustomerExternalId
+);
+
+/**
+ * @route   GET /api/customers/external/:system/:externalId
+ * @desc    Find customer by external system ID
+ * @access  Private (All authenticated users)
+ * @note    This route must be defined LAST to avoid conflicts with /:id routes
+ */
+router.get(
+  '/external/:system/:externalId',
+  authenticateToken,
+  customerController.findCustomerByExternalId
 );
 
 export default router;
