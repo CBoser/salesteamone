@@ -50,53 +50,77 @@ enum UserRole {
 // ============================================================================
 
 model Customer {
-  id                String   @id @default(uuid())
-  name              String
-  code              String   @unique // e.g., "RICHMOND", "HOLT"
-  pricingTier       PricingTier @default(TIER_2)
-  isActive          Boolean  @default(true)
-
-  // Contact Information
-  primaryContact    String?
-  email             String?
-  phone             String?
-
-  // External System Mapping
-  sales1440Id       String?  @unique
-  hyphenBuildProId  String?  @unique
-  holtPortalId      String?  @unique
-
-  // Notification Preferences
-  notifyOnJobCreate Boolean  @default(true)
-  notifyOnPOApprove Boolean  @default(true)
-  preferredChannel  NotificationChannel @default(EMAIL)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String       @id @default(uuid())
+  customerName    String       @map("customer_name")
+  customerType    CustomerType @map("customer_type")
+  pricingTier     String?      @map("pricing_tier")
+  primaryContactId String?     @map("primary_contact_id")
+  isActive        Boolean      @default(true) @map("is_active")
+  notes           String?
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
 
   // Relationships
-  jobs              Job[]
-  communities       Community[]
-  customerPricing   CustomerPricing[]
-  variancePatterns  VariancePattern[]
+  contacts        CustomerContact[]
+  pricingTiers    CustomerPricingTier[]
+  externalIds     CustomerExternalId[]
+  jobs            Job[]
+  communities     Community[]
+  customerPricing CustomerPricing[]
+  variancePatterns VariancePattern[]
 
-  @@index([code])
-  @@index([pricingTier])
-  @@index([isActive])
+  @@map("customers")
 }
 
-enum PricingTier {
-  TIER_1          // Premium pricing
-  TIER_2          // Standard pricing
-  VOLUME          // Volume discounts
-  CUSTOM          // Custom negotiated rates
+enum CustomerType {
+  PRODUCTION
+  SEMI_CUSTOM
+  FULL_CUSTOM
 }
 
-enum NotificationChannel {
-  EMAIL
-  SMS
-  IN_APP
-  ALL
+model CustomerContact {
+  id                    String   @id @default(uuid())
+  customerId            String   @map("customer_id")
+  contactName           String   @map("contact_name")
+  role                  String?
+  email                 String?
+  phone                 String?
+  receivesNotifications Boolean  @default(true) @map("receives_notifications")
+  isPrimary             Boolean  @default(false) @map("is_primary")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("customer_contacts")
+}
+
+model CustomerPricingTier {
+  id                  String    @id @default(uuid())
+  customerId          String    @map("customer_id")
+  tierName            String    @map("tier_name")
+  discountPercentage  Decimal   @map("discount_percentage") @db.Decimal(5, 2)
+  effectiveDate       DateTime  @map("effective_date")
+  expirationDate      DateTime? @map("expiration_date")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("customer_pricing_tiers")
+}
+
+model CustomerExternalId {
+  id                   String   @id @default(uuid())
+  customerId           String   @map("customer_id")
+  externalSystem       String   @map("external_system")
+  externalCustomerId   String   @map("external_customer_id")
+  externalCustomerName String?  @map("external_customer_name")
+  isPrimary            Boolean  @default(false) @map("is_primary")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, externalSystem])
+  @@map("customer_external_ids")
 }
 
 // Customer-specific pricing overrides
