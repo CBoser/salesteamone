@@ -116,6 +116,51 @@ Use when you need a fresh database:
 
 ## Troubleshooting
 
+### "EPERM: operation not permitted" or "npm install failed"
+
+**Issue:** Windows file locking prevents npm from removing/updating node_modules files. This is the most common Windows setup issue.
+
+**Solutions:**
+
+**Quick Fix - Use the cleanup script:**
+```bash
+cleanup.bat
+# Then run setup.bat again
+```
+
+**Manual Fix:**
+1. Close ALL IDEs (VS Code, WebStorm, etc.)
+2. Close ALL Command Prompt/PowerShell windows
+3. Wait 10 seconds for file locks to release
+4. Run `cleanup.bat`
+5. Run `setup.bat`
+
+**If still failing:**
+```bash
+# Stop all Node.js processes
+taskkill /F /IM node.exe
+
+# Manually remove node_modules
+rmdir /s /q node_modules
+rmdir /s /q frontend\node_modules
+rmdir /s /q backend\node_modules
+
+# If rmdir fails, restart Windows and try again
+```
+
+**Root Cause:** Windows locks files that are:
+- Open in an IDE (VS Code, WebStorm)
+- Being used by ESLint/TypeScript server
+- In use by a running dev server
+- Scanned by antivirus software
+
+**Prevention:**
+- Always run `stop.bat` before running `setup.bat` again
+- Close IDEs before running setup
+- Exclude `node_modules` from Windows Defender real-time scanning
+
+---
+
 ### "Docker is not running"
 
 **Solution:** Start Docker Desktop from the Windows Start menu and wait for it to fully start (icon turns green in system tray).
