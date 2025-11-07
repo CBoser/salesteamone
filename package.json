@@ -1,0 +1,26 @@
+{
+  "name": "salesteamone",
+  "version": "1.0.0",
+  "description": "A comprehensive web-based pricing and bidding management system designed for construction companies managing multiple builders and housing projects.",
+  "main": "index.js",
+  "scripts": {
+    "install": "npm install --prefix frontend && npm install --prefix backend",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:49697/git/CBoser/salesteamone"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
