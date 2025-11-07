@@ -461,49 +461,43 @@ class ProjectManager:
             # Setup environment files first
             self.setup_env_files()
 
-            # Stop database
-            self.print_info("[1/6] Stopping database containers...")
+            # Stop database and remove volumes atomically
+            self.print_info("[1/5] Stopping database and removing volumes...")
             use_shell = sys.platform == 'win32'
-            self.run_command(['docker', 'compose', 'down'], shell=use_shell)
-            self.print_success("Database stopped")
+            # Use -v flag to remove volumes along with containers
+            self.run_command(['docker', 'compose', 'down', '-v'], shell=use_shell)
+            self.print_success("Database and volumes removed")
 
-            # Give Docker time to fully stop and release the volume
-            self.print_info("Waiting for Docker to release resources...")
+            # Give Docker time to fully clean up
+            self.print_info("Waiting for Docker to fully clean up (5 seconds)...")
             import time
-            time.sleep(3)
+            time.sleep(5)
 
-            # List volumes to see what exists
-            self.print_info("[2/6] Checking for existing database volumes...")
-            volume_list_result = self.run_command(['docker', 'volume', 'ls'], check=False, shell=use_shell)
-            if 'constructionplatform_postgres_data' in volume_list_result.stdout:
-                self.print_warning("Found old database volume with potentially mismatched credentials")
-            else:
-                self.print_info("No existing volume found (clean slate)")
-
-            # Delete volume
-            self.print_info("[3/6] Removing database volume...")
-            remove_result = self.run_command(
-                ['docker', 'volume', 'rm', 'constructionplatform_postgres_data'],
-                check=False,
-                shell=use_shell
-            )
-            if remove_result.returncode == 0:
-                self.print_success("Database volume removed successfully")
-            elif 'no such volume' in remove_result.stderr.lower():
-                self.print_info("Volume doesn't exist (already clean)")
-            else:
-                self.print_warning(f"Could not remove volume: {remove_result.stderr}")
-                self.print_info("Continuing anyway - fresh credentials will be used...")
+            # Verify volume is gone
+            self.print_info("[2/5] Verifying cleanup...")
+            volume_check = self.run_command(['docker', 'volume', 'ls'], check=False, shell=use_shell)
+            if 'constructionplatform_postgres_data' in volume_check.stdout:
+                self.print_warning("Old volume still exists, force removing...")
+                self.run_command(['docker', 'volume', 'rm', 'constructionplatform_postgres_data'],
+                               check=False, shell=use_shell)
+                time.sleep(2)
+            self.print_success("Cleanup verified")
 
             # Start database
-            self.print_info("[4/6] Starting fresh PostgreSQL instance...")
+            self.print_info("[3/5] Starting fresh PostgreSQL instance...")
             self.run_command(['docker', 'compose', 'up', '-d'], shell=use_shell)
-            self.print_info("Waiting for database to initialize (15 seconds)...")
-            time.sleep(15)
+            self.print_info("Waiting for database to initialize (20 seconds)...")
+            time.sleep(20)
+
+            # Verify database is actually ready
+            self.print_info("Checking database health...")
+            health_check = self.run_command(['docker', 'ps'], check=False, shell=use_shell)
+            if 'mindflow-postgres' not in health_check.stdout or 'Up' not in health_check.stdout:
+                raise Exception("Database container failed to start properly")
             self.print_success("Database started with fresh credentials")
 
             # Run migrations
-            self.print_info("[5/6] Running migrations...")
+            self.print_info("[4/5] Running migrations...")
             env = os.environ.copy()
             env['PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING'] = '1'
 
@@ -520,12 +514,12 @@ class ProjectManager:
 
             # Seed database
             if not skip_seed:
-                self.print_info("[6/6] Seeding database...")
+                self.print_info("[5/5] Seeding database...")
                 self.run_command(['npm', 'run', 'prisma:seed'],
                                cwd=self.backend_dir, shell=use_shell)
                 self.print_success("Database seeded")
             else:
-                self.print_info("[6/6] Skipping seed (as requested)")
+                self.print_info("[5/5] Skipping seed (as requested)")
 
             self.print_success("\n✨ Database reset complete!")
 
@@ -533,9 +527,10 @@ class ProjectManager:
             self.print_error(f"Database reset failed: {str(e)}")
             self.print_info("\nTroubleshooting:")
             self.print_info("1. Make sure Docker Desktop is running")
-            self.print_info("2. Check that no other process is using port 5432")
-            self.print_info("3. Try running: docker compose down -v")
-            self.print_info("4. Then run this reset command again")
+            self.print_info("2. Run manually: docker compose down -v")
+            self.print_info("3. Run manually: docker system prune --volumes")
+            self.print_info("4. Then try this reset command again")
+            self.print_info("5. If still failing, check docker-compose.yml credentials match .env")
             raise
 
     def seed_database(self):
