@@ -253,15 +253,65 @@ mindflow/
 
 ### Installation
 
+#### Option 1: Automated Setup (Windows - Recommended)
+
+The easiest way to set up the project on Windows:
+
+```powershell
+# Run the automated setup script
+.\setup.bat
+```
+
+This will:
+- Check prerequisites (Node.js, Docker)
+- Create .env files from templates
+- Install all dependencies
+- Clean old database volumes
+- Start PostgreSQL
+- Run database migrations
+
+#### Option 2: Automated Setup (Python - Cross-Platform)
+
+Use the intelligent project manager script with diagnostics:
+
+```bash
+# First, check for issues
+python project_manager.py --diagnose
+
+# Auto-fix detected issues
+python project_manager.py --fix
+
+# Install dependencies
+python project_manager.py --install
+
+# Setup database
+python project_manager.py --reset-db
+
+# Or do everything at once
+python project_manager.py --all
+```
+
+**Available Commands:**
+- `--diagnose` - Run comprehensive system diagnostics
+- `--fix` - Automatically fix detected issues
+- `--install` - Install all dependencies
+- `--reset-db` - Reset database (drop, migrate, seed)
+- `--clean` - Clean node_modules
+- `--all` - Full reset (clean + install + reset-db)
+
+#### Option 3: Manual Setup
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/yourusername/mindflow.git
    cd mindflow
    ```
 
-2. **Install dependencies:**
+2. **Set up environment variables:**
    ```bash
-   npm install
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   # Edit .env files with your configuration
    ```
 
 3. **Start PostgreSQL:**
@@ -269,14 +319,17 @@ mindflow/
    docker-compose up -d
    ```
 
-4. **Set up environment variables:**
+4. **Install dependencies:**
    ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
+   npm install
+   cd backend && npm install
+   cd ../frontend && npm install
    ```
 
 5. **Run database migrations:**
    ```bash
+   cd backend
+   npm run prisma:generate
    npm run prisma:migrate
    ```
 
@@ -532,6 +585,28 @@ We welcome contributions! Please follow these steps:
 ---
 
 ## Troubleshooting
+
+### Quick Diagnostic Tool
+
+**Before troubleshooting manually, run the diagnostic tool:**
+
+```bash
+# Check what's wrong
+python project_manager.py --diagnose
+
+# Try to auto-fix issues
+python project_manager.py --fix
+```
+
+The diagnostic tool checks for:
+- Node.js and npm installation
+- Docker installation and status
+- Missing .env files
+- DATABASE_URL configuration
+- Missing dependencies (node_modules)
+- Database volume conflicts
+- Port availability (3001, 5173, 5432)
+- Windows-specific issues
 
 ### Database Connection Issues
 ```bash

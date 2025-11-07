@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 """
 MindFlow Platform - Project Manager Script
-Handles database reset, dependency cleanup, and project organization
+Handles diagnostics, auto-fixes, database management, and project organization
 
 This script provides a comprehensive suite of utilities for:
+- System diagnostics and issue detection
+- Automatic fixing of common problems
 - Database management (reset, migrate, seed)
-- Dependency cleanup (node_modules, package-lock files)
+- Dependency cleanup and installation
 - Project file organization and review
-- Environment validation
+- Environment setup and validation
+
+Quick Start:
+  python project_manager.py --diagnose    # Check for issues
+  python project_manager.py --fix         # Auto-fix issues
+  python project_manager.py --install     # Install dependencies
+  python project_manager.py --reset-db    # Setup database
 """
 
 import os
@@ -97,6 +105,312 @@ class ProjectManager:
             if check:
                 raise
             return e
+
+    # =========================================================================
+    # DIAGNOSTICS AND AUTO-FIX
+    # =========================================================================
+
+    def diagnose(self) -> Dict:
+        """Run comprehensive diagnostics and identify issues"""
+        self.print_header("System Diagnostics")
+
+        issues = []
+        warnings = []
+        info = []
+
+        # Check Node.js and npm
+        self.print_info("Checking Node.js installation...")
+        try:
+            node_result = self.run_command(['node', '--version'], check=False)
+            npm_result = self.run_command(['npm', '--version'], check=False)
+
+            if node_result.returncode == 0:
+                node_version = node_result.stdout.strip()
+                self.print_success(f"Node.js: {node_version}")
+                info.append(f"Node.js {node_version} installed")
+            else:
+                self.print_error("Node.js not found")
+                issues.append({
+                    'type': 'critical',
+                    'category': 'prerequisites',
+                    'message': 'Node.js is not installed',
+                    'fix': 'Install Node.js 20+ from https://nodejs.org'
+                })
+
+            if npm_result.returncode == 0:
+                npm_version = npm_result.stdout.strip()
+                self.print_success(f"npm: {npm_version}")
+            else:
+                self.print_error("npm not found")
+                issues.append({
+                    'type': 'critical',
+                    'category': 'prerequisites',
+                    'message': 'npm is not installed',
+                    'fix': 'npm should come with Node.js installation'
+                })
+        except Exception as e:
+            self.print_error(f"Failed to check Node.js: {e}")
+            issues.append({
+                'type': 'critical',
+                'category': 'prerequisites',
+                'message': 'Failed to check Node.js installation',
+                'fix': 'Install Node.js 20+ from https://nodejs.org'
+            })
+
+        # Check Docker
+        self.print_info("\nChecking Docker installation...")
+        try:
+            docker_result = self.run_command(['docker', '--version'], check=False)
+            if docker_result.returncode == 0:
+                docker_version = docker_result.stdout.strip()
+                self.print_success(f"Docker: {docker_version}")
+
+                # Check if Docker is running
+                ps_result = self.run_command(['docker', 'ps'], check=False)
+                if ps_result.returncode == 0:
+                    self.print_success("Docker is running")
+                else:
+                    self.print_warning("Docker is installed but not running")
+                    issues.append({
+                        'type': 'error',
+                        'category': 'docker',
+                        'message': 'Docker is not running',
+                        'fix': 'Start Docker Desktop'
+                    })
+            else:
+                self.print_error("Docker not found")
+                issues.append({
+                    'type': 'critical',
+                    'category': 'prerequisites',
+                    'message': 'Docker is not installed',
+                    'fix': 'Install Docker Desktop from https://www.docker.com/products/docker-desktop'
+                })
+        except Exception as e:
+            self.print_error(f"Docker not found or not running: {e}")
+            issues.append({
+                'type': 'critical',
+                'category': 'docker',
+                'message': 'Docker is not available',
+                'fix': 'Install and start Docker Desktop'
+            })
+
+        # Check .env files
+        self.print_info("\nChecking environment files...")
+        env_files = [
+            (self.backend_dir / '.env', 'backend/.env', 'backend/.env.example'),
+            (self.frontend_dir / '.env', 'frontend/.env', 'frontend/.env.example'),
+        ]
+
+        for env_file, display_name, example_file in env_files:
+            example_path = self.project_root / example_file
+            if env_file.exists():
+                self.print_success(f"{display_name} exists")
+            else:
+                if example_path.exists():
+                    self.print_warning(f"{display_name} missing (but .env.example exists)")
+                    issues.append({
+                        'type': 'warning',
+                        'category': 'environment',
+                        'message': f'{display_name} file is missing',
+                        'fix': 'auto',
+                        'action': lambda: shutil.copy(example_path, env_file)
+                    })
+                else:
+                    self.print_error(f"{display_name} and {example_file} both missing")
+                    issues.append({
+                        'type': 'error',
+                        'category': 'environment',
+                        'message': f'{display_name} and example file both missing',
+                        'fix': 'Create .env.example file first'
+                    })
+
+        # Check DATABASE_URL in backend .env
+        backend_env = self.backend_dir / '.env'
+        if backend_env.exists():
+            with open(backend_env, 'r') as f:
+                env_content = f.read()
+                if 'DATABASE_URL=' in env_content and 'DATABASE_URL=""' not in env_content:
+                    self.print_success("DATABASE_URL is configured")
+                else:
+                    self.print_error("DATABASE_URL is missing or empty")
+                    issues.append({
+                        'type': 'error',
+                        'category': 'environment',
+                        'message': 'DATABASE_URL is not properly configured',
+                        'fix': 'Set DATABASE_URL in backend/.env file'
+                    })
+
+        # Check node_modules
+        self.print_info("\nChecking dependencies...")
+        node_modules_dirs = [
+            (self.project_root / "node_modules", "root node_modules"),
+            (self.frontend_dir / "node_modules", "frontend node_modules"),
+            (self.backend_dir / "node_modules", "backend node_modules"),
+        ]
+
+        missing_deps = []
+        for nm_dir, display_name in node_modules_dirs:
+            if nm_dir.exists():
+                self.print_success(f"{display_name} exists")
+            else:
+                self.print_warning(f"{display_name} not found")
+                missing_deps.append(display_name)
+
+        if missing_deps:
+            issues.append({
+                'type': 'warning',
+                'category': 'dependencies',
+                'message': f"Missing dependencies: {', '.join(missing_deps)}",
+                'fix': 'auto',
+                'action': 'install_dependencies'
+            })
+
+        # Check for patch-package in frontend
+        frontend_pkg_json = self.frontend_dir / 'package.json'
+        if frontend_pkg_json.exists():
+            with open(frontend_pkg_json, 'r') as f:
+                pkg_data = json.load(f)
+                if 'patch-package' in pkg_data.get('devDependencies', {}):
+                    self.print_success("patch-package is installed (Windows fix)")
+                else:
+                    self.print_warning("patch-package not in devDependencies")
+                    warnings.append("Consider adding patch-package for Windows compatibility")
+
+        # Check for database volume conflicts
+        self.print_info("\nChecking database status...")
+        try:
+            volume_result = self.run_command(['docker', 'volume', 'ls'], check=False)
+            if volume_result.returncode == 0:
+                if 'constructionplatform_postgres_data' in volume_result.stdout:
+                    self.print_info("Database volume exists")
+
+                    # Check if containers are running
+                    ps_result = self.run_command(['docker', 'ps', '-a'], check=False)
+                    if 'mindflow-postgres' in ps_result.stdout:
+                        if 'Up' in ps_result.stdout:
+                            self.print_success("PostgreSQL container is running")
+                        else:
+                            self.print_warning("PostgreSQL container exists but is not running")
+                            issues.append({
+                                'type': 'warning',
+                                'category': 'database',
+                                'message': 'PostgreSQL container is stopped',
+                                'fix': 'Run: docker compose up -d'
+                            })
+                else:
+                    self.print_info("No database volume found (clean slate)")
+        except Exception as e:
+            self.print_warning(f"Could not check database status: {e}")
+
+        # Check for port conflicts
+        self.print_info("\nChecking port availability...")
+        ports_to_check = [
+            (3001, 'Backend API'),
+            (5173, 'Frontend Dev Server'),
+            (5432, 'PostgreSQL'),
+        ]
+
+        for port, service in ports_to_check:
+            if sys.platform == 'win32':
+                # Windows: use netstat
+                result = self.run_command(['netstat', '-ano'], check=False)
+                if f':{port}' in result.stdout:
+                    self.print_warning(f"Port {port} ({service}) may be in use")
+                    warnings.append(f"Port {port} appears to be in use by another process")
+                else:
+                    self.print_success(f"Port {port} ({service}) is available")
+            else:
+                # Linux/Mac: use lsof
+                result = self.run_command(['lsof', '-i', f':{port}'], check=False)
+                if result.stdout.strip():
+                    self.print_warning(f"Port {port} ({service}) is in use")
+                    warnings.append(f"Port {port} is in use")
+                else:
+                    self.print_success(f"Port {port} ({service}) is available")
+
+        # Summarize results
+        print(f"\n{Colors.BOLD}{'=' * 60}{Colors.ENDC}")
+        print(f"{Colors.BOLD}Diagnostic Summary{Colors.ENDC}")
+        print(f"{Colors.BOLD}{'=' * 60}{Colors.ENDC}\n")
+
+        critical_issues = [i for i in issues if i['type'] == 'critical']
+        errors = [i for i in issues if i['type'] == 'error']
+        warning_issues = [i for i in issues if i['type'] == 'warning']
+
+        if critical_issues:
+            print(f"{Colors.FAIL}Critical Issues ({len(critical_issues)}):{Colors.ENDC}")
+            for issue in critical_issues:
+                print(f"  ✗ {issue['message']}")
+                print(f"    Fix: {issue['fix']}")
+            print()
+
+        if errors:
+            print(f"{Colors.FAIL}Errors ({len(errors)}):{Colors.ENDC}")
+            for issue in errors:
+                print(f"  ✗ {issue['message']}")
+                print(f"    Fix: {issue['fix']}")
+            print()
+
+        if warning_issues:
+            print(f"{Colors.WARNING}Warnings ({len(warning_issues)}):{Colors.ENDC}")
+            for issue in warning_issues:
+                print(f"  ⚠ {issue['message']}")
+                if 'fix' in issue:
+                    if issue['fix'] == 'auto':
+                        print(f"    Fix: Can be auto-fixed")
+                    else:
+                        print(f"    Fix: {issue['fix']}")
+            print()
+
+        if not critical_issues and not errors and not warning_issues:
+            print(f"{Colors.OKGREEN}✓ No issues found! System is ready.{Colors.ENDC}\n")
+
+        if warnings:
+            print(f"{Colors.WARNING}Additional Warnings:{Colors.ENDC}")
+            for warning in warnings:
+                print(f"  ⚠ {warning}")
+            print()
+
+        return {
+            'issues': issues,
+            'warnings': warnings,
+            'critical_count': len(critical_issues),
+            'error_count': len(errors),
+            'warning_count': len(warning_issues)
+        }
+
+    def auto_fix(self):
+        """Automatically fix common issues"""
+        self.print_header("Auto-Fix Issues")
+
+        # Run diagnostics first
+        diagnostic_results = self.diagnose()
+
+        fixable_issues = [i for i in diagnostic_results['issues']
+                         if i.get('fix') == 'auto']
+
+        if not fixable_issues:
+            self.print_info("No auto-fixable issues found!")
+            return
+
+        print(f"\n{Colors.OKBLUE}Found {len(fixable_issues)} auto-fixable issues{Colors.ENDC}\n")
+
+        for issue in fixable_issues:
+            self.print_info(f"Fixing: {issue['message']}")
+
+            try:
+                if 'action' in issue:
+                    if callable(issue['action']):
+                        issue['action']()
+                        self.print_success("Fixed!")
+                    elif issue['action'] == 'install_dependencies':
+                        self.install_dependencies()
+                        self.print_success("Dependencies installed!")
+            except Exception as e:
+                self.print_error(f"Failed to fix: {e}")
+
+        self.print_success("\n✨ Auto-fix complete!")
+        self.print_info("\nRun 'python project_manager.py --diagnose' to verify")
 
     # =========================================================================
     # DATABASE OPERATIONS
@@ -589,6 +903,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
+  %(prog)s --diagnose              # Run system diagnostics
+  %(prog)s --fix                   # Auto-fix detected issues
   %(prog)s --reset-db              # Reset database (drop, migrate, seed)
   %(prog)s --reset-db --no-seed    # Reset database without seeding
   %(prog)s --seed                  # Seed database only
@@ -600,21 +916,42 @@ Examples:
   %(prog)s --report                # Generate project report
   %(prog)s --studio                # Open Prisma Studio
   %(prog)s --all                   # Full reset: clean + install + reset-db
+
+Common Workflows:
+  # First time setup or troubleshooting:
+  %(prog)s --diagnose              # See what's wrong
+  %(prog)s --fix                   # Fix what can be auto-fixed
+  %(prog)s --install               # Install dependencies
+  %(prog)s --reset-db              # Setup database
+
+  # Clean slate reset:
+  %(prog)s --all                   # Clean everything and start fresh
         '''
     )
 
+    # Diagnostic operations
+    parser.add_argument('--diagnose', action='store_true',
+                       help='Run comprehensive system diagnostics')
+    parser.add_argument('--fix', action='store_true',
+                       help='Automatically fix detected issues')
+
+    # Database operations
     parser.add_argument('--reset-db', action='store_true',
                        help='Reset database (drop, migrate, seed)')
     parser.add_argument('--no-seed', action='store_true',
                        help='Skip seeding when resetting database')
     parser.add_argument('--seed', action='store_true',
                        help='Seed database only')
+
+    # Dependency operations
     parser.add_argument('--clean', action='store_true',
                        help='Clean node_modules folders')
     parser.add_argument('--full', action='store_true',
                        help='Full clean (includes package-lock files)')
     parser.add_argument('--install', action='store_true',
                        help='Install all dependencies')
+
+    # Project management
     parser.add_argument('--analyze', action='store_true',
                        help='Analyze project structure')
     parser.add_argument('--organize-docs', action='store_true',
@@ -623,6 +960,8 @@ Examples:
                        help='Generate project status report')
     parser.add_argument('--studio', action='store_true',
                        help='Open Prisma Studio')
+
+    # Bulk operations
     parser.add_argument('--all', action='store_true',
                        help='Full reset: clean + install + reset-db')
 
@@ -640,6 +979,15 @@ Examples:
             return
 
         # Individual operations
+        if args.diagnose:
+            results = manager.diagnose()
+            # Exit with error code if critical issues found
+            if results['critical_count'] > 0:
+                sys.exit(1)
+
+        if args.fix:
+            manager.auto_fix()
+
         if args.clean:
             manager.clean_dependencies(full_clean=args.full)
 
