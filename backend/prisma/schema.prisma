@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// MindFlow Platform - Database Schema
+// Foundation Layer: Core business data with variance tracking hooks
 
 generator client {
   provider = "prisma-client-js"
@@ -10,24 +10,854 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Example models for MindFlow construction management
+// ============================================================================
+// AUTHENTICATION & AUTHORIZATION
+// ============================================================================
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
-  role      String   @default("user")
+  role      UserRole @default(ESTIMATOR)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  projects  Project[]
+
+  // Relationships
+  createdJobs      Job[]           @relation("JobCreator")
+  approvedJobs     Job[]           @relation("JobApprover")
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  varianceReviews  VarianceReview[]
+
+  @@index([email])
+  @@index([role])
 }
 
-model Project {
+enum UserRole {
+  ADMIN
+  ESTIMATOR
+  PROJECT_MANAGER
+  FIELD_USER
+  VIEWER
+}
+
+// ============================================================================
+// FOUNDATION LAYER: CUSTOMERS
+// ============================================================================
+
+model Customer {
+  id                String   @id @default(uuid())
+  name              String
+  code              String   @unique // e.g., "RICHMOND", "HOLT"
+  pricingTier       PricingTier @default(TIER_2)
+  isActive          Boolean  @default(true)
+
+  // Contact Information
+  primaryContact    String?
+  email             String?
+  phone             String?
+
+  // External System Mapping
+  sales1440Id       String?  @unique
+  hyphenBuildProId  String?  @unique
+  holtPortalId      String?  @unique
+
+  // Notification Preferences
+  notifyOnJobCreate Boolean  @default(true)
+  notifyOnPOApprove Boolean  @default(true)
+  preferredChannel  NotificationChannel @default(EMAIL)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  jobs              Job[]
+  communities       Community[]
+  customerPricing   CustomerPricing[]
+
+  @@index([code])
+  @@index([pricingTier])
+  @@index([isActive])
+}
+
+enum PricingTier {
+  TIER_1          // Premium pricing
+  TIER_2          // Standard pricing
+  VOLUME          // Volume discounts
+  CUSTOM          // Custom negotiated rates
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  IN_APP
+  ALL
+}
+
+// Customer-specific pricing overrides
+model CustomerPricing {
+  id         String   @id @default(uuid())
+  customerId String
+  materialId String
+
+  // Override pricing
+  overridePrice      Decimal?  @db.Decimal(10, 2)
+  overrideMargin     Decimal?  @db.Decimal(5, 2)
+  discountPercentage Decimal?  @db.Decimal(5, 2)
+
+  effectiveDate DateTime @default(now())
+  expiresAt     DateTime?
+  notes         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, materialId])
+  @@index([customerId])
+  @@index([materialId])
+}
+
+// ============================================================================
+// FOUNDATION LAYER: PLANS
+// ============================================================================
+
+model Plan {
   id          String   @id @default(uuid())
-  name        String
-  description String?
-  status      String   @default("active")
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  code        String   @unique // e.g., "2400", "G21D"
+  name        String?              // Human-readable name
+
+  // Plan Characteristics
+  type        PlanType
+  sqft        Int?
+  bedrooms    Int?
+  bathrooms   Decimal?  @db.Decimal(3, 1)
+  garage      String?              // "2-Car", "3-Car", etc.
+  style       String?              // "Ranch", "Modern", etc.
+
+  // Version Control
+  version     Int      @default(1)
+  isActive    Boolean  @default(true)
+
+  // Documentation
+  pdssUrl     String?              // Plan Design & Specification Sheet URL
+  notes       String?  @db.Text
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relationships
+  elevations       PlanElevation[]
+  options          PlanOption[]
+  templateItems    PlanTemplateItem[] // BOM template
+  jobs             Job[]
+  variancePatterns VariancePattern[]
+
+  @@index([code])
+  @@index([type])
+  @@index([isActive])
+}
+
+enum PlanType {
+  SINGLE_STORY
+  TWO_STORY
+  THREE_STORY
+  DUPLEX
+  TOWNHOME
+}
+
+model PlanElevation {
+  id          String   @id @default(uuid())
+  planId      String
+  code        String              // "A", "B", "C", "D"
+  name        String?             // "Craftsman", "Contemporary"
+  description String?
+  imageUrl    String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  jobs Job[]
+
+  @@unique([planId, code])
+  @@index([planId])
+}
+
+model PlanOption {
+  id          String   @id @default(uuid())
+  code        String   @unique // "DECK-12X12", "SUNROOM"
+  name        String
+  description String?
+  category    OptionCategory
+
+  // Pricing
+  basePrice   Decimal  @db.Decimal(10, 2)
+
+  // Pack Triggers
+  triggersPacks String[] // Array of pack names this option triggers
+
+  // Applicability
+  appliesTo   String[] // Array of plan codes (empty = all plans)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  plans       Plan[]
+  jobOptions  JobOption[]
+
+  @@index([code])
+  @@index([category])
+}
+
+enum OptionCategory {
+  DECK
+  FENCING
+  ROOM_ADDITION
+  GARAGE
+  PATIO
+  STRUCTURAL
+  FINISH
+  OTHER
+}
+
+// Plan Template - The "recipe" for a plan
+model PlanTemplateItem {
+  id          String   @id @default(uuid())
+  planId      String
+  materialId  String
+
+  // Quantities
+  quantity         Decimal  @db.Decimal(10, 3)
+  unit             String
+  wasteFactor      Decimal  @db.Decimal(5, 2) @default(0) // Percentage
+
+  // Categorization
+  category         String              // "Framing", "Roof", "Foundation"
+  subcategory      String?
+
+  // Variance Tracking (for feedback loop)
+  averageVariance  Decimal?  @db.Decimal(5, 2) // Historical avg variance %
+  varianceCount    Int       @default(0)        // Number of jobs sampled
+  lastVarianceDate DateTime?                    // Last time variance was recorded
+  confidenceScore  Decimal?  @db.Decimal(3, 2) // 0-1 confidence in template accuracy
+
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan     Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id], onDelete: Restrict)
+
+  @@unique([planId, materialId])
+  @@index([planId])
+  @@index([materialId])
+  @@index([category])
+}
+
+// ============================================================================
+// FOUNDATION LAYER: MATERIALS & PRICING
+// ============================================================================
+
+model Material {
+  id          String   @id @default(uuid())
+  sku         String   @unique
+  description String
+
+  // Categorization
+  category    MaterialCategory
+  subcategory String?
+
+  // Unit of Measure
+  unitOfMeasure String             // "EA", "LF", "SF", "MBF", "SHT"
+
+  // Base Costs
+  vendorCost  Decimal  @db.Decimal(10, 2)
+  freight     Decimal  @db.Decimal(10, 2) @default(0)
+
+  // Commodity Pricing (for lumber)
+  isRLLinked      Boolean  @default(false) // Linked to Random Lengths
+  rlTag           String?                   // Random Lengths commodity tag
+  rlBasePrice     Decimal? @db.Decimal(10, 2)
+  rlLastUpdated   DateTime?
+
+  // Length Modifiers (for lumber)
+  lengthAdders    Json?               // { "8": 0, "10": 0.15, "12": 0.25 }
+  gradeMultipliers Json?              // { "SPF": 1.0, "SYP": 1.15 }
+
+  // Status
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  vendor              Vendor?  @relation(fields: [vendorId], references: [id])
+  vendorId            String?
+  pricingHistory      PricingHistory[]
+  templateItems       PlanTemplateItem[]
+  customerPricing     CustomerPricing[]
+  takeoffLineItems    TakeoffLineItem[]
+
+  @@index([sku])
+  @@index([category])
+  @@index([isActive])
+  @@index([isRLLinked])
+}
+
+enum MaterialCategory {
+  DIMENSIONAL_LUMBER
+  ENGINEERED_LUMBER
+  SHEATHING
+  PRESSURE_TREATED
+  HARDWARE
+  CONCRETE
+  ROOFING
+  SIDING
+  INSULATION
+  DRYWALL
+  OTHER
+}
+
+model Vendor {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @unique
+
+  // Contact
+  primaryContact String?
+  email       String?
+  phone       String?
+
+  // Terms
+  paymentTerms String?  // "Net 30", "Net 45"
+  leadTimeDays Int      @default(5)
+
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  materials   Material[]
+
+  @@index([code])
+}
+
+// Transparent Pricing Pipeline - Shows calculation breakdown
+model PricingHistory {
+  id          String   @id @default(uuid())
+  materialId  String
+
+  // Pricing Breakdown (Transparent Calculation)
+  baseVendorCost      Decimal  @db.Decimal(10, 2)
+  commodityAdjustment Decimal  @db.Decimal(10, 2) @default(0)
+  freight             Decimal  @db.Decimal(10, 2) @default(0)
+  totalCost           Decimal  @db.Decimal(10, 2)
+
+  // Margin
+  marginPercentage    Decimal  @db.Decimal(5, 2)
+  marginAmount        Decimal  @db.Decimal(10, 2)
+
+  // Final Price
+  unitPrice           Decimal  @db.Decimal(10, 2)
+
+  // Calculation Steps (for pedagogical transparency)
+  calculationSteps    Json                    // Array of calculation step objects
+
+  effectiveDate DateTime @default(now())
+  expiresAt     DateTime?
+
+  createdAt   DateTime @default(now())
+
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@index([materialId])
+  @@index([effectiveDate])
+}
+
+// Random Lengths Commodity Pricing
+model RandomLengthsPricing {
+  id          String   @id @default(uuid())
+  tag         String                     // Commodity tag
+  description String
+
+  // Pricing
+  price       Decimal  @db.Decimal(10, 2)
+  unit        String                     // "MBF", "MSF"
+
+  // Metadata
+  region      String?
+  grade       String?
+
+  effectiveDate DateTime
+  source      String                     // "RL_REPORT_2024_12_01"
+
+  createdAt   DateTime @default(now())
+
+  @@unique([tag, effectiveDate])
+  @@index([tag])
+  @@index([effectiveDate])
+}
+
+// ============================================================================
+// OPERATIONAL CORE: COMMUNITIES & LOTS
+// ============================================================================
+
+model Community {
+  id           String   @id @default(uuid())
+  name         String
+  customerId   String
+
+  // Location
+  shippingYard String
+  jurisdiction String?
+  region       String?
+
+  // Status
+  activePlans  Int      @default(0)
+  isActive     Boolean  @default(true)
+
+  // Requirements
+  specialRequirements String? @db.Text
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  lots     Lot[]
+  jobs     Job[]
+
+  @@index([customerId])
+  @@index([isActive])
+}
+
+model Lot {
+  id          String   @id @default(uuid())
+  communityId String
+  lotNumber   String
+
+  // Status
+  status      LotStatus @default(AVAILABLE)
+
+  // Lot Characteristics
+  sqft        Int?
+  frontage    Decimal?  @db.Decimal(10, 2)
+  depth       Decimal?  @db.Decimal(10, 2)
+
+  notes       String?   @db.Text
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  jobs      Job[]
+
+  @@unique([communityId, lotNumber])
+  @@index([communityId])
+  @@index([status])
+}
+
+enum LotStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ============================================================================
+// OPERATIONAL CORE: JOB MANAGEMENT
+// ============================================================================
+
+model Job {
+  id          String   @id @default(uuid())
+  jobNumber   String   @unique           // Auto-generated or manual
+
+  // Core References
+  customerId  String
+  planId      String
+  elevationId String?
+  communityId String?
+  lotId       String?
+
+  // Job Details
+  status      JobStatus @default(DRAFT)
+
+  // Pricing
+  estimatedCost Decimal?  @db.Decimal(10, 2)
+  actualCost    Decimal?  @db.Decimal(10, 2)
+  margin        Decimal?  @db.Decimal(5, 2)
+
+  // Workflow
+  createdById   String
+  approvedById  String?
+  approvedAt    DateTime?
+  startDate     DateTime?
+  completionDate DateTime?
+
+  // Documentation
+  notes         String?   @db.Text
+  folderPath    String?             // Document storage path
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  plan          Plan           @relation(fields: [planId], references: [id])
+  elevation     PlanElevation? @relation(fields: [elevationId], references: [id])
+  community     Community?     @relation(fields: [communityId], references: [id])
+  lot           Lot?           @relation(fields: [lotId], references: [id])
+  createdBy     User           @relation("JobCreator", fields: [createdById], references: [id])
+  approvedBy    User?          @relation("JobApprover", fields: [approvedById], references: [id])
+
+  jobOptions    JobOption[]
+  takeoff       Takeoff?
+  purchaseOrders PurchaseOrder[]
+
+  @@index([jobNumber])
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum JobStatus {
+  DRAFT
+  ESTIMATED
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model JobOption {
+  id        String   @id @default(uuid())
+  jobId     String
+  optionId  String
+
+  quantity  Int      @default(1)
+  price     Decimal  @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+
+  job    Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  option PlanOption @relation(fields: [optionId], references: [id])
+
+  @@unique([jobId, optionId])
+  @@index([jobId])
+}
+
+// ============================================================================
+// OPERATIONAL CORE: TAKEOFFS & VALIDATION
+// ============================================================================
+
+model Takeoff {
+  id          String   @id @default(uuid())
+  jobId       String   @unique
+
+  // Status
+  status      TakeoffStatus @default(DRAFT)
+
+  // Validation
+  isValidated Boolean  @default(false)
+  validatedAt DateTime?
+  validationResults Json?            // Validation report
+
+  // Totals
+  totalEstimated Decimal  @db.Decimal(10, 2)
+  totalActual    Decimal? @db.Decimal(10, 2)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  job         Job              @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  lineItems   TakeoffLineItem[]
+  validation  TakeoffValidation?
+
+  @@index([jobId])
+  @@index([status])
+}
+
+enum TakeoffStatus {
+  DRAFT
+  IN_REVIEW
+  VALIDATED
+  APPROVED
+  ORDERED
+  DELIVERED
+}
+
+model TakeoffLineItem {
+  id          String   @id @default(uuid())
+  takeoffId   String
+  materialId  String
+
+  // Quantities
+  quantityEstimated Decimal  @db.Decimal(10, 3)
+  quantityActual    Decimal? @db.Decimal(10, 3)
+  unit              String
+
+  // Pricing
+  unitPrice         Decimal  @db.Decimal(10, 2)
+  totalEstimated    Decimal  @db.Decimal(10, 2)
+  totalActual       Decimal? @db.Decimal(10, 2)
+
+  // Variance Tracking (FEEDBACK LOOP HOOK)
+  variance          Decimal? @db.Decimal(10, 3)  // quantityActual - quantityEstimated
+  variancePercent   Decimal? @db.Decimal(5, 2)   // (variance / quantityEstimated) * 100
+  varianceReason    String?                       // "Complex roof cuts", "Wet lumber replacement"
+
+  // Categorization
+  category    String
+  subcategory String?
+
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  takeoff  Takeoff  @relation(fields: [takeoffId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id])
+
+  @@index([takeoffId])
+  @@index([materialId])
+}
+
+model TakeoffValidation {
+  id          String   @id @default(uuid())
+  takeoffId   String   @unique
+
+  // Multi-stage validation flags
+  specCompliant      Boolean  @default(false)
+  pricingCurrent     Boolean  @default(false)
+  varianceAcceptable Boolean  @default(false)
+
+  // Validation Results
+  issues      Json                    // Array of validation issues
+  warnings    Json                    // Array of warnings
+
+  // Historical Comparison
+  comparedToJobs String[]             // Array of similar job IDs used for comparison
+  avgVariance    Decimal? @db.Decimal(5, 2)
+
+  validatedAt DateTime @default(now())
+
+  takeoff Takeoff @relation(fields: [takeoffId], references: [id], onDelete: Cascade)
+
+  @@index([takeoffId])
+}
+
+// ============================================================================
+// TRANSACTION LAYER: PURCHASE ORDERS
+// ============================================================================
+
+model PurchaseOrder {
+  id          String   @id @default(uuid())
+  poNumber    String   @unique
+  jobId       String
+  vendorId    String?
+
+  // Status
+  status      POStatus @default(DRAFT)
+
+  // Amounts
+  totalAmount Decimal  @db.Decimal(10, 2)
+
+  // Workflow
+  approvedAt  DateTime?
+  sentAt      DateTime?
+  confirmedAt DateTime?
+  deliveredAt DateTime?
+
+  // Delivery
+  scheduledDelivery DateTime?
+  actualDelivery    DateTime?
+  deliveryNotes     String?
+
+  // External System Integration
+  hyphenBuildProId  String?
+  holtPortalId      String?
+
+  // Documentation
+  signatureUrl String?
+  photoUrls    String[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  job    Job     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  vendor Vendor? @relation(fields: [vendorId], references: [id])
+
+  @@index([poNumber])
+  @@index([jobId])
+  @@index([status])
+  @@index([scheduledDelivery])
+}
+
+enum POStatus {
+  DRAFT
+  APPROVED
+  SENT
+  CONFIRMED
+  DELIVERED
+  CANCELLED
+}
+
+// ============================================================================
+// INTELLIGENCE LAYER: VARIANCE & LEARNING
+// ============================================================================
+
+model VariancePattern {
+  id          String   @id @default(uuid())
+
+  // Pattern Scope (Hierarchical Learning)
+  scope       VarianceScope
+  planId      String?
+  communityId String?
+  customerId  String?
+  region      String?
+
+  // Material & Category
+  materialCategory String
+  subcategory      String?
+
+  // Statistical Data
+  sampleSize       Int
+  avgVariance      Decimal  @db.Decimal(5, 2)
+  stdDeviation     Decimal  @db.Decimal(5, 2)
+  confidenceScore  Decimal  @db.Decimal(3, 2) // 0-1
+
+  // Recommendation
+  recommendedAdjustment Decimal? @db.Decimal(5, 2)
+  reasoning             String?  @db.Text
+
+  // Status
+  status      PatternStatus @default(DETECTED)
+  reviewedAt  DateTime?
+  appliedAt   DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan      Plan?      @relation(fields: [planId], references: [id])
+  community Community? @relation(fields: [communityId], references: [id])
+  customer  Customer?  @relation(fields: [customerId], references: [id])
+  reviews   VarianceReview[]
+
+  @@index([scope])
+  @@index([planId])
+  @@index([status])
+  @@index([confidenceScore])
+}
+
+enum VarianceScope {
+  PLAN_SPECIFIC     // Single plan (Phase 1)
+  CROSS_PLAN        // Pattern across plans
+  COMMUNITY         // Community-level
+  BUILDER           // Builder-level
+  REGIONAL          // Regional patterns
+}
+
+enum PatternStatus {
+  DETECTED          // System detected pattern
+  UNDER_REVIEW      // Flagged for human review
+  APPROVED          // Approved for auto-application
+  APPLIED           // Applied to templates
+  REJECTED          // Rejected by reviewer
+}
+
+model VarianceReview {
+  id        String   @id @default(uuid())
+  patternId String
+  reviewerId String
+
+  decision  ReviewDecision
+  notes     String?  @db.Text
+
+  reviewedAt DateTime @default(now())
+
+  pattern  VariancePattern @relation(fields: [patternId], references: [id], onDelete: Cascade)
+  reviewer User            @relation(fields: [reviewerId], references: [id])
+
+  @@index([patternId])
+  @@index([reviewerId])
+}
+
+enum ReviewDecision {
+  APPROVE
+  REJECT
+  NEEDS_MORE_DATA
+  ESCALATE
+}
+
+// ============================================================================
+// INTELLIGENCE LAYER: COMMUNICATIONS & NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+
+  // Notification Content
+  type        NotificationType
+  title       String
+  message     String   @db.Text
+
+  // Action
+  actionUrl   String?
+
+  // Status
+  isRead      Boolean  @default(false)
+  readAt      DateTime?
+
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  JOB_CREATED
+  JOB_APPROVED
+  PO_APPROVED
+  DELIVERY_SCHEDULED
+  DELIVERY_LATE
+  VARIANCE_DETECTED
+  PATTERN_REVIEW_REQUIRED
+  SYSTEM_ALERT
+}
+
+// ============================================================================
+// SYSTEM: AUDIT LOGGING
+// ============================================================================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+
+  // Action
+  action      String              // "CREATE_JOB", "UPDATE_MATERIAL", "APPROVE_PO"
+  entityType  String              // "Job", "Material", "PurchaseOrder"
+  entityId    String
+
+  // Changes
+  changes     Json                // Before/after snapshot
+
+  // Context
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }
