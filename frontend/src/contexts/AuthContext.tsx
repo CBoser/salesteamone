@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 export interface User {
   id: string;
@@ -8,11 +8,6 @@ export interface User {
   role: string;
   isActive: boolean;
   createdAt: string;
-}
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
 }
 
 interface AuthContextType {

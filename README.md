@@ -3,6 +3,37 @@
 
 A comprehensive full-stack platform designed to transform fragile Excel-based institutional knowledge into a scalable, intelligent construction management system. MindFlow serves as the essential "Rosetta Stone" for construction data—translating between disparate builder systems while preserving hard-won operational expertise.
 
+## Quick Start
+
+### Prerequisites
+- Node.js 18+ and npm
+- Docker and Docker Compose
+- Git
+
+### Launch the Platform
+
+```bash
+# One-time setup
+./setup.sh          # Install dependencies and create config files
+
+# Start the application
+./launch.sh         # Starts database and launches app
+
+# Stop the application
+./stop.sh           # Stops all services
+```
+
+**Manual Launch:**
+```bash
+docker-compose up -d                    # Start PostgreSQL
+cd backend && npm run prisma:migrate    # Initialize database
+npm run dev                             # Launch frontend + backend
+```
+
+Access the app at **http://localhost:5173**
+
+For detailed instructions, see [LAUNCH_GUIDE.md](./LAUNCH_GUIDE.md)
+
 ---
 
 ## Vision
