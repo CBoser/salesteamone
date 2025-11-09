@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 import { dbService } from './services/database';
 import authRoutes from './routes/auth';
 import customerRoutes from './routes/customer';
-// import planRoutes from './routes/plan'; // TEMPORARILY DISABLED: Schema mismatch - needs refactoring
-import materialRoutes from './routes/material';
+// import planRoutes from './routes/plan'; // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 6-7)
+// import materialRoutes from './routes/material'; // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 8-9)
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { applySecurityMiddleware } from './middleware/securityHeaders';
 
@@ -99,8 +99,8 @@ app.get('/', (req: Request, res: Response) => {
       health: '/health',
       auth: '/api/auth',
       customers: '/api/customers',
-      // plans: '/api/plans', // TEMPORARILY DISABLED: Schema mismatch
-      materials: '/api/materials',
+      // plans: '/api/plans', // TEMPORARILY DISABLED: Schema mismatch (Sprint 6-7)
+      // materials: '/api/materials', // TEMPORARILY DISABLED: Schema mismatch (Sprint 8-9)
       docs: '/api-docs (coming soon)'
     }
   });
@@ -111,8 +111,8 @@ app.use('/api/auth', authRoutes);
 
 // Foundation Layer Routes
 app.use('/api/customers', customerRoutes);
-// app.use('/api/plans', planRoutes); // TEMPORARILY DISABLED: Schema mismatch - needs refactoring
-app.use('/api/materials', materialRoutes);
+// app.use('/api/plans', planRoutes); // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 6-7)
+// app.use('/api/materials', materialRoutes); // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 8-9)
 
 // Error handling middleware (must be AFTER all routes)
 app.use(notFoundHandler);
