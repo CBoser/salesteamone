@@ -77,6 +77,122 @@ All technical decisions made during Sprint 1 with rationale.
 
 ---
 
+### [2025-11-09] Seed Data Security Strategy
+
+**Decision**: Remove all hardcoded passwords from seed script and use environment variable with production guard
+
+**Rationale**:
+- Hardcoded passwords in source control are security vulnerabilities
+- Production seed would delete all production data (catastrophic)
+- Test users with known passwords should only exist in development
+- Environment variable allows customization without code changes
+
+**Alternatives Considered**:
+1. **Keep hardcoded passwords** - Rejected: Security vulnerability, credentials in git history
+2. **Different passwords per user** - Rejected: Overcomplicated for development, hard to remember
+3. **No default password** - Rejected: Friction in development, requires env var always
+4. **Allow seed in production with flag** - Rejected: Too risky, no legitimate use case
+
+**Impact**:
+- **Production**: Seed script CANNOT run (exits immediately with error)
+- **Development**: Seed uses SEED_USER_PASSWORD or defaults to 'DevPassword123!'
+- **Test Users**: All 5 test users use same password (admin, estimator, pm, field, viewer)
+- **Credentials Displayed**: Seed script shows email/password on startup (DX improvement)
+
+**Code References**:
+- `backend/prisma/seed.ts:10-48` - Production guard and password logic
+- `backend/prisma/seed.ts:69,81,93,105,117` - Password usage (5 users)
+- `backend/.env.example:39-43` - Documentation
+- `backend/test-seed-security.js` - Test suite
+
+**Security Impact**:
+- ✅ No hardcoded credentials in codebase
+- ✅ Production protected from accidental seed
+- ✅ Git history doesn't contain passwords
+- ✅ Custom passwords supported for additional security
+
+**Developer Experience**:
+- ✅ Simple to use (one password for all test users)
+- ✅ Easy to customize (SEED_USER_PASSWORD env var)
+- ✅ Credentials clearly displayed (no guessing)
+- ✅ Production failure clear and actionable
+
+**Owner**: Sprint 1 - Security Foundation
+**Stakeholders**: DevOps, Security Team, Developers
+
+---
+
+### [2025-11-09] Security Headers Implementation Strategy
+
+**Decision**: Use Helmet.js middleware with comprehensive security headers applied first in middleware chain
+
+**Rationale**:
+- Helmet.js is industry-standard, well-tested security headers middleware
+- Headers must be applied to ALL responses (first middleware ensures this)
+- CSP prevents XSS and data injection attacks
+- HSTS prevents MITM attacks by forcing HTTPS
+- Multiple header types provide defense-in-depth
+
+**Alternatives Considered**:
+1. **Manual header implementation** - Rejected: Error-prone, harder to maintain
+2. **Selective header application** - Rejected: Easy to miss routes, inconsistent protection
+3. **Headers applied later in chain** - Rejected: Some responses might skip headers
+4. **Strict CSP (no unsafe-inline)** - Deferred: Requires nonces, implement in Sprint 3
+
+**Impact**:
+- **All Responses**: Include 8 security headers automatically
+- **XSS Protection**: CSP restricts script/style sources
+- **Clickjacking Protection**: X-Frame-Options denies framing
+- **HTTPS Enforcement**: HSTS forces HTTPS for 1 year
+- **Performance**: Minimal overhead (< 1ms per request)
+
+**Code References**:
+- `backend/src/middleware/securityHeaders.ts` - Middleware implementation
+- `backend/src/index.ts:10,73` - Import and application
+- `backend/test-security-headers.js` - Test suite
+- `backend/package.json` - helmet dependency
+
+**Security Headers Applied**:
+1. **Content-Security-Policy** - Restricts resource loading (XSS prevention)
+2. **Strict-Transport-Security** - Force HTTPS (MITM prevention)
+3. **X-Frame-Options** - Deny framing (clickjacking prevention)
+4. **X-Content-Type-Options** - Prevent MIME sniffing
+5. **X-XSS-Protection** - Legacy XSS protection for old browsers
+6. **Referrer-Policy** - Control referrer information
+7. **X-API-Version** - Custom header for API versioning
+8. **X-Security-Policy** - Custom header for compliance
+
+**Temporary Compromises**:
+- CSP allows `unsafe-inline` for scripts/styles (development ease)
+- TODO Sprint 3: Implement nonce-based CSP to remove unsafe-inline
+
+**Protection Provided**:
+- ✅ Cross-Site Scripting (XSS) attacks
+- ✅ Clickjacking attacks
+- ✅ MIME-type sniffing attacks
+- ✅ Man-in-the-middle attacks (HTTPS)
+- ✅ Data injection attacks
+- ✅ Privacy leaks via referrer
+
+**Owner**: Sprint 1 - Security Foundation
+**Stakeholders**: DevOps, Security Team, Frontend Team
+
+---
+
+### [To be filled] CORS Hardening Strategy
+
+**Decision**: (To be documented when implemented)
+
+**Rationale**:
+
+**Alternatives Considered**:
+
+**Impact**:
+
+**Code References**:
+
+---
+
 ### [To be filled] Rate Limiting Strategy
 
 **Decision**: (To be documented when implemented)

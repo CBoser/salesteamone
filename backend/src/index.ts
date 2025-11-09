@@ -7,6 +7,7 @@ import customerRoutes from './routes/customer';
 import planRoutes from './routes/plan';
 import materialRoutes from './routes/material';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { applySecurityMiddleware } from './middleware/securityHeaders';
 
 dotenv.config();
 
@@ -67,6 +68,9 @@ if (process.env.NODE_ENV !== 'production' && !process.env.JWT_SECRET) {
 
 const app: Express = express();
 const port = process.env.PORT || 3001;
+
+// Security Middleware (MUST be first, before other middleware)
+app.use(applySecurityMiddleware);
 
 // Middleware
 app.use(cors());
