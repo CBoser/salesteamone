@@ -122,6 +122,77 @@ All technical decisions made during Sprint 1 with rationale.
 
 ---
 
+### [2025-11-09] Security Headers Implementation Strategy
+
+**Decision**: Use Helmet.js middleware with comprehensive security headers applied first in middleware chain
+
+**Rationale**:
+- Helmet.js is industry-standard, well-tested security headers middleware
+- Headers must be applied to ALL responses (first middleware ensures this)
+- CSP prevents XSS and data injection attacks
+- HSTS prevents MITM attacks by forcing HTTPS
+- Multiple header types provide defense-in-depth
+
+**Alternatives Considered**:
+1. **Manual header implementation** - Rejected: Error-prone, harder to maintain
+2. **Selective header application** - Rejected: Easy to miss routes, inconsistent protection
+3. **Headers applied later in chain** - Rejected: Some responses might skip headers
+4. **Strict CSP (no unsafe-inline)** - Deferred: Requires nonces, implement in Sprint 3
+
+**Impact**:
+- **All Responses**: Include 8 security headers automatically
+- **XSS Protection**: CSP restricts script/style sources
+- **Clickjacking Protection**: X-Frame-Options denies framing
+- **HTTPS Enforcement**: HSTS forces HTTPS for 1 year
+- **Performance**: Minimal overhead (< 1ms per request)
+
+**Code References**:
+- `backend/src/middleware/securityHeaders.ts` - Middleware implementation
+- `backend/src/index.ts:10,73` - Import and application
+- `backend/test-security-headers.js` - Test suite
+- `backend/package.json` - helmet dependency
+
+**Security Headers Applied**:
+1. **Content-Security-Policy** - Restricts resource loading (XSS prevention)
+2. **Strict-Transport-Security** - Force HTTPS (MITM prevention)
+3. **X-Frame-Options** - Deny framing (clickjacking prevention)
+4. **X-Content-Type-Options** - Prevent MIME sniffing
+5. **X-XSS-Protection** - Legacy XSS protection for old browsers
+6. **Referrer-Policy** - Control referrer information
+7. **X-API-Version** - Custom header for API versioning
+8. **X-Security-Policy** - Custom header for compliance
+
+**Temporary Compromises**:
+- CSP allows `unsafe-inline` for scripts/styles (development ease)
+- TODO Sprint 3: Implement nonce-based CSP to remove unsafe-inline
+
+**Protection Provided**:
+- ✅ Cross-Site Scripting (XSS) attacks
+- ✅ Clickjacking attacks
+- ✅ MIME-type sniffing attacks
+- ✅ Man-in-the-middle attacks (HTTPS)
+- ✅ Data injection attacks
+- ✅ Privacy leaks via referrer
+
+**Owner**: Sprint 1 - Security Foundation
+**Stakeholders**: DevOps, Security Team, Frontend Team
+
+---
+
+### [To be filled] CORS Hardening Strategy
+
+**Decision**: (To be documented when implemented)
+
+**Rationale**:
+
+**Alternatives Considered**:
+
+**Impact**:
+
+**Code References**:
+
+---
+
 ### [To be filled] Rate Limiting Strategy
 
 **Decision**: (To be documented when implemented)

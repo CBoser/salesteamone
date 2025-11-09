@@ -25,9 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Impact: Production seed blocked (prevents data loss), all passwords use env var
   - Breaking: Seed script will not run in production (security measure)
   - Fix: SEED_USER_PASSWORD environment variable, defaults to DevPassword123!
+- [x] Add security headers middleware (backend/src/middleware/securityHeaders.ts)
+  - Issue: No HTTP security headers (vulnerable to XSS, clickjacking, MITM)
+  - Impact: All responses now include 8 security headers automatically
+  - Breaking: None (additive security enhancement)
+  - Fix: Helmet.js middleware with CSP, HSTS, X-Frame-Options, etc.
 - [ ] Implement rate limiting on auth endpoints
 - [ ] Harden CORS configuration (whitelist-based)
-- [ ] Add security headers middleware (HSTS, CSP, X-Frame-Options)
 - [ ] Implement audit logging for authentication operations
 - [ ] Configure Content Security Policy (CSP)
 - [ ] Setup database connection pooling limits
