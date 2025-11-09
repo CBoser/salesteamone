@@ -5,7 +5,32 @@
 
 ---
 
-## Prerequisites Checklist
+## 🎯 NEW: DevOps Management Tool (Easiest Option!)
+
+We've created a Python DevOps tool that handles everything with an interactive menu!
+
+**Quick Start:**
+```bash
+python devops.py
+# Select: Q (Quick Start)
+```
+
+This one command will:
+✅ Start PostgreSQL
+✅ Run migrations
+✅ Seed database
+✅ Install dependencies
+✅ Launch backend + frontend
+
+**See full documentation:** [DEVOPS_TOOL.md](DEVOPS_TOOL.md)
+
+---
+
+## Manual Setup Options
+
+If you prefer manual setup or the DevOps tool doesn't work, follow the options below:
+
+### Prerequisites Checklist
 
 Before starting, ensure you have:
 
