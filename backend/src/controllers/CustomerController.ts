@@ -23,13 +23,23 @@ export class CustomerController {
    * Get all customers with optional filtering and pagination
    */
   getAllCustomers = asyncHandler(async (req: Request, res: Response) => {
-    const query = {
-      page: req.query.page ? parseInt(req.query.page as string) : undefined,
-      limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-      search: req.query.search as string,
-      customerType: req.query.customerType as any,
-      isActive: req.query.isActive === 'true' ? true : req.query.isActive === 'false' ? false : undefined,
-    };
+    const query: any = {};
+
+    if (req.query.page) {
+      query.page = parseInt(req.query.page as string);
+    }
+    if (req.query.limit) {
+      query.limit = parseInt(req.query.limit as string);
+    }
+    if (req.query.search) {
+      query.search = req.query.search as string;
+    }
+    if (req.query.customerType) {
+      query.customerType = req.query.customerType;
+    }
+    if (req.query.isActive !== undefined) {
+      query.isActive = req.query.isActive === 'true';
+    }
 
     const result = await this.customerService.getAllCustomers(query);
 
