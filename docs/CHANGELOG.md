@@ -20,11 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Impact: Server fails to start in production without proper JWT_SECRET (min 32 chars)
   - Breaking: Requires JWT_SECRET environment variable in production
   - Fix: Clear error messages with instructions to generate secure secret
+- [x] Remove hardcoded credentials from seed data (backend/prisma/seed.ts:10-48)
+  - Issue: 5 hardcoded passwords (Admin123!, Estimator123!, etc.) in source control
+  - Impact: Production seed blocked (prevents data loss), all passwords use env var
+  - Breaking: Seed script will not run in production (security measure)
+  - Fix: SEED_USER_PASSWORD environment variable, defaults to DevPassword123!
 - [ ] Implement rate limiting on auth endpoints
 - [ ] Harden CORS configuration (whitelist-based)
 - [ ] Add security headers middleware (HSTS, CSP, X-Frame-Options)
 - [ ] Implement audit logging for authentication operations
-- [ ] Remove hardcoded credentials from seed data
 - [ ] Configure Content Security Policy (CSP)
 - [ ] Setup database connection pooling limits
 - [ ] Establish API versioning strategy (/api/v1)

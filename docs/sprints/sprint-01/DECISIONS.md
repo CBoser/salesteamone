@@ -77,6 +77,51 @@ All technical decisions made during Sprint 1 with rationale.
 
 ---
 
+### [2025-11-09] Seed Data Security Strategy
+
+**Decision**: Remove all hardcoded passwords from seed script and use environment variable with production guard
+
+**Rationale**:
+- Hardcoded passwords in source control are security vulnerabilities
+- Production seed would delete all production data (catastrophic)
+- Test users with known passwords should only exist in development
+- Environment variable allows customization without code changes
+
+**Alternatives Considered**:
+1. **Keep hardcoded passwords** - Rejected: Security vulnerability, credentials in git history
+2. **Different passwords per user** - Rejected: Overcomplicated for development, hard to remember
+3. **No default password** - Rejected: Friction in development, requires env var always
+4. **Allow seed in production with flag** - Rejected: Too risky, no legitimate use case
+
+**Impact**:
+- **Production**: Seed script CANNOT run (exits immediately with error)
+- **Development**: Seed uses SEED_USER_PASSWORD or defaults to 'DevPassword123!'
+- **Test Users**: All 5 test users use same password (admin, estimator, pm, field, viewer)
+- **Credentials Displayed**: Seed script shows email/password on startup (DX improvement)
+
+**Code References**:
+- `backend/prisma/seed.ts:10-48` - Production guard and password logic
+- `backend/prisma/seed.ts:69,81,93,105,117` - Password usage (5 users)
+- `backend/.env.example:39-43` - Documentation
+- `backend/test-seed-security.js` - Test suite
+
+**Security Impact**:
+- ✅ No hardcoded credentials in codebase
+- ✅ Production protected from accidental seed
+- ✅ Git history doesn't contain passwords
+- ✅ Custom passwords supported for additional security
+
+**Developer Experience**:
+- ✅ Simple to use (one password for all test users)
+- ✅ Easy to customize (SEED_USER_PASSWORD env var)
+- ✅ Credentials clearly displayed (no guessing)
+- ✅ Production failure clear and actionable
+
+**Owner**: Sprint 1 - Security Foundation
+**Stakeholders**: DevOps, Security Team, Developers
+
+---
+
 ### [To be filled] Rate Limiting Strategy
 
 **Decision**: (To be documented when implemented)

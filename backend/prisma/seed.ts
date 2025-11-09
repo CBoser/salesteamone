@@ -1,7 +1,51 @@
 import { PrismaClient, CustomerType, UserRole } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const prisma = new PrismaClient();
+
+// ============================================================================
+// SECURITY: Prevent seed from running in production
+// ============================================================================
+if (process.env.NODE_ENV === 'production') {
+  console.error('');
+  console.error('═══════════════════════════════════════════════════════════════');
+  console.error('  🔴 FATAL ERROR: Seed script cannot run in production!');
+  console.error('═══════════════════════════════════════════════════════════════');
+  console.error('');
+  console.error('  Running seed scripts in production would:');
+  console.error('  - Delete all existing production data');
+  console.error('  - Create test users with known credentials');
+  console.error('  - Compromise security');
+  console.error('');
+  console.error('  Seed scripts are ONLY for development and testing.');
+  console.error('');
+  console.error('═══════════════════════════════════════════════════════════════');
+  console.error('');
+  process.exit(1);
+}
+
+// ============================================================================
+// SECURITY: Get seed password from environment variable
+// ============================================================================
+const SEED_PASSWORD = process.env.SEED_USER_PASSWORD || 'DevPassword123!';
+
+if (!process.env.SEED_USER_PASSWORD) {
+  console.warn('');
+  console.warn('⚠️  WARNING: SEED_USER_PASSWORD not set');
+  console.warn('   Using default password: DevPassword123!');
+  console.warn('   Set SEED_USER_PASSWORD in .env for custom password');
+  console.warn('');
+}
+
+console.log('🔐 Test user credentials:');
+console.log(`   Email: admin@mindflow.com`);
+console.log(`   Password: ${SEED_PASSWORD}`);
+console.log(`   (Same password for all test users)`);
+console.log('');
 
 async function main() {
   console.log('🌱 Starting seed...');
@@ -22,7 +66,7 @@ async function main() {
   const adminUser = await prisma.user.create({
     data: {
       email: 'admin@mindflow.com',
-      passwordHash: await bcrypt.hash('Admin123!', 10),
+      passwordHash: await bcrypt.hash(SEED_PASSWORD, 10),
       firstName: 'Admin',
       lastName: 'User',
       role: UserRole.ADMIN,
@@ -34,7 +78,7 @@ async function main() {
   const estimatorUser = await prisma.user.create({
     data: {
       email: 'estimator@mindflow.com',
-      passwordHash: await bcrypt.hash('Estimator123!', 10),
+      passwordHash: await bcrypt.hash(SEED_PASSWORD, 10),
       firstName: 'John',
       lastName: 'Estimator',
       role: UserRole.ESTIMATOR,
@@ -46,7 +90,7 @@ async function main() {
   const pmUser = await prisma.user.create({
     data: {
       email: 'pm@mindflow.com',
-      passwordHash: await bcrypt.hash('ProjectManager123!', 10),
+      passwordHash: await bcrypt.hash(SEED_PASSWORD, 10),
       firstName: 'Sarah',
       lastName: 'ProjectManager',
       role: UserRole.PROJECT_MANAGER,
@@ -58,7 +102,7 @@ async function main() {
   const fieldUser = await prisma.user.create({
     data: {
       email: 'field@mindflow.com',
-      passwordHash: await bcrypt.hash('FieldUser123!', 10),
+      passwordHash: await bcrypt.hash(SEED_PASSWORD, 10),
       firstName: 'Mike',
       lastName: 'FieldUser',
       role: UserRole.FIELD_USER,
@@ -70,7 +114,7 @@ async function main() {
   const viewerUser = await prisma.user.create({
     data: {
       email: 'viewer@mindflow.com',
-      passwordHash: await bcrypt.hash('Viewer123!', 10),
+      passwordHash: await bcrypt.hash(SEED_PASSWORD, 10),
       firstName: 'Jane',
       lastName: 'Viewer',
       role: UserRole.VIEWER,
