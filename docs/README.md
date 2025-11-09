@@ -20,6 +20,11 @@ docs/
 │   └── sprint-02/
 │       └── ...
 │
+├── lessons-learned/               # Deep technical lessons and reusable patterns
+│   ├── README.md                 # Purpose and structure guide
+│   ├── sprint-01-security-foundation.md  # Sprint 1 detailed lessons
+│   └── sprint-02-xxx.md          # Future sprint lessons
+│
 ├── time-tracking/                 # Time tracking and velocity data
 │   ├── TEMPLATE.md               # Time tracking template and instructions
 │   ├── 2025-11-week1.md          # Week 1 time log (Nov 7-15)
@@ -80,7 +85,20 @@ docs/
 - Estimated resolution effort
 - Target sprints for resolution
 
+**[lessons-learned/README.md](lessons-learned/README.md)**
+- Purpose and structure of lessons learned
+- How to use and write lessons
+- Difference from other documentation
+- Template and writing tips
+
 ### Sprint Documentation
+
+**[lessons-learned/sprint-01-security-foundation.md](lessons-learned/sprint-01-security-foundation.md)**
+- 7 major technical lessons from Sprint 1 Days 1-3
+- Security validation, seed security, security headers
+- Platform stability, scope management, DevOps automation
+- Reusable code patterns and anti-patterns
+- Business impact and ROI calculations
 
 **[sprints/sprint-01/RETROSPECTIVE.md](sprints/sprint-01/RETROSPECTIVE.md)**
 - Sprint 1 Days 1-3 retrospective
