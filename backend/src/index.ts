@@ -10,6 +10,61 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 dotenv.config();
 
+// CRITICAL SECURITY: Validate JWT_SECRET in production
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_SECRET) {
+    console.error('');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('  🔴 FATAL ERROR: JWT_SECRET is not set in production!');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('');
+    console.error('  The JWT_SECRET environment variable is REQUIRED in production');
+    console.error('  to ensure secure authentication token generation.');
+    console.error('');
+    console.error('  Please set JWT_SECRET to a cryptographically secure random');
+    console.error('  string (minimum 32 characters).');
+    console.error('');
+    console.error('  Generate a secure secret:');
+    console.error('    node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
+    console.error('');
+    console.error('  Then set it in your environment:');
+    console.error('    export JWT_SECRET="your-generated-secret-here"');
+    console.error('');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('');
+    process.exit(1);
+  }
+
+  // Validate JWT_SECRET length (minimum 32 characters for security)
+  if (process.env.JWT_SECRET.length < 32) {
+    console.error('');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('  🔴 FATAL ERROR: JWT_SECRET is too short!');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('');
+    console.error(`  Current length: ${process.env.JWT_SECRET.length} characters`);
+    console.error('  Minimum required: 32 characters');
+    console.error('');
+    console.error('  A short JWT_SECRET compromises security.');
+    console.error('  Please use a cryptographically secure secret.');
+    console.error('');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('');
+    process.exit(1);
+  }
+
+  console.log('✅ [security]: JWT_SECRET validated (production mode)');
+}
+
+// Warn in development if JWT_SECRET is not set
+if (process.env.NODE_ENV !== 'production' && !process.env.JWT_SECRET) {
+  console.warn('');
+  console.warn('⚠️  WARNING: JWT_SECRET not set - using development default');
+  console.warn('   This is ONLY acceptable in development mode.');
+  console.warn('   NEVER run production without a proper JWT_SECRET!');
+  console.warn('');
+}
+
 const app: Express = express();
 const port = process.env.PORT || 3001;
 
