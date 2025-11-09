@@ -57,7 +57,7 @@ export class CustomerService {
   /**
    * Get all customers with optional filtering and pagination
    */
-  async getAllCustomers(query: ListCustomersQuery = {}): Promise<CustomerListResult> {
+  async getAllCustomers(query: Partial<ListCustomersQuery> = {}): Promise<CustomerListResult> {
     // Validate query parameters
     const validatedQuery = listCustomersQuerySchema.parse(query);
 
@@ -277,7 +277,7 @@ export class CustomerService {
     // If this was the primary contact, unset customer's primaryContactId
     if (contact.isPrimary) {
       await this.customerRepository.update(contact.customerId, {
-        primaryContactId: null,
+        primaryContactId: undefined,
       });
 
       // Set another contact as primary if available
