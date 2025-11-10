@@ -1,5 +1,4 @@
 import express, { Express, Request, Response } from 'express';
-import cors from 'cors';
 import dotenv from 'dotenv';
 import { dbService } from './services/database';
 import authRoutes from './routes/auth';
@@ -8,6 +7,7 @@ import customerRoutes from './routes/customer';
 // import materialRoutes from './routes/material'; // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 8-9)
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { applySecurityMiddleware } from './middleware/securityHeaders';
+import { corsMiddleware, corsErrorHandler, validateCorsConfig } from './middleware/corsConfig';
 
 dotenv.config();
 
@@ -66,14 +66,22 @@ if (process.env.NODE_ENV !== 'production' && !process.env.JWT_SECRET) {
   console.warn('');
 }
 
+// CRITICAL SECURITY: Validate CORS configuration in production
+if (!validateCorsConfig()) {
+  console.error('🔴 [cors]: Invalid CORS configuration - server cannot start');
+  process.exit(1);
+}
+
 const app: Express = express();
 const port = process.env.PORT || 3001;
 
 // Security Middleware (MUST be first, before other middleware)
 app.use(applySecurityMiddleware);
 
-// Middleware
-app.use(cors());
+// CORS Middleware (hardened with whitelist-based origin checking)
+app.use(corsMiddleware);
+
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -116,6 +124,7 @@ app.use('/api/customers', customerRoutes);
 
 // Error handling middleware (must be AFTER all routes)
 app.use(notFoundHandler);
+app.use(corsErrorHandler); // CORS-specific error handling
 app.use(errorHandler);
 
 // Initialize database and start server
