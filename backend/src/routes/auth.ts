@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { authService } from '../services/auth';
+import { auditLogService } from '../services/auditLog';
 import { authenticateToken } from '../middleware/auth';
 import { UserRole } from '@prisma/client';
 
@@ -48,6 +49,14 @@ router.post('/register', async (req: Request, res: Response) => {
       role,
     });
 
+    // Audit log: successful registration
+    await auditLogService.logRegistration(
+      result.user.id,
+      result.user.email,
+      result.user.role,
+      req
+    );
+
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -55,6 +64,16 @@ router.post('/register', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
+
+    // Audit log: failed registration
+    if (req.body.email) {
+      await auditLogService.logFailedRegistration(
+        req.body.email,
+        error instanceof Error ? error.message : 'Registration failed',
+        req
+      );
+    }
+
     res.status(400).json({
       success: false,
       error: error instanceof Error ? error.message : 'Registration failed',
@@ -81,6 +100,13 @@ router.post('/login', async (req: Request, res: Response) => {
     // Login user
     const result = await authService.login({ email, password });
 
+    // Audit log: successful login
+    await auditLogService.logLogin(
+      result.user.id,
+      result.user.email,
+      req
+    );
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -88,6 +114,16 @@ router.post('/login', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Login error:', error);
+
+    // Audit log: failed login attempt
+    if (req.body.email) {
+      await auditLogService.logFailedLogin(
+        req.body.email,
+        error instanceof Error ? error.message : 'Login failed',
+        req
+      );
+    }
+
     res.status(401).json({
       success: false,
       error: error instanceof Error ? error.message : 'Login failed',
@@ -112,6 +148,14 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
     // Refresh tokens
     const tokens = await authService.refreshToken(refreshToken);
+
+    // Get user ID from token to log the refresh
+    const payload = authService.verifyToken(refreshToken);
+    await auditLogService.logTokenRefresh(
+      payload.userId,
+      payload.email,
+      req
+    );
 
     res.status(200).json({
       success: true,
@@ -188,12 +232,29 @@ router.post(
         newPassword
       );
 
+      // Audit log: successful password change
+      await auditLogService.logPasswordChange(
+        req.user.userId,
+        req.user.email,
+        req
+      );
+
       res.status(200).json({
         success: true,
         data: result,
       });
     } catch (error) {
       console.error('Change password error:', error);
+
+      // Audit log: failed password change
+      if (req.user) {
+        await auditLogService.logFailedPasswordChange(
+          req.user.userId,
+          error instanceof Error ? error.message : 'Password change failed',
+          req
+        );
+      }
+
       res.status(400).json({
         success: false,
         error: error instanceof Error ? error.message : 'Password change failed',
@@ -208,7 +269,15 @@ router.post(
  */
 router.post('/logout', authenticateToken, async (req: Request, res: Response) => {
   // In a JWT-based system, logout is primarily client-side (remove token)
-  // Server-side, we just acknowledge the logout
+  // Server-side, we log the logout event for audit trail
+  if (req.user) {
+    await auditLogService.logLogout(
+      req.user.userId,
+      req.user.email,
+      req
+    );
+  }
+
   res.status(200).json({
     success: true,
     message: 'Logged out successfully',
