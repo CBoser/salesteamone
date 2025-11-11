@@ -1,0 +1,22 @@
+# SESSION_PROCEDURES.md - ARCHIVED
+
+**Archived**: 2025-11-11
+**Superseded By**: docs/DAILY_WORKFLOW.md
+
+## Reason for Archiving
+This document was created during Day 7 documentation audit but was immediately superseded by a merged workflow that combines:
+- User's existing workflow (simpler, more practical)
+- SESSION_PROCEDURES.md rigor (tech debt tracking, shutdown notes)
+
+Result: DAILY_WORKFLOW.md (cleaner, more focused)
+
+## What Was Preserved
+Key concepts from SESSION_PROCEDURES.md that made it into DAILY_WORKFLOW.md:
+- Quick tech debt check at startup
+- Frequent commits (20-30 min)
+- Conditional CHANGELOG/REGISTER updates
+- Shutdown notes template
+- Emergency procedures
+
+## Historical Value
+This document shows the initial thinking about daily procedures before user feedback simplified the approach.
