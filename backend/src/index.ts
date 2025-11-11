@@ -8,6 +8,7 @@ import customerRoutes from './routes/customer';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { applySecurityMiddleware } from './middleware/securityHeaders';
 import { corsMiddleware, corsErrorHandler, validateCorsConfig } from './middleware/corsConfig';
+import { apiRateLimiter } from './middleware/rateLimiter';
 
 dotenv.config();
 
@@ -84,6 +85,11 @@ app.use(corsMiddleware);
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Rate Limiting Middleware (protects all API endpoints)
+// Applied globally to /api routes - 100 requests per 15 minutes per IP
+app.use('/api', apiRateLimiter);
+console.log('✅ [rate-limit]: API rate limiting enabled (100 req/15min per IP)');
 
 // Health check endpoint (includes database status)
 app.get('/health', async (req: Request, res: Response) => {

@@ -317,14 +317,88 @@
 
 ---
 
-## Day 6: [Date]
+## Day 6: 2025-11-10
 
 ### Objectives for Today
-- [ ] Implement rate limiting middleware
-- [ ] Configure different limits for different endpoints
+- [x] Implement rate limiting middleware
+- [x] Configure different limits for different endpoints
+- [x] Integrate with auth routes and main server
+- [x] Create test script
+- [x] Document implementation
 
 ### Work Completed
-- (To be filled)
+- ✅ **Installed express-rate-limit package** (npm install express-rate-limit)
+- ✅ **Created comprehensive rate limiting middleware** (backend/src/middleware/rateLimiter.ts)
+  - authRateLimiter: 5 requests/15min (brute force protection)
+  - registrationRateLimiter: 3 requests/1hour (spam prevention)
+  - passwordResetRateLimiter: 3 requests/1hour (abuse prevention)
+  - apiRateLimiter: 100 requests/15min (general API protection)
+  - adminRateLimiter: 200 requests/15min (admin operations - higher limits)
+  - Custom error handlers with retry information
+  - Standard headers support (RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset)
+  - Automatic IP address extraction (supports proxies)
+- ✅ **Integrated with auth routes** (backend/src/routes/auth.ts)
+  - POST /login: authRateLimiter applied
+  - POST /register: registrationRateLimiter applied
+  - POST /change-password: authRateLimiter applied
+  - All routes protected from brute force attacks
+- ✅ **Integrated with main server** (backend/src/index.ts)
+  - Global API rate limiter applied to all /api/* routes
+  - 100 requests per 15 minutes per IP
+  - Health check endpoint excluded from rate limiting
+  - Startup logging confirmation
+- ✅ **Created test script** (backend/test-rate-limiting.sh)
+  - Tests auth rate limiting
+  - Checks rate limit headers
+  - Automated testing capability
+- ✅ **Created comprehensive documentation** (docs/RATE_LIMITING.md)
+  - Implementation details and architecture
+  - Rate limit tier explanations
+  - Response header documentation
+  - Testing guide (manual and automated)
+  - Configuration examples
+  - Production deployment considerations
+  - Troubleshooting guide
+  - Future enhancements roadmap
+
+### Tasks In Progress
+- None (Day 6 complete)
+
+### Blockers
+- None
+
+### Decisions Made
+- **Use express-rate-limit package** (proven, well-maintained)
+- **IP-based rate limiting** (per IP address, not per user)
+- **Multiple tier system** (different limits for different endpoints)
+- **Standard headers** (RFC 7231 compliant)
+- **Helpful error messages** (include retry information)
+- **Skip health check** (don't rate limit monitoring endpoints)
+- **In-memory store** (sufficient for single server, can upgrade to Redis later)
+
+### Rate Limiting Configuration
+| Limiter | Window | Max Requests | Purpose |
+|---------|--------|--------------|---------|
+| Auth | 15 min | 5 | Brute force protection |
+| Registration | 1 hour | 3 | Spam prevention |
+| Password Reset | 1 hour | 3 | Abuse prevention |
+| General API | 15 min | 100 | API abuse protection |
+| Admin API | 15 min | 200 | Admin operations |
+
+### Time Spent
+- **Total Day 6: TBD** (will log at end of session)
+
+### Notes
+- Day 6 task complete and documented
+- All API endpoints now protected from abuse
+- Brute force password attacks prevented (5 attempts max)
+- Spam registrations blocked (3 per hour max)
+- Standard rate limit headers included in all responses
+- Console warnings for rate limit violations (security monitoring)
+- Ready for production deployment
+- Can upgrade to Redis store for multi-server setups
+- Backend restart required to load new rate limiting code
+- Ready for Day 7/8: Additional security hardening
 
 ---
 

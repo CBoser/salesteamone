@@ -3,14 +3,20 @@ import { authService } from '../services/auth';
 import { auditLogService } from '../services/auditLog';
 import { authenticateToken } from '../middleware/auth';
 import { UserRole } from '@prisma/client';
+import {
+  authRateLimiter,
+  registrationRateLimiter,
+  passwordResetRateLimiter,
+} from '../middleware/rateLimiter';
 
 const router = Router();
 
 /**
  * POST /api/auth/register
  * Register a new user
+ * Rate limit: 3 registrations per hour per IP
  */
-router.post('/register', async (req: Request, res: Response) => {
+router.post('/register', registrationRateLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password, firstName, lastName, role } = req.body;
 
@@ -84,8 +90,9 @@ router.post('/register', async (req: Request, res: Response) => {
 /**
  * POST /api/auth/login
  * Login a user
+ * Rate limit: 5 login attempts per 15 minutes per IP (brute force protection)
  */
-router.post('/login', async (req: Request, res: Response) => {
+router.post('/login', authRateLimiter, async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -203,10 +210,12 @@ router.get('/me', authenticateToken, async (req: Request, res: Response) => {
 /**
  * POST /api/auth/change-password
  * Change user password
+ * Rate limit: 5 attempts per 15 minutes per IP
  */
 router.post(
   '/change-password',
   authenticateToken,
+  authRateLimiter,
   async (req: Request, res: Response) => {
     try {
       if (!req.user) {
