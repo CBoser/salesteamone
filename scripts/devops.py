@@ -34,8 +34,8 @@ from typing import Optional, List, Tuple
 IS_WINDOWS = platform.system() == "Windows"
 IS_WSL = "microsoft" in platform.uname().release.lower()
 
-# Project paths
-PROJECT_ROOT = Path(__file__).parent
+# Project paths (devops.py is now in scripts/ subdirectory)
+PROJECT_ROOT = Path(__file__).parent.parent  # Go up one level from scripts/
 BACKEND_DIR = PROJECT_ROOT / "backend"
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 DOCKER_COMPOSE_FILE = PROJECT_ROOT / "docker-compose.yml"
@@ -559,6 +559,103 @@ def create_env_file():
         print_error(f".env.example not found: {example_file}")
 
 
+def generate_folder_tree():
+    """Generate a folder tree of the project structure"""
+    print_header("Generate Folder Tree")
+
+    output_file = PROJECT_ROOT / "archive" / "snapshots" / f"FolderTree_{time.strftime('%Y%m%d_%H%M%S')}.txt"
+
+    print_info(f"Generating folder tree...")
+    print_info(f"Output: {output_file.relative_to(PROJECT_ROOT)}")
+
+    # Directories and files to exclude
+    exclude_dirs = {
+        'node_modules', '.git', 'dist', 'build', '__pycache__',
+        '.next', '.vscode', '.idea', 'coverage', '.pytest_cache'
+    }
+
+    def should_exclude(path):
+        """Check if path should be excluded"""
+        parts = Path(path).parts
+        return any(excluded in parts for excluded in exclude_dirs)
+
+    def generate_tree(directory, prefix="", is_last=True, output_lines=None):
+        """Recursively generate tree structure"""
+        if output_lines is None:
+            output_lines = []
+
+        directory = Path(directory)
+        if should_exclude(directory):
+            return output_lines
+
+        # Get directory name
+        dir_name = directory.name if directory != PROJECT_ROOT else "ConstructionPlatform"
+
+        # Add current directory
+        connector = "└── " if is_last else "├── "
+        output_lines.append(f"{prefix}{connector}{dir_name}/")
+
+        # Prepare prefix for children
+        extension = "    " if is_last else "│   "
+        new_prefix = prefix + extension
+
+        try:
+            # Get all items (directories first, then files)
+            items = sorted(directory.iterdir(), key=lambda x: (not x.is_dir(), x.name.lower()))
+            items = [item for item in items if not should_exclude(item)]
+
+            # Process directories
+            dirs = [item for item in items if item.is_dir()]
+            files = [item for item in items if item.is_file()]
+
+            # Render directories
+            for i, item in enumerate(dirs):
+                is_last_item = (i == len(dirs) - 1) and len(files) == 0
+                generate_tree(item, new_prefix, is_last_item, output_lines)
+
+            # Render files
+            for i, item in enumerate(files):
+                is_last_item = i == len(files) - 1
+                connector = "└── " if is_last_item else "├── "
+                output_lines.append(f"{new_prefix}{connector}{item.name}")
+
+        except PermissionError:
+            output_lines.append(f"{new_prefix}[Permission Denied]")
+
+        return output_lines
+
+    try:
+        # Generate tree
+        lines = ["# MindFlow Platform - Folder Structure"]
+        lines.append(f"# Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append(f"# Excludes: {', '.join(sorted(exclude_dirs))}")
+        lines.append("")
+        lines.extend(generate_tree(PROJECT_ROOT))
+
+        # Create output directory if needed
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write to file
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines))
+
+        print_success(f"Folder tree generated: {len(lines)} lines")
+        print_info(f"Saved to: {output_file.relative_to(PROJECT_ROOT)}")
+        print()
+
+        # Show preview (first 30 lines)
+        print_info("Preview (first 30 lines):")
+        print(f"{Colors.CYAN}", end='')
+        for line in lines[:30]:
+            print(line)
+        if len(lines) > 30:
+            print(f"... ({len(lines) - 30} more lines)")
+        print(f"{Colors.ENDC}")
+
+    except Exception as e:
+        print_error(f"Failed to generate folder tree: {e}")
+
+
 # ============================================================================
 # Main Menu
 # ============================================================================
@@ -598,6 +695,7 @@ def print_menu():
     print("  L. View Docker Logs")
     print("  I. Install Dependencies")
     print("  E. Create .env File")
+    print("  P. Generate Project Tree")
 
     print(f"\n{Colors.CYAN}📖 Quick Actions{Colors.ENDC}")
     print("  Q. Quick Start (DB + Backend + Frontend)")
@@ -746,6 +844,9 @@ def main():
                 wait_for_user()
             elif choice == 'E':
                 create_env_file()
+                wait_for_user()
+            elif choice == 'P':
+                generate_folder_tree()
                 wait_for_user()
             elif choice == 'Q':
                 quick_start()

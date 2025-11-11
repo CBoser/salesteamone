@@ -5,6 +5,9 @@
 
 set -e
 
+# Change to project root directory (parent of scripts/)
+cd "$(dirname "$0")/.."
+
 echo "================================"
 echo "  MindFlow Platform Setup"
 echo "================================"
@@ -63,11 +66,11 @@ echo "================================"
 echo ""
 echo "Next steps:"
 echo "1. Make sure Docker is installed and running"
-echo "2. Run ./launch.sh to start the application"
+echo "2. Run ./scripts/launch.sh to start the application"
 echo ""
 echo "Or manually:"
 echo "  docker-compose up -d        # Start database"
 echo "  cd backend && npm run prisma:migrate"
 echo "  npm run dev                 # Start app"
 echo ""
-echo "See LAUNCH_GUIDE.md for detailed instructions"
+echo "See docs/LAUNCH_GUIDE.md for detailed instructions"

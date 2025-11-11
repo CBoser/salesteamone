@@ -3,6 +3,9 @@
 # MindFlow Platform Stop Script
 # Stops all running services
 
+# Change to project root directory (parent of scripts/)
+cd "$(dirname "$0")/.."
+
 echo "Stopping MindFlow Platform..."
 
 # Stop Docker containers
@@ -12,4 +15,4 @@ docker-compose down
 echo ""
 echo "✅ All services stopped"
 echo ""
-echo "To restart, run: ./launch.sh"
+echo "To restart, run: ./scripts/launch.sh"

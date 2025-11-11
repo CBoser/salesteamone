@@ -5,6 +5,9 @@
 
 set -e
 
+# Change to project root directory (parent of scripts/)
+cd "$(dirname "$0")/.."
+
 echo "================================"
 echo "  MindFlow Platform Launcher"
 echo "================================"
@@ -14,7 +17,7 @@ echo ""
 if ! command -v docker &> /dev/null; then
     echo "❌ Docker is not installed or not in PATH"
     echo "Please install Docker to run the PostgreSQL database"
-    echo "See LAUNCH_GUIDE.md for installation instructions"
+    echo "See docs/LAUNCH_GUIDE.md for installation instructions"
     exit 1
 fi
 
