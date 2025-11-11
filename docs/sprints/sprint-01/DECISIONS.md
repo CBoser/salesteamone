@@ -310,6 +310,53 @@ All technical decisions made during Sprint 1 with rationale.
 
 ---
 
+### [2025-11-11] 15:00 Rule - Work Session Management (Day 7)
+
+**Decision**: Do not start any new projects or sprints after 15:00 (3 PM). Final session of the day is reserved for resolution, reflections, and next day preparation.
+
+**Rationale**:
+- Late-day context switching reduces productivity
+- Starting new work after 3 PM often leads to incomplete tasks and mental clutter
+- End-of-day sessions are best used for closure activities
+- Fresh mornings are better for starting new initiatives
+- Proper closure and reflection improve next-day productivity
+
+**Alternatives Considered**:
+1. **No time restrictions** - Rejected: Leads to late-day context switching and incomplete work
+2. **Hard stop at 15:00** - Rejected: Too rigid, sometimes need to finish ongoing work
+3. **Different times for different days** - Rejected: Inconsistency makes it harder to follow
+
+**Impact**:
+- **After 15:00**: May finish ongoing work, do documentation, reflections, planning
+- **After 15:00**: Do NOT start new features, sprints, or major tasks
+- **Developer Experience**: Clearer work boundaries, better work-life balance
+- **Productivity**: Improves next-day startup by ensuring proper closure
+- **Code Quality**: Reduces rushed late-day commits
+
+**Acceptable After 15:00**:
+- ✅ Finishing ongoing tasks/debugging
+- ✅ Documentation updates
+- ✅ Time logging and progress tracking
+- ✅ Reflection and lessons learned
+- ✅ Planning next day's work
+- ✅ Code review and minor fixes
+
+**NOT Acceptable After 15:00**:
+- ❌ Starting new features
+- ❌ Starting new sprints
+- ❌ Major refactoring
+- ❌ Complex debugging of new issues
+- ❌ Architecture decisions
+
+**Code References**:
+- `docs/time-tracking/2025-11-week1.md:304-307` - Rule documentation
+- `docs/sprints/sprint-01/PROGRESS.md:486-489` - Rule in progress log
+
+**Owner**: Sprint 1 Day 7 - Process Improvement
+**Stakeholders**: Solo Developer (self-imposed productivity rule)
+
+---
+
 ### [To be filled] CSP Configuration
 
 **Decision**: (To be documented when implemented)
