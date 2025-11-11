@@ -360,12 +360,12 @@ class PlanService {
     const templateItems = stats.templateItems;
     const avgConfidence =
       templateItems.length > 0
-        ? templateItems.reduce((sum, item) => sum + (item.confidenceScore?.toNumber() || 0), 0) /
+        ? templateItems.reduce((sum: number, item: any) => sum + (item.confidenceScore?.toNumber() || 0), 0) /
           templateItems.length
         : 0;
 
     const totalVarianceRecords = templateItems.reduce(
-      (sum, item) => sum + (item.varianceCount || 0),
+      (sum: number, item: any) => sum + (item.varianceCount || 0),
       0
     );
 

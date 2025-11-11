@@ -347,7 +347,7 @@ class AuditLogService {
 
     // Count by action type
     const stats: Record<string, number> = {};
-    logs.forEach(log => {
+    logs.forEach((log: any) => {
       stats[log.action] = (stats[log.action] || 0) + 1;
     });
 
