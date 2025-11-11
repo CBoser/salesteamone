@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Workflow - MindFlow Platform Development</title>
+    <style>
+        /* MindFlow Design System Variables */
+        :root {
+            --primary: #2d5a3d;
+            --primary-dark: #1a472a;
+            --primary-light: #3d6a4d;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+            --gray-light: #95a5a6;
+            --gray-lighter: #bdc3c7;
+            --gray-border: #e0e0e0;
+            --white: #ffffff;
+            --background: #f0f2f5;
+            --background-dark: #f8f9fa;
+            --space-xs: 8px;
+            --space-sm: 12px;
+            --space-md: 16px;
+            --space-lg: 20px;
+            --space-xl: 24px;
+            --space-2xl: 32px;
+            --space-3xl: 40px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --radius: 5px;
+            --radius-md: 8px;
+            --radius-lg: 10px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: #333;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: var(--space-2xl);
+            box-shadow: var(--shadow);
+            margin-bottom: var(--space-lg);
+            page-break-after: avoid;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg) var(--space-2xl);
+        }
+
+        /* Section Card */
+        .section {
+            background: white;
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            margin-bottom: var(--space-lg);
+            page-break-inside: avoid;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            padding-bottom: var(--space-sm);
+            border-bottom: 2px solid var(--gray-border);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .section-subtitle {
+            font-size: 1.2em;
+            color: var(--dark);
+            font-weight: 600;
+            margin-top: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        /* Code blocks */
+        .code-block {
+            background-color: var(--background-dark);
+            border-left: 3px solid var(--primary);
+            padding: var(--space-md);
+            border-radius: var(--radius);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            margin: var(--space-md) 0;
+            overflow-x: auto;
+        }
+
+        code {
+            background-color: var(--background-dark);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: var(--primary-dark);
+        }
+
+        /* Lists */
+        ul {
+            margin: var(--space-md) 0;
+            padding-left: var(--space-2xl);
+        }
+
+        li {
+            margin-bottom: var(--space-sm);
+            line-height: 1.6;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            padding-left: var(--space-2xl);
+            position: relative;
+            margin-bottom: var(--space-sm);
+        }
+
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* Time Badge */
+        .time-badge {
+            display: inline-block;
+            background-color: var(--info);
+            color: white;
+            padding: 4px 12px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            margin-left: var(--space-sm);
+        }
+
+        /* Alert Box */
+        .alert-box {
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            border-left: 4px solid;
+            margin: var(--space-md) 0;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-left-color: var(--info);
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left-color: var(--warning);
+            color: #856404;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left-color: var(--success);
+            color: #155724;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-md) 0;
+            background: white;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            padding: var(--space-md);
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid var(--gray-border);
+        }
+
+        td {
+            padding: var(--space-md);
+            border: 1px solid var(--gray-border);
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--background-dark);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            margin: var(--space-lg) 0;
+        }
+
+        .stat-card {
+            background: var(--background-dark);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--primary);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Session Template Card */
+        .template-card {
+            background: var(--background-dark);
+            border: 2px dashed var(--gray-border);
+            padding: var(--space-xl);
+            border-radius: var(--radius-lg);
+            margin: var(--space-lg) 0;
+        }
+
+        .template-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-md);
+            gap: var(--space-sm);
+        }
+
+        .template-label {
+            font-weight: 600;
+            color: var(--dark);
+            min-width: 150px;
+        }
+
+        .template-line {
+            flex: 1;
+            border-bottom: 1px solid var(--gray-light);
+            height: 24px;
+        }
+
+        /* Golden Rules */
+        .golden-rule {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-left: 4px solid var(--warning);
+            padding: var(--space-md);
+            margin: var(--space-sm) 0;
+            border-radius: var(--radius);
+        }
+
+        .golden-rule strong {
+            color: var(--primary-dark);
+        }
+
+        /* File tree */
+        .file-tree {
+            background-color: var(--background-dark);
+            padding: var(--space-md);
+            border-radius: var(--radius);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+            }
+            .section {
+                box-shadow: none;
+                border: 1px solid var(--gray-border);
+                page-break-inside: avoid;
+            }
+            .header {
+                page-break-after: avoid;
+            }
+            @page {
+                margin: 1cm;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📋 Daily Workflow - Quick Reference Guide</h1>
+    <p>MindFlow Platform Development • Version 1.1 • Last Updated: 2025-11-11</p>
+</div>
+
+<div class="container">
+
+    <!-- Morning Startup Section -->
+    <div class="section">
+        <h2 class="section-title">🌅 Start of Day <span class="time-badge">10 minutes</span></h2>
+        
+        <h3 class="section-subtitle">1. Check What Happened Yesterday <span class="time-badge">3 min</span></h3>
+        <div class="code-block">cd /path/to/ConstructionPlatform
+git log --oneline -5</div>
+        
+        <p><strong>Read these files:</strong></p>
+        <ul>
+            <li><code>docs/sprints/sprint-01/PROGRESS.md</code> (last section) → What did I do?</li>
+            <li><code>docs/sprints/sprint-01/PLAN.md</code> (today's section) → What's today's plan?</li>
+        </ul>
+        
+        <div class="alert-box alert-info">
+            <strong>Write down 1-3 goals for today.</strong>
+        </div>
+
+        <h3 class="section-subtitle">2. Log Start Time <span class="time-badge">2 min</span></h3>
+        <p>Open: <code>docs/time-tracking/2025-11-week*.md</code></p>
+        <div class="code-block">### Session N
+- **Start**: HH:MM
+- **Planned Work**: [What you're doing today]</div>
+    </div>
+
+    <!-- During Work Section -->
+    <div class="section">
+        <h2 class="section-title">💻 During Work</h2>
+        
+        <h3 class="section-subtitle">Work in Small Chunks</h3>
+        <ul>
+            <li>Code for 20-30 minutes</li>
+            <li>Commit your changes</li>
+            <li>Repeat</li>
+        </ul>
+
+        <h3 class="section-subtitle">Commit Often</h3>
+        <div class="code-block">git add .
+git commit -m "feat: what I just did"
+git push</div>
+
+        <h3 class="section-subtitle">If You Hit a Blocker</h3>
+        <ol>
+            <li>Write it down in <code>docs/sprints/sprint-01/PROGRESS.md</code></li>
+            <li>Try to fix it for 30 minutes</li>
+            <li>If still stuck, document it and move on</li>
+        </ol>
+
+        <h3 class="section-subtitle">If You Make an Important Decision</h3>
+        <p>Write it in <code>docs/sprints/sprint-01/DECISIONS.md</code>:</p>
+        <div class="code-block">### [Date] What I Decided
+
+**Decision**: What I chose
+**Why**: Reason for choosing it</div>
+    </div>
+
+    <!-- End of Day Section -->
+    <div class="section">
+        <h2 class="section-title">🌙 End of Day <span class="time-badge">10 minutes</span></h2>
+        
+        <h3 class="section-subtitle">1. Log Your Time <span class="time-badge">2 min</span></h3>
+        <p>Update <code>docs/time-tracking/2025-11-week*.md</code>:</p>
+        <div class="code-block">- **End**: HH:MM
+- **Duration**: X.X hours
+- **Activity**: What I worked on
+- **Category**: Planned | Debugging | Unplanned</div>
+
+        <h3 class="section-subtitle">2. Update What You Did <span class="time-badge">5 min</span></h3>
+        <p>Update <code>docs/sprints/sprint-01/PROGRESS.md</code>:</p>
+        <div class="code-block">## Day N: [Date]
+
+### Work Completed
+- ✅ Did this thing
+- ✅ Fixed this problem
+- 🚧 Started this (not finished)
+
+### Blockers
+- ⚠️ Problem I ran into: [description]</div>
+
+        <h3 class="section-subtitle">3. Final Commit <span class="time-badge">3 min</span></h3>
+        <div class="code-block">git add .
+git commit -m "docs: End of day N - [summary]"
+git push</div>
+    </div>
+
+    <!-- Friday Review Section -->
+    <div class="section">
+        <h2 class="section-title">📅 Friday Review <span class="time-badge">30 minutes</span></h2>
+        
+        <h3 class="section-subtitle">Calculate Your Speed</h3>
+        <p>Look at <code>docs/time-tracking/2025-11-week*.md</code></p>
+        <ul>
+            <li>How many hours did you plan?</li>
+            <li>How many hours did you actually work?</li>
+            <li>Divide: <strong>actual ÷ planned = your velocity</strong></li>
+        </ul>
+
+        <h3 class="section-subtitle">Review Problems</h3>
+        <p>Look at <code>docs/sprints/sprint-01/PROGRESS.md</code></p>
+        <ul>
+            <li>What blockers did you hit?</li>
+            <li>Did you solve them?</li>
+            <li>What did you learn?</li>
+        </ul>
+
+        <h3 class="section-subtitle">Plan Next Week</h3>
+        <p>Look at <code>docs/sprints/sprint-01/PLAN.md</code></p>
+        <ul>
+            <li>What's coming up?</li>
+            <li>Adjust time estimates based on this week's velocity</li>
+        </ul>
+    </div>
+
+    <!-- The 3 Essential Files -->
+    <div class="section">
+        <h2 class="section-title">📂 The 3 Files You Use Every Day</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>When</th>
+                    <th>What</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>PLAN.md</strong></td>
+                    <td>Morning</td>
+                    <td>Today's tasks</td>
+                </tr>
+                <tr>
+                    <td><strong>PROGRESS.md</strong></td>
+                    <td>Evening</td>
+                    <td>What you did</td>
+                </tr>
+                <tr>
+                    <td><strong>Time Tracking</strong></td>
+                    <td>Start & End</td>
+                    <td>Hours worked</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div class="alert-box alert-info">
+            <strong>Location:</strong> <code>/path/to/ConstructionPlatform/docs/sprints/sprint-01/</code>
+        </div>
+    </div>
+
+    <!-- Emergency Procedures -->
+    <div class="section">
+        <h2 class="section-title">🆘 Emergency Procedures</h2>
+        
+        <h3 class="section-subtitle">Session Interrupted?</h3>
+        <div class="code-block">git add .
+git commit -m "WIP: Interrupted - [what you were doing]"
+git push</div>
+
+        <h3 class="section-subtitle">Forgot to Track Time?</h3>
+        <div class="code-block"># Check your commits to estimate time
+git log --since="today" --pretty=format:"%h %ad | %s" --date=format:'%H:%M'</div>
+
+        <h3 class="section-subtitle">Lost Your Place?</h3>
+        <ol>
+            <li>Read last commit message</li>
+            <li>Read <code>PROGRESS.md</code> today's section</li>
+            <li>Check <code>git diff HEAD~3..HEAD</code></li>
+        </ol>
+    </div>
+
+    <!-- Time Investment Stats -->
+    <div class="section">
+        <h2 class="section-title">⏱️ Time Investment</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">20 min</div>
+                <div class="stat-label">Daily Overhead</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">30 min</div>
+                <div class="stat-label">Weekly Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">Never Lose</div>
+                <div class="stat-label">Context</div>
+            </div>
+        </div>
+
+        <div class="alert-box alert-success">
+            <strong>Benefit:</strong> Never lose context, always know what to do next
+        </div>
+    </div>
+
+    <!-- Simple Checklist -->
+    <div class="section">
+        <h2 class="section-title">✅ Simple Checklist</h2>
+        
+        <h3 class="section-subtitle">Morning</h3>
+        <ul class="checklist">
+            <li>Check yesterday's progress (3 min)</li>
+            <li>Read today's plan (3 min)</li>
+            <li>Log start time (2 min)</li>
+            <li>Write 1-3 goals (2 min)</li>
+        </ul>
+
+        <h3 class="section-subtitle">During Day</h3>
+        <ul class="checklist">
+            <li>Code for 20-30 minutes</li>
+            <li>Commit changes</li>
+            <li>Repeat</li>
+        </ul>
+
+        <h3 class="section-subtitle">Evening</h3>
+        <ul class="checklist">
+            <li>Log end time (2 min)</li>
+            <li>Update what you did (5 min)</li>
+            <li>Final commit and push (3 min)</li>
+        </ul>
+
+        <h3 class="section-subtitle">Friday</h3>
+        <ul class="checklist">
+            <li>Calculate velocity (5 min)</li>
+            <li>Review blockers (10 min)</li>
+            <li>Plan next week (5 min)</li>
+        </ul>
+    </div>
+
+    <!-- Golden Rules -->
+    <div class="section">
+        <h2 class="section-title">💡 Golden Rules</h2>
+        
+        <div class="golden-rule">
+            <strong>1. Commit every 20-30 minutes</strong> - Small chunks are easier to track
+        </div>
+        <div class="golden-rule">
+            <strong>2. Never skip end-of-day</strong> - 10 minutes saves hours later
+        </div>
+        <div class="golden-rule">
+            <strong>3. Write blockers immediately</strong> - Don't forget what went wrong
+        </div>
+        <div class="golden-rule">
+            <strong>4. Keep it simple</strong> - If it's too complex, you won't do it
+        </div>
+    </div>
+
+    <!-- Quick Start -->
+    <div class="section">
+        <h2 class="section-title">🎯 Today's Quick Start</h2>
+        
+        <div class="alert-box alert-warning">
+            <strong>Right now, do this:</strong>
+        </div>
+        
+        <ol>
+            <li>Open <code>docs/sprints/sprint-01/PROGRESS.md</code> → Check yesterday</li>
+            <li>Open <code>docs/sprints/sprint-01/PLAN.md</code> → Check today's tasks</li>
+            <li>Open <code>docs/time-tracking/2025-11-week*.md</code> → Log start time</li>
+            <li>Write down 1-3 specific goals for today</li>
+            <li><strong>Start coding 🚀</strong></li>
+        </ol>
+    </div>
+
+    <!-- Session Template -->
+    <div class="section">
+        <h2 class="section-title">📋 Daily Session Template</h2>
+        <p style="margin-bottom: var(--space-md); color: var(--gray);">Copy and fill out for each session</p>
+        
+        <div class="template-card">
+            <div class="template-field">
+                <span class="template-label">DATE:</span>
+                <span class="template-line"></span>
+                <span class="template-label">SESSION:</span>
+                <span class="template-line" style="max-width: 100px;"></span>
+            </div>
+            
+            <div class="template-field">
+                <span class="template-label">START TIME:</span>
+                <span class="template-line" style="max-width: 150px;"></span>
+                <span class="template-label">END TIME:</span>
+                <span class="template-line" style="max-width: 150px;"></span>
+            </div>
+            
+            <div style="margin: var(--space-lg) 0;">
+                <div class="template-label" style="margin-bottom: var(--space-sm);">TODAY'S GOALS:</div>
+                <div class="template-field"><span>1.</span><span class="template-line"></span></div>
+                <div class="template-field"><span>2.</span><span class="template-line"></span></div>
+                <div class="template-field"><span>3.</span><span class="template-line"></span></div>
+            </div>
+            
+            <div style="margin: var(--space-lg) 0;">
+                <div class="template-label" style="margin-bottom: var(--space-sm);">WORK COMPLETED:</div>
+                <div class="template-field"><span>☐</span><span class="template-line"></span></div>
+                <div class="template-field"><span>☐</span><span class="template-line"></span></div>
+                <div class="template-field"><span>☐</span><span class="template-line"></span></div>
+            </div>
+            
+            <div style="margin: var(--space-lg) 0;">
+                <div class="template-label" style="margin-bottom: var(--space-sm);">BLOCKERS ENCOUNTERED:</div>
+                <div style="height: 60px; border-bottom: 1px solid var(--gray-light);"></div>
+            </div>
+            
+            <div style="margin: var(--space-lg) 0;">
+                <div class="template-label" style="margin-bottom: var(--space-sm);">DECISIONS MADE:</div>
+                <div style="height: 60px; border-bottom: 1px solid var(--gray-light);"></div>
+            </div>
+            
+            <div style="margin: var(--space-lg) 0;">
+                <div class="template-label" style="margin-bottom: var(--space-sm);">NEXT SESSION PRIORITIES:</div>
+                <div class="template-field"><span>1.</span><span class="template-line"></span></div>
+                <div class="template-field"><span>2.</span><span class="template-line"></span></div>
+            </div>
+            
+            <div style="margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 2px solid var(--gray-border);">
+                <div class="template-field">
+                    <span class="template-label">DURATION:</span>
+                    <span class="template-line" style="max-width: 150px;"></span>
+                    <span class="template-label">hours</span>
+                </div>
+                <div class="template-field">
+                    <span class="template-label">CATEGORY:</span>
+                    <span>☐ Planned</span>
+                    <span style="margin-left: var(--space-md);">☐ Debugging</span>
+                    <span style="margin-left: var(--space-md);">☐ Unplanned</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Locations -->
+    <div class="section">
+        <h2 class="section-title">🗂️ Document Locations Reference</h2>
+        
+        <h3 class="section-subtitle">Daily Use Documents</h3>
+        <div class="file-tree">ConstructionPlatform/
+├── docs/
+│   ├── sprints/
+│   │   └── sprint-01/
+│   │       ├── PLAN.md          ← Today's tasks
+│   │       ├── PROGRESS.md      ← Work log
+│   │       └── DECISIONS.md     ← Important choices
+│   └── time-tracking/
+│       └── 2025-11-week*.md     ← Hours tracking</div>
+
+        <h3 class="section-subtitle">Reference Documents</h3>
+        <div class="file-tree">ConstructionPlatform/
+├── docs/
+│   ├── technical-debt/
+│   │   └── REGISTER.md          ← Problems to fix
+│   ├── validation prompts/
+│   │   └── IMPLEMENTATION_VALIDATION_CHECKLIST.md
+│   └── CHANGELOG.md             ← Feature completions</div>
+    </div>
+
+    <!-- Quick Commands -->
+    <div class="section">
+        <h2 class="section-title">📞 Quick Commands Cheat Sheet</h2>
+        
+        <h3 class="section-subtitle">Morning Startup</h3>
+        <div class="code-block">cd /path/to/ConstructionPlatform
+git status
+git log --oneline -5
+cat docs/sprints/sprint-01/PROGRESS.md | tail -50</div>
+
+        <h3 class="section-subtitle">During Work</h3>
+        <div class="code-block"># Commit frequently
+git add .
+git commit -m "feat: description"
+git push
+
+# Check if tests pass
+npm test
+
+# Check TypeScript compilation
+npm run build</div>
+
+        <h3 class="section-subtitle">End of Day</h3>
+        <div class="code-block"># Final commit with summary
+git add .
+git commit -m "docs: End of day N - summary"
+git push</div>
+
+        <h3 class="section-subtitle">Emergency Save</h3>
+        <div class="code-block">git add .
+git commit -m "WIP: Interrupted"
+git push</div>
+    </div>
+
+    <!-- Final Reminder -->
+    <div class="section" style="text-align: center; background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%); color: white;">
+        <h2 style="color: white; border: none; padding-bottom: 0;">Remember</h2>
+        <p style="font-size: 1.2em; margin-top: var(--space-md);">
+            The goal is <strong>progress</strong>, not perfect documentation.<br>
+            Do the minimum to stay organized, then focus on building.
+        </p>
+    </div>
+
+    <div style="text-align: center; margin-top: var(--space-2xl); padding: var(--space-2xl); color: var(--gray);">
+        <p><strong>Print this guide and keep it at your desk!</strong></p>
+        <p style="font-size: 14px; margin-top: var(--space-sm);">
+            MindFlow Construction Platform • Daily Workflow v1.1 • 2025-11-11
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>
