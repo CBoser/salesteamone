@@ -4,6 +4,18 @@ This directory contains documentation that is no longer actively used but preser
 
 ---
 
+## Workflow Documents (2025-11-11)
+
+### SESSION_PROCEDURES.md (archived 2025-11-11)
+- **Purpose**: Initial daily workflow procedures document
+- **Date**: November 11, 2025 (created and archived same day)
+- **Status**: Superseded by DAILY_WORKFLOW.md
+- **Reason for Archiving**: Immediately superseded after user feedback - merged into simpler, more practical DAILY_WORKFLOW.md
+- **Value**: Shows initial thinking before user collaboration simplified the approach
+- **Note**: See SESSION_PROCEDURES.md.README for details on what was preserved
+
+---
+
 ## Planning Documents (2025-11-08)
 
 ### LDF_EXECUTIVE_SUMMARY.md (archived 2025-11-11)
