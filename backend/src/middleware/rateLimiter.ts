@@ -1,3 +1,4 @@
+/// <reference path="../types/express-augmentation.d.ts" />
 import rateLimit from 'express-rate-limit';
 import { Request, Response } from 'express';
 
