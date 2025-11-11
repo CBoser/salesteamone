@@ -303,7 +303,7 @@ class MaterialService {
       orderBy: { category: 'asc' },
     });
 
-    return materials.map((m) => m.category);
+    return materials.map((m: any) => m.category);
   }
 
   // ====== PRICING OPERATIONS ======
@@ -551,9 +551,9 @@ class MaterialService {
       return null;
     }
 
-    const prices = pricing.map((p) => p.pricePerUnit.toNumber());
+    const prices = pricing.map((p: any) => p.pricePerUnit.toNumber());
     const currentPrice = prices[prices.length - 1];
-    const avgPrice = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+    const avgPrice = prices.reduce((sum: number, price: number) => sum + price, 0) / prices.length;
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
 

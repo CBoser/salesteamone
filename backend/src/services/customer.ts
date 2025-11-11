@@ -280,8 +280,8 @@ class CustomerService {
       throw new Error('Customer not found');
     }
 
-    const totalLots = stats.plans.reduce((sum, plan) => sum + plan._count.lots, 0);
-    const totalJobs = stats.plans.reduce((sum, plan) => sum + plan._count.jobs, 0);
+    const totalLots = stats.plans.reduce((sum: number, plan: any) => sum + plan._count.lots, 0);
+    const totalJobs = stats.plans.reduce((sum: number, plan: any) => sum + plan._count.jobs, 0);
 
     return {
       totalPlans: stats._count.plans,
