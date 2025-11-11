@@ -1,20 +1,26 @@
-import { PrismaClient, Customer, CustomerType, Prisma } from '@prisma/client';
+import { PrismaClient, Customer, Prisma } from '@prisma/client';
 import { db } from './database';
 
 export interface CreateCustomerInput {
-  customerName: string;
-  customerType: CustomerType;
-  pricingTier?: string;
-  primaryContactId?: string;
+  name: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   notes?: string;
   isActive?: boolean;
 }
 
 export interface UpdateCustomerInput {
-  customerName?: string;
-  customerType?: CustomerType;
-  pricingTier?: string;
-  primaryContactId?: string;
+  name?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   notes?: string;
   isActive?: boolean;
 }
@@ -24,7 +30,7 @@ export interface ListCustomersQuery {
   limit?: number;
   search?: string;
   isActive?: boolean;
-  sortBy?: 'customerName' | 'createdAt' | 'updatedAt';
+  sortBy?: 'name' | 'createdAt' | 'updatedAt';
   sortOrder?: 'asc' | 'desc';
 }
 
@@ -36,24 +42,24 @@ class CustomerService {
     try {
       const customer = await db.customer.create({
         data: {
-          customerName: input.customerName,
-          customerType: input.customerType,
-          pricingTier: input.pricingTier,
-          primaryContactId: input.primaryContactId,
+          name: input.name,
+          contactEmail: input.contactEmail,
+          contactPhone: input.contactPhone,
+          address: input.address,
+          city: input.city,
+          state: input.state,
+          zipCode: input.zipCode,
           notes: input.notes,
           isActive: input.isActive ?? true,
         },
       });
 
       return customer;
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new Error('A customer with this name already exists');
         }
-      }
-      if (error instanceof Error) {
-        throw new Error(`Failed to create customer: ${error.message}`);
       }
       throw error;
     }
@@ -67,23 +73,14 @@ class CustomerService {
       where: { id },
       include: includeRelations
         ? {
-            jobs: {
+            plans: {
               select: {
                 id: true,
-                jobNumber: true,
-                status: true,
+                name: true,
+                isActive: true,
                 createdAt: true,
-                plan: {
-                  select: {
-                    id: true,
-                    code: true,
-                    name: true,
-                    type: true,
-                  },
-                },
               },
-              orderBy: { createdAt: 'desc' as const },
-              take: 10,
+              orderBy: { createdAt: 'desc' },
             },
             communities: {
               select: {
@@ -92,7 +89,7 @@ class CustomerService {
                 isActive: true,
                 createdAt: true,
               },
-              orderBy: { createdAt: 'desc' as const },
+              orderBy: { createdAt: 'desc' },
             },
           }
         : undefined,
@@ -110,7 +107,7 @@ class CustomerService {
       limit = 50,
       search,
       isActive,
-      sortBy = 'customerName',
+      sortBy = 'name',
       sortOrder = 'asc',
     } = query;
 
@@ -120,10 +117,13 @@ class CustomerService {
     const where: Prisma.CustomerWhereInput = {};
 
     if (search) {
-      where.customerName = {
-        contains: search,
-        mode: 'insensitive' as const,
-      };
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { contactEmail: { contains: search, mode: 'insensitive' } },
+        { contactPhone: { contains: search, mode: 'insensitive' } },
+        { city: { contains: search, mode: 'insensitive' } },
+        { state: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     if (isActive !== undefined) {
@@ -140,7 +140,7 @@ class CustomerService {
         include: {
           _count: {
             select: {
-              jobs: true,
+              plans: true,
               communities: true,
             },
           },
@@ -171,7 +171,7 @@ class CustomerService {
       });
 
       return customer;
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new Error('Customer not found');
@@ -179,9 +179,6 @@ class CustomerService {
         if (error.code === 'P2002') {
           throw new Error('A customer with this name already exists');
         }
-      }
-      if (error instanceof Error) {
-        throw new Error(`Failed to update customer: ${error.message}`);
       }
       throw error;
     }
@@ -198,14 +195,11 @@ class CustomerService {
       });
 
       return customer;
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new Error('Customer not found');
         }
-      }
-      if (error instanceof Error) {
-        throw new Error(`Failed to deactivate customer: ${error.message}`);
       }
       throw error;
     }
@@ -222,14 +216,11 @@ class CustomerService {
       });
 
       return customer;
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new Error('Customer not found');
         }
-      }
-      if (error instanceof Error) {
-        throw new Error(`Failed to activate customer: ${error.message}`);
       }
       throw error;
     }
@@ -243,19 +234,16 @@ class CustomerService {
       await db.customer.delete({
         where: { id },
       });
-    } catch (error: unknown) {
+    } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new Error('Customer not found');
         }
         if (error.code === 'P2003') {
           throw new Error(
-            'Cannot delete customer with existing jobs or communities. Deactivate instead.'
+            'Cannot delete customer with existing plans or communities. Deactivate instead.'
           );
         }
-      }
-      if (error instanceof Error) {
-        throw new Error(`Failed to delete customer: ${error.message}`);
       }
       throw error;
     }
@@ -270,15 +258,19 @@ class CustomerService {
       select: {
         _count: {
           select: {
-            jobs: true,
+            plans: true,
             communities: true,
           },
         },
-        jobs: {
-          where: { status: { not: 'CANCELLED' } },
-          include: {
-            lot: true,
-            plan: true,
+        plans: {
+          where: { isActive: true },
+          select: {
+            _count: {
+              select: {
+                lots: true,
+                jobs: true,
+              },
+            },
           },
         },
       },
@@ -288,27 +280,14 @@ class CustomerService {
       throw new Error('Customer not found');
     }
 
-    interface JobWithRelations {
-      lot: { id: string } | null;
-      plan: { id: string } | null;
-    }
-
-    const uniquePlans = new Set(
-      stats.jobs
-        .filter((job: JobWithRelations) => job.plan !== null)
-        .map((job: JobWithRelations) => job.plan!.id)
-    );
-    const uniqueLots = new Set(
-      stats.jobs
-        .filter((job: JobWithRelations) => job.lot !== null)
-        .map((job: JobWithRelations) => job.lot!.id)
-    );
+    const totalLots = stats.plans.reduce((sum: number, plan: any) => sum + plan._count.lots, 0);
+    const totalJobs = stats.plans.reduce((sum: number, plan: any) => sum + plan._count.jobs, 0);
 
     return {
-      totalJobs: stats._count.jobs,
+      totalPlans: stats._count.plans,
       totalCommunities: stats._count.communities,
-      totalPlans: uniquePlans.size,
-      totalLots: uniqueLots.size,
+      totalLots,
+      totalJobs,
     };
   }
 }
