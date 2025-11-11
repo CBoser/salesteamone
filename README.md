@@ -14,13 +14,13 @@ A comprehensive full-stack platform designed to transform fragile Excel-based in
 
 ```bash
 # One-time setup
-./setup.sh          # Install dependencies and create config files
+./scripts/setup.sh          # Install dependencies and create config files
 
 # Start the application
-./launch.sh         # Starts database and launches app
+./scripts/launch.sh         # Starts database and launches app
 
 # Stop the application
-./stop.sh           # Stops all services
+./scripts/stop.sh           # Stops all services
 ```
 
 **Manual Launch:**
@@ -32,7 +32,7 @@ npm run dev                             # Launch frontend + backend
 
 Access the app at **http://localhost:5173**
 
-For detailed instructions, see [LAUNCH_GUIDE.md](./LAUNCH_GUIDE.md)
+For detailed instructions, see [LAUNCH_GUIDE.md](./docs/LAUNCH_GUIDE.md)
 
 ---
 
@@ -219,8 +219,12 @@ The system continuously improves. Variance analysis feeds back into plan templat
 ## Project Structure
 
 ```
-mindflow/
-├── frontend/                 # React application
+ConstructionPlatform/
+├── README.md                # This file
+├── package.json             # Monorepo root package
+├── docker-compose.yml       # Local PostgreSQL setup
+│
+├── frontend/                # React application
 │   ├── src/
 │   │   ├── components/      # Reusable UI components
 │   │   │   ├── ui/         # Base components (Button, Modal, Table)
@@ -252,7 +256,7 @@ mindflow/
 │   │   │   ├── PricingPipelineService.ts
 │   │   │   └── PlanNameParser.ts
 │   │   ├── repositories/   # Data access layer
-│   │   ├── middleware/     # Express middleware
+│   │   ├── middleware/     # Express middleware (security, CORS, rate limiting)
 │   │   ├── validators/     # Input validation (Zod)
 │   │   └── errors/         # Custom error classes
 │   ├── prisma/
@@ -268,8 +272,32 @@ mindflow/
 │       ├── material.ts
 │       └── pricing.ts
 │
-├── docker-compose.yml      # Local PostgreSQL setup
-└── README.md              # This file
+├── docs/                    # Project documentation
+│   ├── DAILY_WORKFLOW.md    # Daily development workflow
+│   ├── CHANGELOG.md         # Project changelog
+│   ├── LAUNCH_GUIDE.md      # Detailed setup instructions
+│   ├── QUICK_START.md       # Quick reference guide
+│   ├── SPRINT_PLAN.md       # Master sprint plan
+│   ├── sprints/             # Sprint-specific documentation
+│   │   └── sprint-01/       # Current sprint
+│   │       ├── PLAN.md      # Sprint plan with daily objectives
+│   │       ├── PROGRESS.md  # Daily progress tracking
+│   │       └── DECISIONS.md # Technical decisions log
+│   ├── time-tracking/       # Time logs by week
+│   ├── technical-debt/      # Technical debt register
+│   └── archive/             # Archived documentation
+│
+├── scripts/                 # DevOps and automation scripts
+│   ├── launch.sh            # Start the application
+│   ├── launch-dev.sh        # Development mode launch
+│   ├── setup.sh             # Initial setup script
+│   ├── stop.sh              # Stop all services
+│   └── devops.py            # Python DevOps management tool
+│
+└── archive/                 # Historical artifacts
+    ├── legacy/              # Old HTML/CSS/JS (pre-React)
+    ├── snapshots/           # Folder tree snapshots
+    └── status-checks/       # Historical status checks
 ```
 
 ---
@@ -284,13 +312,13 @@ mindflow/
 
 ### Installation
 
-#### Option 1: Automated Setup (Windows - Recommended)
+#### Option 1: Automated Setup (Recommended)
 
-The easiest way to set up the project on Windows:
+The easiest way to set up the project:
 
-```powershell
+```bash
 # Run the automated setup script
-.\setup.bat
+./scripts/setup.sh
 ```
 
 This will:
@@ -301,34 +329,23 @@ This will:
 - Start PostgreSQL
 - Run database migrations
 
-#### Option 2: Automated Setup (Python - Cross-Platform)
+#### Option 2: DevOps Tool (Python - Cross-Platform)
 
-Use the intelligent project manager script with diagnostics:
+Use the DevOps management tool for interactive setup and management:
 
 ```bash
-# First, check for issues
-python project_manager.py --diagnose
-
-# Auto-fix detected issues
-python project_manager.py --fix
-
-# Install dependencies
-python project_manager.py --install
-
-# Setup database
-python project_manager.py --reset-db
-
-# Or do everything at once
-python project_manager.py --all
+# Launch the DevOps tool
+python3 scripts/devops.py
 ```
 
-**Available Commands:**
-- `--diagnose` - Run comprehensive system diagnostics
-- `--fix` - Automatically fix detected issues
-- `--install` - Install all dependencies
-- `--reset-db` - Reset database (drop, migrate, seed)
-- `--clean` - Clean node_modules
-- `--all` - Full reset (clean + install + reset-db)
+The DevOps tool provides an interactive menu for:
+- Database management (start, stop, reset, migrations)
+- Dependency installation (frontend, backend)
+- Development server control
+- Project tree generation
+- System diagnostics and health checks
+
+See [docs/DEVOPS_TOOL.md](./docs/DEVOPS_TOOL.md) for detailed usage.
 
 #### Option 3: Manual Setup
 
@@ -619,25 +636,22 @@ We welcome contributions! Please follow these steps:
 
 ### Quick Diagnostic Tool
 
-**Before troubleshooting manually, run the diagnostic tool:**
+**Before troubleshooting manually, use the DevOps tool:**
 
 ```bash
-# Check what's wrong
-python project_manager.py --diagnose
-
-# Try to auto-fix issues
-python project_manager.py --fix
+# Launch the DevOps tool
+python3 scripts/devops.py
 ```
 
-The diagnostic tool checks for:
-- Node.js and npm installation
-- Docker installation and status
-- Missing .env files
-- DATABASE_URL configuration
-- Missing dependencies (node_modules)
-- Database volume conflicts
-- Port availability (3001, 5173, 5432)
-- Windows-specific issues
+The DevOps tool provides:
+- Interactive menu for common tasks
+- System diagnostics and health checks
+- Database management (start, stop, reset)
+- Dependency installation
+- Development server control
+- Project tree generation
+
+See [docs/DEVOPS_TOOL.md](./docs/DEVOPS_TOOL.md) for detailed troubleshooting guides.
 
 ### Database Connection Issues
 ```bash

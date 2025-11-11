@@ -1,0 +1,223 @@
+================================================================================
+MindFlow Platform - Project Structure
+Generated: 2025-11-11 14:54:38
+================================================================================
+
+ConstructionPlatform/
+├── archive/
+│   ├── legacy/
+│   │   ├── css/
+│   │   │   └── styles.css
+│   │   ├── js/
+│   │   │   ├── app.js
+│   │   │   ├── calculators.js
+│   │   │   ├── dev-notes.js
+│   │   │   ├── holt-importer.js
+│   │   │   ├── modals.js
+│   │   │   ├── reports.js
+│   │   │   ├── rl-importer.js
+│   │   │   └── storage.js
+│   │   └── index.html
+│   ├── snapshots/
+│   │   └── FolderTree.txt
+│   └── status-checks/
+│       └── status_check_20251107.txt
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── seed.ts
+│   ├── src/
+│   │   ├── controllers/
+│   │   │   └── CustomerController.ts
+│   │   ├── errors/
+│   │   │   └── customer.ts
+│   │   ├── middleware/
+│   │   │   ├── auth.ts
+│   │   │   ├── corsConfig.ts
+│   │   │   ├── errorHandler.ts
+│   │   │   ├── rateLimiter.ts
+│   │   │   └── securityHeaders.ts
+│   │   ├── repositories/
+│   │   │   └── CustomerRepository.ts
+│   │   ├── routes/
+│   │   │   ├── auth.ts
+│   │   │   ├── customer.ts
+│   │   │   ├── material.ts
+│   │   │   └── plan.ts
+│   │   ├── services/
+│   │   │   ├── __tests__/
+│   │   │   │   └── CustomerService.test.ts
+│   │   │   ├── CustomerService.ts
+│   │   │   ├── auditLog.ts
+│   │   │   ├── auth.ts
+│   │   │   ├── customer.ts
+│   │   │   ├── database.ts
+│   │   │   ├── material.ts
+│   │   │   └── plan.ts
+│   │   ├── types/
+│   │   │   ├── express-augmentation.d.ts
+│   │   │   └── prisma.d.ts
+│   │   ├── validators/
+│   │   │   └── customer.ts
+│   │   └── index.ts
+│   ├── .env.example
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── test-audit-logging.js
+│   ├── test-cors.js
+│   ├── test-jwt-validation.js
+│   ├── test-rate-limiting.sh
+│   ├── test-security-headers.js
+│   ├── test-seed-security.js
+│   └── tsconfig.json
+├── docs/
+│   ├── archive/
+│   │   ├── planning/
+│   │   │   ├── COMPREHENSIVE_MINDFLOW_ANALYSIS.md
+│   │   │   ├── LDF_EXECUTIVE_SUMMARY.md
+│   │   │   └── LDF_IMPLEMENTATION_PLAN.md
+│   │   ├── README.md
+│   │   ├── SESSION_PROCEDURES.md
+│   │   └── SESSION_PROCEDURES.md.README
+│   ├── backend/
+│   │   ├── CUSTOMER_API_DOCUMENTATION.md
+│   │   ├── CUSTOMER_MIGRATION_INSTRUCTIONS.md
+│   │   └── SERVICE_LAYER_README.md
+│   ├── issue resolution/
+│   │   ├── ISSUE_RESOLUTION_SUMMARY.md
+│   │   └── ISSUE_RESOLUTION_SUMMARY_20251109.pdf
+│   ├── lessons-learned/
+│   │   ├── README.md
+│   │   └── sprint-01-security-foundation.md
+│   ├── planning/
+│   │   ├── COMPREHENSIVE_MINDFLOW_ANALYSIS.md.pdf
+│   │   ├── MINDFLOW CONSTRUCTION PLATFORM -.txt
+│   │   ├── STRATEGIC_ANALYSIS_AND_RECOMMENDATIONS.md
+│   │   └── STRATEGIC_ANALYSIS_AND_RECOMMENDATIONS.md.pdf
+│   ├── sprints/
+│   │   ├── phase-reviews/
+│   │   │   └── PHASE_REVIEW_TEMPLATE.md
+│   │   └── sprint-01/
+│   │       ├── DECISIONS.md
+│   │       ├── PLAN.md
+│   │       ├── PROGRESS.md
+│   │       └── RETROSPECTIVE.md
+│   ├── technical-debt/
+│   │   └── REGISTER.md
+│   ├── time-tracking/
+│   │   ├── 2025-11-week1.md
+│   │   └── TEMPLATE.md
+│   ├── validation prompts/
+│   │   ├── CLAUDE_CODE_VALIDATION_PROMPT.md
+│   │   ├── CLAUDE_CODE_VALIDATION_PROMPT_Typescript-Schema-CodeQuality.pdf
+│   │   ├── IMPLEMENTATION_VALIDATION_CHECKLIST.md
+│   │   ├── IMPLEMENTATION_VALIDATION_CHECKLIST.md.pdf
+│   │   ├── VALIDATION_PROMPT_REUSABILITY_ANALYSIS.md
+│   │   └── VALIDATION_PROMPT_REUSABILITY_ANALYSIS.pdf
+│   ├── AUDIT_LOGGING.md
+│   ├── AUTH_TESTING_GUIDE.md
+│   ├── CHANGELOG.md
+│   ├── CORS_HARDENING.md
+│   ├── DAILY_WORKFLOW.md
+│   ├── DEVOPS_TOOL.md
+│   ├── DOCUMENTATION_AUDIT.md
+│   ├── LAUNCH_AND_TEST.md
+│   ├── LAUNCH_GUIDE.md
+│   ├── PROJECT_MANAGEMENT.md
+│   ├── PROJECT_MANAGER_README.md
+│   ├── QUICK_START.md
+│   ├── RATE_LIMITING.md
+│   ├── README.md
+│   ├── REORGANIZATION_PLAN.md
+│   ├── SETUP.md
+│   ├── SPRINT_PLAN.md
+│   └── WINDOWS_SETUP.md
+├── frontend/
+│   ├── public/
+│   │   └── vite.svg
+│   ├── src/
+│   │   ├── assets/
+│   │   │   └── react.svg
+│   │   ├── components/
+│   │   │   ├── customers/
+│   │   │   │   ├── ContactFormModal.tsx
+│   │   │   │   ├── CustomerFormModal.tsx
+│   │   │   │   ├── ExternalIdFormModal.tsx
+│   │   │   │   └── ExternalIdManager.tsx
+│   │   │   ├── layout/
+│   │   │   │   ├── Header.tsx
+│   │   │   │   ├── MainLayout.tsx
+│   │   │   │   ├── PageHeader.tsx
+│   │   │   │   └── Sidebar.tsx
+│   │   │   ├── ui/
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   ├── Loading.tsx
+│   │   │   │   ├── Modal.tsx
+│   │   │   │   ├── Table.tsx
+│   │   │   │   └── Toast.tsx
+│   │   │   ├── ActivityItem.tsx
+│   │   │   ├── Alert.tsx
+│   │   │   ├── QuickAction.tsx
+│   │   │   ├── ScheduleItem.tsx
+│   │   │   └── StatCard.tsx
+│   │   ├── contexts/
+│   │   │   └── AuthContext.tsx
+│   │   ├── pages/
+│   │   │   ├── customers/
+│   │   │   │   ├── CustomerDetail.tsx
+│   │   │   │   └── CustomerList.tsx
+│   │   │   ├── foundation/
+│   │   │   │   ├── Customers.tsx
+│   │   │   │   ├── Materials.tsx
+│   │   │   │   └── Plans.tsx
+│   │   │   ├── operations/
+│   │   │   │   ├── Jobs.tsx
+│   │   │   │   └── Takeoffs.tsx
+│   │   │   ├── transactions/
+│   │   │   │   ├── PurchaseOrders.tsx
+│   │   │   │   └── Schedule.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── NotFound.tsx
+│   │   │   ├── Register.tsx
+│   │   │   ├── Reports.tsx
+│   │   │   └── Settings.tsx
+│   │   ├── services/
+│   │   │   └── customerService.ts
+│   │   ├── App.css
+│   │   ├── App.tsx
+│   │   ├── design-system.css
+│   │   ├── index.css
+│   │   └── main.tsx
+│   ├── .env.example
+│   ├── .gitignore
+│   ├── .npmrc
+│   ├── README.md
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   └── vite.config.ts
+├── scripts/
+│   ├── devops.py
+│   ├── launch-dev.sh
+│   ├── launch.sh
+│   ├── setup.sh
+│   └── stop.sh
+├── shared/
+│   └── types/
+│       ├── customer.ts
+│       ├── index.ts
+│       └── package.json
+├── .gitignore
+├── README.md
+├── docker-compose.yml
+├── package-lock.json
+└── package.json
