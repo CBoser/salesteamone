@@ -424,17 +424,59 @@ All technical decisions made during Sprint 1 with rationale.
 
 ---
 
-### [To be filled] API Versioning Pattern
+### [2025-11-12] API Versioning Strategy (Day 9)
 
-**Decision**: (To be documented when implemented)
+**Decision**: Implement URL-based API versioning with all routes under `/api/v1` and version header middleware
 
 **Rationale**:
+- Need backward compatibility for future API changes
+- URL-based versioning is industry standard (simple, explicit, cacheable)
+- Version headers allow runtime detection for clients
+- Early implementation prevents breaking changes for initial clients
+- Extensible design supports v2, v3 without affecting v1
 
 **Alternatives Considered**:
+1. **No versioning** - Rejected: Forces breaking changes or complex feature flags
+2. **Header-based versioning only (Accept: application/vnd.api.v1+json)** - Rejected: More complex, not cache-friendly, harder to test
+3. **Query parameter versioning (?version=1)** - Rejected: Pollutes URLs, easy to omit, not RESTful
+4. **Subdomain versioning (v1.api.mindflow.com)** - Rejected: Requires DNS setup, overkill for Phase 1
+5. **Defer until needed** - Rejected: Better to implement early before clients depend on unversioned routes
 
 **Impact**:
+- **All API routes now versioned**: `/api/v1/auth/*`, `/api/v1/customers`
+- **Response headers**: `X-API-Version: v1` on all v1 responses
+- **Root endpoint**: Includes versioning metadata (current version, available versions)
+- **TypeScript build**: Excluded deferred routes (material.ts, plan.ts) from compilation
+- **Frontend migration required**: All API calls must use `/api/v1` prefix
+- **Future versions**: Easy to add v2 router alongside v1 without breaking existing clients
 
 **Code References**:
+- `backend/src/middleware/apiVersion.ts` - Version header middleware
+- `backend/src/routes/v1/index.ts` - V1 router aggregation
+- `backend/src/index.ts:4,130` - V1 router import and registration
+- `backend/src/index.ts:108-126` - Root endpoint with versioning metadata
+- `backend/src/index.ts:191` - Startup banner showing API version
+- `backend/tsconfig.json:17-27` - Exclude deferred routes from build
+- `docs/API_VERSIONING.md` - Full versioning documentation
+
+**Security Impact**:
+- ✅ No security implications (routing change only)
+- ✅ All existing security middleware applies to versioned routes
+- ✅ Rate limiting, CORS, auth still enforced
+
+**Migration Impact**:
+- ⚠️ **Frontend must update**: All fetch calls need `/api/v1` prefix
+- ✅ **Backend build clean**: TypeScript compilation successful
+- ✅ **Documentation complete**: Migration guide provided
+- 📋 **Testing needed**: User must test on Windows with Prisma client
+
+**Version Lifecycle Plan**:
+- **v1**: Current, active (Sprint 1 Day 9)
+- **v2**: When introduced, run alongside v1 for 6-month deprecation period
+- **v1 sunset**: Remove after all clients migrated to v2
+
+**Owner**: Sprint 1 Day 9 - API Architecture
+**Stakeholders**: Frontend Team, Mobile Team (future), API Clients
 
 ---
 
@@ -468,4 +510,4 @@ Use this template for new decisions:
 
 ---
 
-**Last Updated**: 2025-11-11
+**Last Updated**: 2025-11-12

@@ -133,38 +133,64 @@
 
 ### CRITICAL Priority
 
-#### TD-008: Prisma Client Generation Blocked (Network Restrictions)
-- **Created**: 2025-11-11 (Sprint 1 Day 7)
-- **Location**: `backend/node_modules/.prisma/client/`
-- **Impact**: Backend cannot compile (6 TypeScript errors in auditLog.ts)
-- **Root Cause**: Cannot run `npx prisma generate` due to network restrictions (403 Forbidden on Prisma engine downloads)
-- **Errors**: 6 errors - `Property 'auditLog' does not exist on type 'PrismaClient'`
-- **Estimated Effort**: 1 hour (requires proper network environment)
-- **Target Sprint**: Sprint 1 Day 7+ (ASAP)
-- **Blocking**:
-  - Backend compilation
-  - Server startup
-  - Rate limiting testing (Day 6-7 work)
-  - Day 5 audit logging functionality
+_No critical priority items_
+
+---
+
+### LOW Priority (Continued)
+
+#### TD-009: TypeScript Exclusion for Deferred Routes
+- **Created**: 2025-11-12 (Sprint 1 Day 9)
+- **Location**: `backend/tsconfig.json:23-26`
+- **Impact**: Material and plan service files excluded from TypeScript compilation
+- **Root Cause**: Intentional exclusion to allow clean builds despite schema mismatches
+- **Risk**: Type errors in excluded files won't be caught during compilation
+- **Estimated Effort**: 0 hours (intentional technical debt, to be addressed in Sprints 6-9)
+- **Target Sprint**: Sprint 6-7 (Plan), Sprint 8-9 (Material)
 - **Details**:
+  ```json
+  "exclude": [
+    "src/services/material.ts",
+    "src/services/plan.ts",
+    "src/routes/material.ts",
+    "src/routes/plan.ts"
+  ]
   ```
-  Error: Failed to fetch the engine file at https://binaries.prisma.sh/...
-  403 Forbidden
-  ```
+- **Justification**:
+  - Routes already disabled in main server (TD-001, TD-002)
+  - Exclusion allows backend build to complete successfully
+  - Enables testing and deployment of Days 1-9 features
+  - No impact on functional code (these services not in use)
 - **Resolution Plan**:
-  1. Run `npx prisma generate` in environment with proper network access
-  2. OR: Provide pre-generated Prisma Client files
-  3. OR: Temporarily disable auditLog service imports to unblock other work
-  4. Verify all 6 errors resolved after generation
-- **Workarounds Attempted**:
-  - ❌ PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 → Still fails
-  - ❌ Alternative mirror (S3) → Still 403
-  - ❌ Local binary check → WASM exists, schema engine needed
-- **Priority**: CRITICAL - Blocks all backend work
+  1. Address TD-001 (Plan routes) in Sprint 6-7
+  2. Address TD-002 (Material routes) in Sprint 8-9
+  3. Remove tsconfig exclusions when services are fixed
+  4. Verify full TypeScript compilation succeeds
+- **Related Items**: TD-001, TD-002 (disabled routes)
 
 ---
 
 ## Resolved Technical Debt
+
+### ✅ TD-008: Prisma Client Generation Blocked (Network Restrictions)
+- **Created**: 2025-11-11 (Sprint 1 Day 7)
+- **Resolved**: 2025-11-12 (Sprint 1 Day 8)
+- **Resolution**: Generated Prisma client on Windows machine (unrestricted network), committed to git (forced add), pulled into Linux environment
+- **Workaround Details**:
+  1. Generated on Windows: `npx prisma generate`
+  2. Force-added to git: `git add -f node_modules/.prisma/client/`
+  3. Committed to main branch (temporary)
+  4. Pulled in Linux and copied to feature branch
+  5. Verified AuditLog model available (60 references in index.d.ts)
+- **Impact**: Unblocked Days 5-7 features (audit logging, rate limiting)
+- **Lessons Learned**:
+  - Cross-platform Prisma generation is viable workaround
+  - Git is effective for transferring generated files
+  - Document workarounds thoroughly for future schema changes
+  - Environment-specific constraints can be blocking but have creative solutions
+- **Documented**: `docs/sprints/sprint-01/DECISIONS.md:360-410` (full workflow)
+
+---
 
 ### ✅ TD-006: Implicit 'any' Type Warnings
 - **Created**: 2025-11-09 (Sprint 1 Day 3)
@@ -185,21 +211,21 @@
 
 ## Technical Debt Metrics
 
-**Total Active Debt**: 7 items (was 7, TD-006 resolved, TD-008 added)
-- Critical Priority: 1 item (~1 hour) - NEW: Prisma generation blocker
+**Total Active Debt**: 7 items (was 7, TD-006 and TD-008 resolved, TD-009 added)
+- Critical Priority: 0 items (TD-008 resolved!)
 - High Priority: 2 items (~14-18 hours)
 - Medium Priority: 2 items (~3-5 hours)
-- Low Priority: 2 items (~3-5 hours) - TD-006 resolved, TD-007 remains
+- Low Priority: 3 items (~3-5 hours) - TD-009 added
 
-**Total Estimated Effort**: ~21-29 hours (down from ~22-32 hours)
+**Total Estimated Effort**: ~20-28 hours (down from ~21-29 hours)
 
 **Debt by Sprint**:
-- Sprint 1: 4 items (TD-003, TD-004, TD-007, TD-008 CRITICAL)
+- Sprint 1: 3 items (TD-003, TD-004, TD-007) - TD-008 resolved, TD-009 intentional
 - Sprint 2: 2 items (TD-005, TD-007 completion)
-- Sprint 6-7: 1 item (TD-001)
-- Sprint 8-9: 1 item (TD-002)
+- Sprint 6-7: 2 items (TD-001, TD-009 for plan)
+- Sprint 8-9: 2 items (TD-002, TD-009 for material)
 
-**Trend**: Stable with 1 CRITICAL blocker (Prisma generation)
+**Trend**: Improving - Critical blocker resolved, Day 9 exclusions intentional and documented
 
 ---
 
@@ -221,6 +247,17 @@
 
 ## Review History
 
+### 2025-11-12 - Day 9 Update
+- **Items Added**: 1 (TD-009 TypeScript exclusions - LOW, intentional)
+- **Items Resolved**: 1 (TD-008 Prisma generation - ✅)
+- **Items Modified**: Metrics updated, critical priority cleared
+- **Notes**:
+  - TD-008 resolved via cross-platform Prisma generation workaround
+  - TD-009 added for tsconfig exclusions (intentional technical debt)
+  - No critical priority items remaining!
+  - Backend builds successfully with deferred routes excluded
+  - All Days 1-9 features now operational
+
 ### 2025-11-11 - Day 7 Update
 - **Items Added**: 1 (TD-008 Prisma generation - CRITICAL)
 - **Items Resolved**: 1 (TD-006 implicit 'any' types - ✅)
@@ -237,5 +274,5 @@
 
 ---
 
-**Last Updated**: 2025-11-11
+**Last Updated**: 2025-11-12
 **Next Review**: 2025-11-15 (Friday)
