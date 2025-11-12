@@ -257,6 +257,41 @@ npm test  # All tests pass
 - [ ] All security features implemented
 - [ ] Security tests passing
 - [ ] Backend stable and secure
+- [ ] Ready for Phase 1.5 (Data Migration Review)
+
+---
+
+### Phase 1.5: Data Migration Strategy Review (Between Sprint 1 and Sprint 2)
+
+**Duration**: 1-2 sessions (90-180 minutes)
+**Purpose**: Validate platform schema against real Excel data before heavy migration coding
+
+**Tasks**:
+- [ ] User shares Excel structure (columns, data types, relationships)
+- [ ] Map Excel columns to Prisma models
+- [ ] Identify missing fields or schema gaps
+- [ ] Select migration strategy (SQL, API, or hybrid)
+- [ ] Create `docs/data-migration/STRATEGY.md`
+- [ ] Create `docs/data-migration/EXCEL_SCHEMA_MAP.md`
+- [ ] Create `docs/data-migration/TRANSFORMATION_RULES.md`
+- [ ] Identify any required platform changes
+
+**Decision Point**:
+- **If schema changes needed** → Adjust Sprint 2 plan, implement schema fixes first
+- **If no changes needed** → Proceed to Sprint 2 as planned
+
+**Deliverables**:
+- Complete Excel to Prisma mapping document
+- Migration strategy document with clear approach
+- List of any required platform changes
+- User confident in migration roadmap
+
+**Time**: 1.5-3 hours (depending on complexity)
+
+**Phase 1.5 Review**:
+- [ ] Excel schema fully mapped to Prisma
+- [ ] Migration strategy selected
+- [ ] Platform changes identified (if any)
 - [ ] Ready for Sprint 2
 
 ---
