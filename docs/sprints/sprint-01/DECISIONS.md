@@ -357,6 +357,59 @@ All technical decisions made during Sprint 1 with rationale.
 
 ---
 
+### [2025-11-12] Prisma Client Generation Workaround (Day 8)
+
+**Decision**: Generate Prisma client on unrestricted Windows machine, commit to git (forced add), pull into Linux sandboxed environment
+
+**Rationale**:
+- Linux/sandboxed environment has network restrictions blocking binaries.prisma.sh (403 Forbidden)
+- Cannot run `npx prisma generate` directly in deployment environment
+- Prisma client is platform-specific but transferable between similar platforms
+- Git provides version control and easy transfer mechanism
+- Temporary commit to main branch bypasses .gitignore restrictions
+
+**Alternatives Considered**:
+1. **Manual binary download** - Rejected: Still requires network access, complex process
+2. **Use WASM-only engine** - Rejected: Still needs schema engine which requires download
+3. **Environment variable overrides (PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING)** - Failed: Still hits 403 errors
+4. **Local Prisma cache** - Failed: Cache was empty, same network restrictions
+5. **Wait for network access** - Rejected: No timeline, blocks all development
+
+**Impact**:
+- **Windows Development**: Generate Prisma client locally with network access
+- **Git Transfer**: Force add node_modules/.prisma/client to git temporarily
+- **Linux Environment**: Pull changes and copy generated files
+- **Cleanup**: Remove from git tracking after transfer (keep local only)
+- **Future**: Repeat process whenever schema changes
+
+**Code References**:
+- Windows: `C:\GitHub\ConstructionPlatform\backend\node_modules\.prisma\client\`
+- Linux: `/home/user/ConstructionPlatform/backend/node_modules/.prisma/client/`
+- Commit: `301f459` (temp: Add generated Prisma client for Linux environment)
+- Generated types: `node_modules/.prisma/client/index.d.ts` (60+ auditLog references)
+
+**Security Impact**:
+- ⚠️ Briefly exposes node_modules in git history (acceptable - no secrets)
+- ✅ Allows development to continue despite network restrictions
+- ✅ Maintains type safety with proper Prisma client
+- ✅ Unblocks Days 5-7 features (audit logging, rate limiting)
+
+**Workflow**:
+1. On Windows: `cd backend && npx prisma generate`
+2. On Windows: `git add -f node_modules/.prisma/client/ node_modules/@prisma/client/`
+3. On Windows: `git commit -m "temp: Add generated Prisma client"`
+4. On Windows: `git push origin main`
+5. On Linux: `git checkout main && git pull origin main`
+6. On Linux: `git checkout <feature-branch>`
+7. On Linux: `git checkout main -- node_modules/.prisma/client/ node_modules/@prisma/client/`
+8. On Linux: Verify with `npm run build`
+9. Optional: Remove from git tracking in main branch after transfer
+
+**Owner**: Sprint 1 Day 8 - Infrastructure Workaround
+**Stakeholders**: DevOps, Development Team
+
+---
+
 ### [To be filled] CSP Configuration
 
 **Decision**: (To be documented when implemented)
