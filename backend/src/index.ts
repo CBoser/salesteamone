@@ -137,16 +137,76 @@ app.use(errorHandler);
 async function startServer() {
   try {
     // Connect to database
+    console.log('🔌 [database]: Connecting to database...');
     await dbService.connect();
+
+    // Perform health check
+    console.log('🏥 [database]: Performing health check...');
+    const isHealthy = await dbService.healthCheck();
+
+    if (!isHealthy) {
+      console.error('');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('  🔴 FATAL ERROR: Database health check failed!');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('');
+      console.error('  The database connection was established but health check failed.');
+      console.error('  This may indicate:');
+      console.error('    - Database is not fully initialized');
+      console.error('    - Insufficient permissions');
+      console.error('    - Network connectivity issues');
+      console.error('');
+      console.error('  Please verify:');
+      console.error('    1. DATABASE_URL is correct');
+      console.error('    2. Database is running and accessible');
+      console.error('    3. User has sufficient permissions');
+      console.error('');
+      console.error('═══════════════════════════════════════════════════════════════');
+      console.error('');
+      process.exit(1);
+    }
+
+    console.log('✅ [database]: Health check passed');
+
+    // Display connection pool configuration
+    const poolConfig = dbService.getPoolConfig();
+    console.log(`📊 [pool]: Max connections: ${poolConfig.connectionLimit}`);
+    console.log(`⏱️  [pool]: Timeout: ${poolConfig.poolTimeout}s`);
 
     // Start Express server
     app.listen(port, () => {
-      console.log(`⚡️ [server]: Server is running at http://localhost:${port}`);
-      console.log(`📊 [database]: Connected to PostgreSQL`);
-      console.log(`🚀 [ready]: MindFlow API is ready to accept requests`);
+      console.log('');
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log(`  ⚡️ MindFlow API Server Started`);
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('');
+      console.log(`  Server URL:     http://localhost:${port}`);
+      console.log(`  Environment:    ${process.env.NODE_ENV || 'development'}`);
+      console.log(`  Database:       Connected (${poolConfig.connectionLimit} max connections)`);
+      console.log(`  Security:       Headers, CORS, Rate Limiting, Audit Logging`);
+      console.log('');
+      console.log('  Available Routes:');
+      console.log('    POST   /api/auth/register');
+      console.log('    POST   /api/auth/login');
+      console.log('    POST   /api/auth/logout');
+      console.log('    POST   /api/auth/refresh');
+      console.log('    POST   /api/auth/change-password');
+      console.log('    GET    /api/customers');
+      console.log('    GET    /health');
+      console.log('');
+      console.log('═══════════════════════════════════════════════════════════════');
+      console.log('');
+      console.log('🚀 [ready]: API is ready to accept requests');
+      console.log('');
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('  🔴 FATAL ERROR: Failed to start server');
+    console.error('═══════════════════════════════════════════════════════════════');
+    console.error('');
+    console.error('Error:', error);
+    console.error('');
     process.exit(1);
   }
 }
