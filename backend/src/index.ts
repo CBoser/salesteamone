@@ -1,10 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { dbService } from './services/database';
-import authRoutes from './routes/auth';
-import customerRoutes from './routes/customer';
-// import planRoutes from './routes/plan'; // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 6-7)
-// import materialRoutes from './routes/material'; // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 8-9)
+import v1Router from './routes/v1';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { applySecurityMiddleware } from './middleware/securityHeaders';
 import { corsMiddleware, corsErrorHandler, validateCorsConfig } from './middleware/corsConfig';
@@ -108,25 +105,31 @@ app.get('/', (req: Request, res: Response) => {
   res.json({
     message: 'Welcome to MindFlow API',
     version: '1.0.0',
+    apiVersion: 'v1',
     description: 'Construction Management Platform - Foundation Layer',
     endpoints: {
       health: '/health',
-      auth: '/api/auth',
-      customers: '/api/customers',
-      // plans: '/api/plans', // TEMPORARILY DISABLED: Schema mismatch (Sprint 6-7)
-      // materials: '/api/materials', // TEMPORARILY DISABLED: Schema mismatch (Sprint 8-9)
+      auth: '/api/v1/auth',
+      customers: '/api/v1/customers',
+      // plans: '/api/v1/plans', // TEMPORARILY DISABLED: Schema mismatch (Sprint 6-7)
+      // materials: '/api/v1/materials', // TEMPORARILY DISABLED: Schema mismatch (Sprint 8-9)
       docs: '/api-docs (coming soon)'
+    },
+    versioning: {
+      current: 'v1',
+      available: ['v1'],
+      header: 'X-API-Version'
     }
   });
 });
 
-// API Routes
-app.use('/api/auth', authRoutes);
+// API Routes - Version 1 (Sprint 1 Day 9)
+app.use('/api/v1', v1Router);
 
-// Foundation Layer Routes
-app.use('/api/customers', customerRoutes);
-// app.use('/api/plans', planRoutes); // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 6-7)
-// app.use('/api/materials', materialRoutes); // TEMPORARILY DISABLED: Schema mismatch - needs refactoring (Sprint 8-9)
+// Legacy routes redirect to v1 (optional - for backward compatibility)
+// Uncomment if you need to support old clients during transition:
+// app.use('/api/auth', authRoutes);
+// app.use('/api/customers', customerRoutes);
 
 // Error handling middleware (must be AFTER all routes)
 app.use(notFoundHandler);
@@ -185,13 +188,15 @@ async function startServer() {
       console.log(`  Database:       Connected (${poolConfig.connectionLimit} max connections)`);
       console.log(`  Security:       Headers, CORS, Rate Limiting, Audit Logging`);
       console.log('');
+      console.log('  API Version:    v1');
+      console.log('');
       console.log('  Available Routes:');
-      console.log('    POST   /api/auth/register');
-      console.log('    POST   /api/auth/login');
-      console.log('    POST   /api/auth/logout');
-      console.log('    POST   /api/auth/refresh');
-      console.log('    POST   /api/auth/change-password');
-      console.log('    GET    /api/customers');
+      console.log('    POST   /api/v1/auth/register');
+      console.log('    POST   /api/v1/auth/login');
+      console.log('    POST   /api/v1/auth/logout');
+      console.log('    POST   /api/v1/auth/refresh');
+      console.log('    POST   /api/v1/auth/change-password');
+      console.log('    GET    /api/v1/customers');
       console.log('    GET    /health');
       console.log('');
       console.log('═══════════════════════════════════════════════════════════════');
