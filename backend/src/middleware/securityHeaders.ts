@@ -27,13 +27,13 @@ import { Request, Response, NextFunction } from 'express';
  */
 export const securityHeaders = helmet({
   // Content Security Policy - Prevents XSS and data injection attacks
+  // Strict CSP for API backend (no inline scripts/styles needed)
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      // TEMPORARY: Allow unsafe-inline for development
-      // TODO Sprint 3: Remove unsafe-inline and implement nonce-based CSP
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      // No unsafe-inline - API backend doesn't serve HTML with inline scripts
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'"],
       fontSrc: ["'self'"],
@@ -45,6 +45,8 @@ export const securityHeaders = helmet({
       // Disable legacy features
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
+      // Additional restrictions for API backend
+      upgradeInsecureRequests: [], // Enforce HTTPS
     },
   },
 
