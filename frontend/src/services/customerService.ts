@@ -90,7 +90,7 @@ export async function fetchCustomers(
       total: number;
       totalPages: number;
     };
-  }>(`/api/customers?${params}`);
+  }>(`/api/v1/customers?${params}`);
 
   return {
     data: response.data,
@@ -103,7 +103,7 @@ export async function fetchCustomerById(id: string): Promise<CustomerFull> {
   const response = await apiFetch<{
     success: boolean;
     data: CustomerFull;
-  }>(`/api/customers/${id}`);
+  }>(`/api/v1/customers/${id}`);
 
   return response.data;
 }
@@ -116,7 +116,7 @@ export async function createCustomer(
     success: boolean;
     data: CustomerFull;
     message: string;
-  }>(`/api/customers`, {
+  }>(`/api/v1/customers`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -133,7 +133,7 @@ export async function updateCustomer(
     success: boolean;
     data: CustomerFull;
     message: string;
-  }>(`/api/customers/${id}`, {
+  }>(`/api/v1/customers/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -149,7 +149,7 @@ export async function deleteCustomer(
   await apiFetch<{
     success: boolean;
     message: string;
-  }>(`/api/customers/${id}?hard=${hardDelete}`, {
+  }>(`/api/v1/customers/${id}?hard=${hardDelete}`, {
     method: 'DELETE',
   });
 }
@@ -165,7 +165,7 @@ export async function fetchCustomerContacts(
   const response = await apiFetch<{
     success: boolean;
     data: CustomerContact[];
-  }>(`/api/customers/${customerId}/contacts`);
+  }>(`/api/v1/customers/${customerId}/contacts`);
 
   return response.data;
 }
@@ -179,7 +179,7 @@ export async function createContact(
     success: boolean;
     data: CustomerContact;
     message: string;
-  }>(`/api/customers/${customerId}/contacts`, {
+  }>(`/api/v1/customers/${customerId}/contacts`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -197,7 +197,7 @@ export async function updateContact(
     success: boolean;
     data: CustomerContact;
     message: string;
-  }>(`/api/customers/${customerId}/contacts/${contactId}`, {
+  }>(`/api/v1/customers/${customerId}/contacts/${contactId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -213,7 +213,7 @@ export async function deleteContact(
   await apiFetch<{
     success: boolean;
     message: string;
-  }>(`/api/customers/${customerId}/contacts/${contactId}`, {
+  }>(`/api/v1/customers/${customerId}/contacts/${contactId}`, {
     method: 'DELETE',
   });
 }
@@ -229,7 +229,7 @@ export async function fetchCustomerPricingTiers(
   const response = await apiFetch<{
     success: boolean;
     data: CustomerPricingTier[];
-  }>(`/api/customers/${customerId}/pricing-tiers`);
+  }>(`/api/v1/customers/${customerId}/pricing-tiers`);
 
   return response.data;
 }
@@ -241,7 +241,7 @@ export async function fetchCurrentPricingTier(
   const response = await apiFetch<{
     success: boolean;
     data: CustomerPricingTier | null;
-  }>(`/api/customers/${customerId}/current-pricing`);
+  }>(`/api/v1/customers/${customerId}/current-pricing`);
 
   return response.data;
 }
@@ -255,7 +255,7 @@ export async function createPricingTier(
     success: boolean;
     data: CustomerPricingTier;
     message: string;
-  }>(`/api/customers/${customerId}/pricing-tiers`, {
+  }>(`/api/v1/customers/${customerId}/pricing-tiers`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -273,7 +273,7 @@ export async function updatePricingTier(
     success: boolean;
     data: CustomerPricingTier;
     message: string;
-  }>(`/api/customers/${customerId}/pricing-tiers/${tierId}`, {
+  }>(`/api/v1/customers/${customerId}/pricing-tiers/${tierId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -289,7 +289,7 @@ export async function deletePricingTier(
   await apiFetch<{
     success: boolean;
     message: string;
-  }>(`/api/customers/${customerId}/pricing-tiers/${tierId}`, {
+  }>(`/api/v1/customers/${customerId}/pricing-tiers/${tierId}`, {
     method: 'DELETE',
   });
 }
@@ -305,7 +305,7 @@ export async function fetchCustomerExternalIds(
   const response = await apiFetch<{
     success: boolean;
     data: CustomerExternalId[];
-  }>(`/api/customers/${customerId}/external-ids`);
+  }>(`/api/v1/customers/${customerId}/external-ids`);
 
   return response.data;
 }
@@ -319,7 +319,7 @@ export async function createExternalId(
     success: boolean;
     data: CustomerExternalId;
     message: string;
-  }>(`/api/customers/${customerId}/external-ids`, {
+  }>(`/api/v1/customers/${customerId}/external-ids`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -337,7 +337,7 @@ export async function updateExternalId(
     success: boolean;
     data: CustomerExternalId;
     message: string;
-  }>(`/api/customers/${customerId}/external-ids/${externalIdId}`, {
+  }>(`/api/v1/customers/${customerId}/external-ids/${externalIdId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -353,7 +353,7 @@ export async function deleteExternalId(
   await apiFetch<{
     success: boolean;
     message: string;
-  }>(`/api/customers/${customerId}/external-ids/${externalIdId}`, {
+  }>(`/api/v1/customers/${customerId}/external-ids/${externalIdId}`, {
     method: 'DELETE',
   });
 }
