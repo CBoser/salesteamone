@@ -43,10 +43,9 @@ class DatabaseService {
 
     console.log(`📊 Database connection pool configured: ${this.connectionLimit} connections`);
 
-    // Handle graceful shutdown
-    process.on('beforeExit', async () => {
-      await this.disconnect();
-    });
+    // Note: Graceful shutdown is handled in index.ts via SIGINT/SIGTERM handlers
+    // No need to hook beforeExit here as it fires when event loop empties,
+    // which would cause premature shutdown after server initialization
   }
 
   /**
