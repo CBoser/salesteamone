@@ -97,9 +97,6 @@ export class CustomerService {
     try {
       const customer = await this.customerRepository.create(validatedData);
 
-      // Log audit trail
-      console.log(`[AUDIT] Customer created: ${customer.id} - ${customer.customerName}`);
-
       // Return customer with relations
       return await this.getCustomerById(customer.id);
     } catch (error) {
@@ -122,9 +119,6 @@ export class CustomerService {
 
     try {
       await this.customerRepository.update(id, validatedData);
-
-      // Log audit trail
-      console.log(`[AUDIT] Customer updated: ${id}`);
 
       // Return updated customer with relations
       return await this.getCustomerById(id);
@@ -159,11 +153,9 @@ export class CustomerService {
     if (hardDelete) {
       // Hard delete - cascades to contacts, pricing tiers, external IDs
       await this.customerRepository.delete(id);
-      console.log(`[AUDIT] Customer hard deleted: ${id} - ${customer.customerName}`);
     } else {
       // Soft delete - just mark as inactive
       await this.customerRepository.update(id, { isActive: false });
-      console.log(`[AUDIT] Customer soft deleted: ${id} - ${customer.customerName}`);
     }
   }
 
@@ -213,7 +205,6 @@ export class CustomerService {
       });
     }
 
-    console.log(`[AUDIT] Contact added: ${contact.id} for customer ${validatedData.customerId}`);
     return contact;
   }
 
@@ -253,7 +244,6 @@ export class CustomerService {
       data: validatedData,
     });
 
-    console.log(`[AUDIT] Contact updated: ${contactId}`);
     return contact;
   }
 
@@ -296,8 +286,6 @@ export class CustomerService {
         });
       }
     }
-
-    console.log(`[AUDIT] Contact deleted: ${contactId}`);
   }
 
   // ============================================================================
@@ -318,9 +306,6 @@ export class CustomerService {
       data: validatedData,
     });
 
-    console.log(
-      `[AUDIT] Pricing tier added: ${pricingTier.id} for customer ${validatedData.customerId}`
-    );
     return pricingTier;
   }
 
@@ -370,7 +355,6 @@ export class CustomerService {
       data: validatedData,
     });
 
-    console.log(`[AUDIT] Pricing tier updated: ${tierId}`);
     return tier;
   }
 
@@ -390,8 +374,6 @@ export class CustomerService {
     await this.prisma.customerPricingTier.delete({
       where: { id: tierId },
     });
-
-    console.log(`[AUDIT] Pricing tier deleted: ${tierId}`);
   }
 
   // ============================================================================
@@ -441,9 +423,6 @@ export class CustomerService {
       data: validatedData,
     });
 
-    console.log(
-      `[AUDIT] External ID mapped: ${externalId.id} for customer ${validatedData.customerId} in system ${validatedData.externalSystem}`
-    );
     return externalId;
   }
 
@@ -484,7 +463,6 @@ export class CustomerService {
       data: validatedData,
     });
 
-    console.log(`[AUDIT] External ID updated: ${externalIdId}`);
     return externalId;
   }
 
@@ -504,8 +482,6 @@ export class CustomerService {
     await this.prisma.customerExternalId.delete({
       where: { id: externalIdId },
     });
-
-    console.log(`[AUDIT] External ID deleted: ${externalIdId}`);
   }
 
   /**
