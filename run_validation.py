@@ -2,12 +2,16 @@
 """
 Validation Runner - Runs the 10-step validation process from Corey Dev Framework
 Automates validation checks and creates comprehensive report
+
+Version: 1.1.0
 """
 
 import sys
 import subprocess
 from pathlib import Path
 from datetime import datetime
+
+__version__ = "1.1.0"
 
 class ValidationRunner:
     """Run validation checks for a sprint"""
@@ -18,8 +22,31 @@ class ValidationRunner:
         self.frontend_dir = self.project_root / "frontend"
         self.results = []
 
+        # Check if backend or frontend directories exist
+        self.has_backend = self.backend_dir.exists() and self.backend_dir.is_dir()
+        self.has_frontend = self.frontend_dir.exists() and self.frontend_dir.is_dir()
+
+        if not self.has_backend and not self.has_frontend:
+            print(f"⚠️  Warning: No backend/ or frontend/ directories found in {self.project_root}")
+            print(f"   Validation may not work as expected")
+
     def run_command(self, cmd: str, cwd: Path) -> tuple:
-        """Run a shell command and capture output"""
+        """Run a shell command and capture output
+
+        Args:
+            cmd: Command to run
+            cwd: Working directory
+
+        Returns:
+            Tuple of (success: bool, stdout: str, stderr: str)
+        """
+        if not cwd.exists():
+            return False, "", f"Directory does not exist: {cwd}"
+
+        # Check if package.json exists (for npm commands)
+        if cmd.startswith('npm ') and not (cwd / 'package.json').exists():
+            return False, "", f"No package.json found in {cwd}"
+
         try:
             result = subprocess.run(
                 cmd,
@@ -31,9 +58,11 @@ class ValidationRunner:
             )
             return result.returncode == 0, result.stdout, result.stderr
         except subprocess.TimeoutExpired:
-            return False, "", "Command timed out"
+            return False, "", f"Command timed out after 5 minutes: {cmd}"
+        except FileNotFoundError as e:
+            return False, "", f"Command not found: {e}"
         except Exception as e:
-            return False, "", str(e)
+            return False, "", f"Unexpected error: {type(e).__name__}: {e}"
 
     def step1_analyze_current_state(self):
         """Step 1: Analyze current state"""
@@ -44,42 +73,85 @@ class ValidationRunner:
         checks = []
 
         # Backend checks
-        if self.backend_dir.exists():
+        if self.has_backend:
             print("\n📦 Backend Analysis...")
 
-            # Type check
-            print("  - Running type-check...")
-            success, stdout, stderr = self.run_command("npm run type-check", self.backend_dir)
-            checks.append(("Backend Type Check", success, stderr))
+            # Check if npm scripts exist in package.json
+            package_json = self.backend_dir / 'package.json'
+            if package_json.exists():
+                try:
+                    import json
+                    with open(package_json) as f:
+                        pkg = json.load(f)
+                        scripts = pkg.get('scripts', {})
 
-            # Build
-            print("  - Running build...")
-            success, stdout, stderr = self.run_command("npm run build", self.backend_dir)
-            checks.append(("Backend Build", success, stderr))
+                        # Type check
+                        if 'type-check' in scripts:
+                            print("  - Running type-check...")
+                            success, stdout, stderr = self.run_command("npm run type-check", self.backend_dir)
+                            checks.append(("Backend Type Check", success, stderr))
+                        else:
+                            print("  - Skipping type-check (script not found)")
 
-            # Tests
-            print("  - Running tests...")
-            success, stdout, stderr = self.run_command("npm run test", self.backend_dir)
-            checks.append(("Backend Tests", success, stderr))
+                        # Build
+                        if 'build' in scripts:
+                            print("  - Running build...")
+                            success, stdout, stderr = self.run_command("npm run build", self.backend_dir)
+                            checks.append(("Backend Build", success, stderr))
+                        else:
+                            print("  - Skipping build (script not found)")
+
+                        # Tests
+                        if 'test' in scripts:
+                            print("  - Running tests...")
+                            success, stdout, stderr = self.run_command("npm run test", self.backend_dir)
+                            checks.append(("Backend Tests", success, stderr))
+                        else:
+                            print("  - Skipping tests (script not found)")
+                except json.JSONDecodeError:
+                    print("  ⚠️  Warning: Could not parse package.json")
+        else:
+            print("\n📦 Backend: Not found, skipping")
 
         # Frontend checks
-        if self.frontend_dir.exists():
+        if self.has_frontend:
             print("\n🎨 Frontend Analysis...")
 
-            # Type check
-            print("  - Running type-check...")
-            success, stdout, stderr = self.run_command("npm run type-check", self.frontend_dir)
-            checks.append(("Frontend Type Check", success, stderr))
+            package_json = self.frontend_dir / 'package.json'
+            if package_json.exists():
+                try:
+                    import json
+                    with open(package_json) as f:
+                        pkg = json.load(f)
+                        scripts = pkg.get('scripts', {})
 
-            # Build
-            print("  - Running build...")
-            success, stdout, stderr = self.run_command("npm run build", self.frontend_dir)
-            checks.append(("Frontend Build", success, stderr))
+                        # Type check
+                        if 'type-check' in scripts:
+                            print("  - Running type-check...")
+                            success, stdout, stderr = self.run_command("npm run type-check", self.frontend_dir)
+                            checks.append(("Frontend Type Check", success, stderr))
+                        else:
+                            print("  - Skipping type-check (script not found)")
 
-            # Tests
-            print("  - Running tests...")
-            success, stdout, stderr = self.run_command("npm run test", self.frontend_dir)
-            checks.append(("Frontend Tests", success, stderr))
+                        # Build
+                        if 'build' in scripts:
+                            print("  - Running build...")
+                            success, stdout, stderr = self.run_command("npm run build", self.frontend_dir)
+                            checks.append(("Frontend Build", success, stderr))
+                        else:
+                            print("  - Skipping build (script not found)")
+
+                        # Tests
+                        if 'test' in scripts:
+                            print("  - Running tests...")
+                            success, stdout, stderr = self.run_command("npm run test", self.frontend_dir)
+                            checks.append(("Frontend Tests", success, stderr))
+                        else:
+                            print("  - Skipping tests (script not found)")
+                except json.JSONDecodeError:
+                    print("  ⚠️  Warning: Could not parse package.json")
+        else:
+            print("\n🎨 Frontend: Not found, skipping")
 
         # Summarize
         print("\n📊 Analysis Summary:")
@@ -287,14 +359,26 @@ def main():
     """Main entry point"""
     if len(sys.argv) < 2:
         print("Validation Runner - Corey Dev Framework")
+        print(f"Version: {__version__}")
         print("\nUsage:")
         print("  python run_validation.py quick      # Quick validation (compile + test)")
         print("  python run_validation.py full       # Full 10-step validation")
         print("  python run_validation.py step1      # Run specific step")
+        print("\nOptions:")
+        print("  --version    Show version information")
+        print("  --help       Show this help message")
         print("\nExamples:")
         print("  python run_validation.py quick")
         print("  python run_validation.py full")
         sys.exit(1)
+
+    # Handle version/help flags
+    if sys.argv[1] in ['--version', '-v']:
+        print(f"run_validation.py version {__version__}")
+        sys.exit(0)
+
+    if sys.argv[1] in ['--help', '-h']:
+        main()  # Show usage
 
     command = sys.argv[1].lower()
 
