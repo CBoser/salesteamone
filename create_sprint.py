@@ -2,6 +2,8 @@
 """
 Sprint Template Generator - Creates sprint structure following Corey Dev Framework
 Generates complete sprint directory with all required documentation files
+
+Version: 1.1.0
 """
 
 import os
@@ -9,15 +11,46 @@ import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 
-def create_sprint_structure(sprint_number: int, project_root: Path = None):
-    """Create complete sprint directory structure"""
+__version__ = "1.1.0"
 
+def create_sprint_structure(sprint_number: int, project_root: Path = None) -> Path:
+    """Create complete sprint directory structure
+
+    Args:
+        sprint_number: Sprint number (must be positive integer)
+        project_root: Project root directory (defaults to current directory)
+
+    Returns:
+        Path to created sprint directory
+
+    Raises:
+        ValueError: If sprint_number is invalid
+        PermissionError: If unable to create directories or write files
+    """
     if project_root is None:
         project_root = Path.cwd()
 
+    # Validate sprint number
+    if sprint_number < 1:
+        raise ValueError(f"Sprint number must be positive (got {sprint_number})")
+
     # Create sprint directory
     sprint_dir = project_root / "docs" / "sprints" / f"sprint-{sprint_number:02d}"
-    sprint_dir.mkdir(parents=True, exist_ok=True)
+
+    # Check if sprint already exists
+    if sprint_dir.exists() and any(sprint_dir.iterdir()):
+        print(f"⚠️  Warning: Sprint {sprint_number} directory already exists and is not empty")
+        response = input("Overwrite existing files? (y/N): ")
+        if response.lower() != 'y':
+            print("Cancelled.")
+            return sprint_dir
+
+    try:
+        sprint_dir.mkdir(parents=True, exist_ok=True)
+    except PermissionError as e:
+        print(f"❌ Error: Cannot create directory {sprint_dir}")
+        print(f"   {e}")
+        raise
 
     # Calculate dates (2 weeks, excluding Wednesdays)
     start_date = datetime.now()
@@ -221,7 +254,11 @@ Sprint is successful if:
 **Status**: Planning
 """
 
-    (sprint_dir / "PLAN.md").write_text(plan_content)
+    try:
+        (sprint_dir / "PLAN.md").write_text(plan_content)
+    except (PermissionError, OSError) as e:
+        print(f"❌ Error writing PLAN.md: {e}")
+        raise
 
     # Create PROGRESS.md
     progress_content = f"""# Sprint {sprint_number} - Progress Log
@@ -322,7 +359,11 @@ Sprint is successful if:
 - Recommendation 2
 """
 
-    (sprint_dir / "PROGRESS.md").write_text(progress_content)
+    try:
+        (sprint_dir / "PROGRESS.md").write_text(progress_content)
+    except (PermissionError, OSError) as e:
+        print(f"❌ Error writing PROGRESS.md: {e}")
+        raise
 
     # Create DECISIONS.md
     decisions_content = f"""# Sprint {sprint_number} - Technical Decisions
@@ -393,7 +434,11 @@ Quick reference to all decisions:
 
 """
 
-    (sprint_dir / "DECISIONS.md").write_text(decisions_content)
+    try:
+        (sprint_dir / "DECISIONS.md").write_text(decisions_content)
+    except (PermissionError, OSError) as e:
+        print(f"❌ Error writing DECISIONS.md: {e}")
+        raise
 
     # Create CHANGELOG.md
     changelog_content = f"""# Sprint {sprint_number} - Changelog
@@ -455,7 +500,11 @@ npm run prisma:migrate
 **Version**: Sprint {sprint_number}
 """
 
-    (sprint_dir / "CHANGELOG.md").write_text(changelog_content)
+    try:
+        (sprint_dir / "CHANGELOG.md").write_text(changelog_content)
+    except (PermissionError, OSError) as e:
+        print(f"❌ Error writing CHANGELOG.md: {e}")
+        raise
 
     # Create LEARNINGS.md
     learnings_content = f"""# Sprint {sprint_number} - Learnings
@@ -566,7 +615,11 @@ Based on learnings, these actions should be taken:
 **Review**: Incorporate learnings into Sprint {sprint_number + 1} planning
 """
 
-    (sprint_dir / "LEARNINGS.md").write_text(learnings_content)
+    try:
+        (sprint_dir / "LEARNINGS.md").write_text(learnings_content)
+    except (PermissionError, OSError) as e:
+        print(f"❌ Error writing LEARNINGS.md: {e}")
+        raise
 
     # Create validation checklist
     validation_content = """# Validation Checklist
@@ -655,7 +708,11 @@ Use this checklist at the end of the sprint to ensure quality.
 **Notes**: _______________
 """
 
-    (sprint_dir / "VALIDATION_CHECKLIST.md").write_text(validation_content)
+    try:
+        (sprint_dir / "VALIDATION_CHECKLIST.md").write_text(validation_content)
+    except (PermissionError, OSError) as e:
+        print(f"❌ Error writing VALIDATION_CHECKLIST.md: {e}")
+        raise
 
     print(f"\n✅ Sprint {sprint_number} structure created at: {sprint_dir}")
     print("\nCreated files:")
@@ -671,10 +728,25 @@ Use this checklist at the end of the sprint to ensure quality.
 def main():
     """Main entry point"""
     if len(sys.argv) < 2:
-        print("Usage: python create_sprint.py <sprint_number> [project_root]")
-        print("\nExample: python create_sprint.py 8")
-        print("Example: python create_sprint.py 8 /path/to/project")
+        print("Sprint Template Generator - Corey Dev Framework")
+        print(f"Version: {__version__}")
+        print("\nUsage: python create_sprint.py <sprint_number> [project_root]")
+        print("\nExamples:")
+        print("  python create_sprint.py 8")
+        print("  python create_sprint.py 8 /path/to/project")
+        print("\nOptions:")
+        print("  --version    Show version information")
+        print("  --help       Show this help message")
         sys.exit(1)
+
+    # Handle version flag
+    if sys.argv[1] in ['--version', '-v']:
+        print(f"create_sprint.py version {__version__}")
+        sys.exit(0)
+
+    # Handle help flag
+    if sys.argv[1] in ['--help', '-h']:
+        main()  # Show usage
 
     try:
         sprint_number = int(sys.argv[1])

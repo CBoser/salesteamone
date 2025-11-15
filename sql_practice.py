@@ -104,46 +104,103 @@ class SQLPracticeTracker:
         self.load_data()
 
     def load_data(self):
-        """Load session history and progress"""
+        """Load session history and progress with backup on corruption"""
         # Load sessions
         if self.sessions_file.exists():
-            with open(self.sessions_file, 'r') as f:
-                self.sessions = json.load(f)
+            try:
+                with open(self.sessions_file, 'r') as f:
+                    self.sessions = json.load(f)
+            except json.JSONDecodeError:
+                print(f"{Colors.YELLOW}⚠️  Warning: Corrupted sessions file{Colors.ENDC}")
+                # Try to backup corrupted file
+                backup_file = self.sessions_file.with_suffix('.json.backup')
+                try:
+                    self.sessions_file.rename(backup_file)
+                    print(f"Backed up to: {backup_file}")
+                except OSError:
+                    pass
+                self.sessions = []
         else:
             self.sessions = []
 
         # Load progress
         if self.progress_file.exists():
-            with open(self.progress_file, 'r') as f:
-                self.progress = json.load(f)
+            try:
+                with open(self.progress_file, 'r') as f:
+                    self.progress = json.load(f)
+            except json.JSONDecodeError:
+                print(f"{Colors.YELLOW}⚠️  Warning: Corrupted progress file{Colors.ENDC}")
+                # Try to backup corrupted file
+                backup_file = self.progress_file.with_suffix('.json.backup')
+                try:
+                    self.progress_file.rename(backup_file)
+                    print(f"Backed up to: {backup_file}")
+                except OSError:
+                    pass
+                self.progress = self._default_progress()
         else:
-            self.progress = {
-                "current_week": "Week 1",
-                "completed_exercises": [],
-                "completed_topics": [],
-                "total_sessions": 0,
-                "total_minutes": 0
-            }
+            self.progress = self._default_progress()
+
+    def _default_progress(self) -> Dict:
+        """Get default progress structure"""
+        return {
+            "current_week": "Week 1",
+            "completed_exercises": [],
+            "completed_topics": [],
+            "total_sessions": 0,
+            "total_minutes": 0
+        }
 
     def save_data(self):
-        """Save session history and progress"""
-        with open(self.sessions_file, 'w') as f:
-            json.dump(self.sessions, f, indent=2)
+        """Save session history and progress with atomic writes"""
+        # Atomic write for sessions
+        temp_sessions = self.sessions_file.with_suffix('.json.tmp')
+        try:
+            with open(temp_sessions, 'w') as f:
+                json.dump(self.sessions, f, indent=2)
+            # Atomic rename
+            temp_sessions.replace(self.sessions_file)
+        except (OSError, IOError) as e:
+            print(f"{Colors.RED}❌ Error saving sessions: {e}{Colors.ENDC}")
+            if temp_sessions.exists():
+                temp_sessions.unlink()
 
-        with open(self.progress_file, 'w') as f:
-            json.dump(self.progress, f, indent=2)
+        # Atomic write for progress
+        temp_progress = self.progress_file.with_suffix('.json.tmp')
+        try:
+            with open(temp_progress, 'w') as f:
+                json.dump(self.progress, f, indent=2)
+            # Atomic rename
+            temp_progress.replace(self.progress_file)
+        except (OSError, IOError) as e:
+            print(f"{Colors.RED}❌ Error saving progress: {e}{Colors.ENDC}")
+            if temp_progress.exists():
+                temp_progress.unlink()
 
     def start_session(self, topic: str):
-        """Start a new learning session"""
+        """Start a new learning session
+
+        Args:
+            topic: Topic or exercise being studied
+
+        Checks for existing active sessions and warns if found.
+        """
         if self.current_session_file.exists():
-            print(f"{Colors.YELLOW}⚠️  Warning: There's already an active session!{Colors.ENDC}")
-            with open(self.current_session_file, 'r') as f:
-                data = json.load(f)
-            started = datetime.fromisoformat(data['start_time'])
-            print(f"Started at: {started.strftime('%I:%M %p')}")
-            print(f"Topic: {data['topic']}")
-            print(f"\nUse 'python sql_practice.py end' to close it first.")
-            return
+            try:
+                with open(self.current_session_file, 'r') as f:
+                    data = json.load(f)
+                started = datetime.fromisoformat(data['start_time'])
+                elapsed = (datetime.now() - started).total_seconds() / 60
+
+                print(f"{Colors.YELLOW}⚠️  Warning: There's already an active session!{Colors.ENDC}")
+                print(f"Started at: {started.strftime('%I:%M %p')}")
+                print(f"Topic: {data['topic']}")
+                print(f"Elapsed: {elapsed:.0f} minutes")
+                print(f"\nUse 'python sql_practice.py end' to close it first.")
+                return
+            except (json.JSONDecodeError, KeyError, ValueError):
+                print(f"{Colors.YELLOW}⚠️  Removing corrupted session file{Colors.ENDC}")
+                self.current_session_file.unlink()
 
         start_time = datetime.now()
         session_data = {
@@ -163,16 +220,30 @@ class SQLPracticeTracker:
         print(f"Set a timer and take notes as you learn!\n")
 
     def end_session(self, notes: str = ""):
-        """End the current learning session"""
+        """End the current learning session
+
+        Args:
+            notes: Session notes and accomplishments
+
+        Records session data and updates progress tracking.
+        """
         if not self.current_session_file.exists():
             print(f"{Colors.RED}❌ No active session found.{Colors.ENDC}")
             print("Start a session with: python sql_practice.py start \"<topic>\"")
             return
 
-        with open(self.current_session_file, 'r') as f:
-            session_data = json.load(f)
+        try:
+            with open(self.current_session_file, 'r') as f:
+                session_data = json.load(f)
 
-        start_time = datetime.fromisoformat(session_data['start_time'])
+            start_time = datetime.fromisoformat(session_data['start_time'])
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            print(f"{Colors.RED}❌ Error: Corrupted session file{Colors.ENDC}")
+            print(f"   {e}")
+            print("\nRemoving corrupted session file")
+            self.current_session_file.unlink()
+            return
+
         end_time = datetime.now()
         duration = (end_time - start_time).total_seconds() / 60  # minutes
 
