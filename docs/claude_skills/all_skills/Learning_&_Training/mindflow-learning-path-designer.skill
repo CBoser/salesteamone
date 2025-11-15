@@ -1,0 +1,751 @@
+# MindFlow Learning Path Designer Skill
+
+## Overview
+
+This skill generates comprehensive, expertise-based learning paths for construction management training that align with the MindFlow pedagogical architecture. It creates complete training programs from novice to expert level, with all content ready to deploy using the Universal Training Framework.
+
+## Core Capabilities
+
+### 1. Learning Path Architecture
+- Analyze knowledge domains and create prerequisite chains
+- Map novice → intermediate → proficient → expert progressions
+- Identify mastery checkpoints and assessment criteria
+- Design adaptive content that changes based on demonstrated expertise
+
+### 2. Content Generation
+- Generate complete HTML training modules (Universal Training Framework format)
+- Create learning objectives aligned with expertise levels
+- Design scenario-based activities with construction management context
+- Build quizzes with error-driven learning feedback
+
+### 3. Pattern Integration
+- Identify technical, process, and cognitive patterns
+- Create pattern recognition exercises
+- Build progressive pattern libraries (obvious → subtle)
+- Enable expert pattern contribution pathways
+
+### 4. Pedagogical Alignment
+- Embed all 10 MindFlow principles in every learning path
+- Ensure transparency in reasoning and decision-making
+- Reduce cognitive load through strategic sequencing
+- Support collaborative knowledge building
+
+## The 10 MindFlow Principles (Integration Guide)
+
+### Principle 1: Learning-First Design
+**How the skill applies it:**
+- Every module teaches *understanding* before *execution*
+- Activities require explanation of "why," not just completion of tasks
+- Assessment measures conceptual grasp, not just procedural compliance
+
+**Example in generated content:**
+```
+❌ BAD: "Click 'New Job' button and fill in the fields"
+✅ GOOD: "Jobs are organized by Builder-Community-Plan hierarchy because 
+         construction projects need consistent code structures for tracking 
+         across phases. Let's create a job and understand each field's purpose..."
+```
+
+### Principle 2: Progressive Disclosure
+**How the skill applies it:**
+- Novice modules hide advanced features and concepts
+- Intermediate modules introduce complexity gradually
+- Expert modules reveal full system capabilities
+- Each level builds on mastered prerequisites
+
+**Expertise-level content variations:**
+```
+NOVICE:
+├─ Simple UI: 5 core fields only
+├─ Single job focus
+├─ Step-by-step guidance
+└─ Heavy scaffolding
+
+INTERMEDIATE:
+├─ More fields: Bulk operations available
+├─ Multiple concurrent jobs
+├─ Decision-making prompts
+└─ Reduced scaffolding
+
+EXPERT:
+├─ Full features: Automation, scripting
+├─ System-level thinking
+├─ Mentoring responsibilities
+└─ Self-directed learning
+```
+
+### Principle 3: Spaced Repetition & Mastery Tracking
+**How the skill applies it:**
+- Concepts reappear across multiple modules
+- Mastery gates prevent advancement without competency
+- Review schedules built into learning paths
+- Progressive complexity of same concepts
+
+**Generated assessment structure:**
+```
+Module 1: Introduce job code structure (BUILDER-COMMUNITY-####)
+Module 2: Apply job codes in file organization
+Module 3: Use job codes for delivery coordination
+Module 4: Analyze job code patterns for optimization
+
+Mastery Check: Can user explain job code logic AND apply it in novel scenarios?
+```
+
+### Principle 4: Cognitive Load Reduction
+**How the skill applies it:**
+- Information chunked into digestible modules (60-90 min each)
+- Extraneous load eliminated (consistent terminology, clear navigation)
+- Germane load maximized (pattern recognition, problem-solving)
+- Just-in-time information presentation
+
+**Content design:**
+```
+❌ COGNITIVE OVERLOAD: 
+Module: "Complete Construction Management System Overview"
+- 50 concepts in one session
+- All folder types at once
+- Every edge case explained upfront
+
+✅ OPTIMIZED LOAD:
+Module 1: Job Creation Basics (3 core concepts)
+Module 2: File Organization (4 folder types to start)
+Module 3: Expanding Your Workflow (rest of folders + patterns)
+```
+
+### Principle 5: Transparency Over Black Boxes
+**How the skill applies it:**
+- System logic explained, not hidden
+- "Why" is always visible
+- Confidence levels shown ("This is a suggestion" vs "This is required")
+- Reasoning chains made inspectable
+
+**Generated content style:**
+```
+"The system suggests uploading this to '02_Structural' because:
+ 1. File name contains 'ELEC' (electrical pattern)
+ 2. Electrical is coordinated with structural engineering
+ 3. 89% of similar files go here based on past user decisions
+ 
+ However, if this is actually an electrical elevation view,
+ '03_Elevations' would be correct. Context matters!"
+```
+
+### Principle 6: Pattern Libraries
+**How the skill applies it:**
+- Patterns taught explicitly at each expertise level
+- Pattern recognition is a learning objective
+- Users progress from obvious to subtle patterns
+- Expert users contribute new patterns
+
+**Pattern progression example:**
+```
+NOVICE PATTERNS:
+├─ File naming conventions (obvious)
+├─ Folder selection rules (obvious)
+└─ Job code structure (obvious)
+
+INTERMEDIATE PATTERNS:
+├─ Delivery phase dependencies (recognizable)
+├─ Document version patterns (recognizable)
+└─ Coordination sequences (recognizable)
+
+PROFICIENT PATTERNS:
+├─ Delay cascade indicators (subtle)
+├─ Resource conflict patterns (subtle)
+└─ Optimization opportunities (subtle)
+
+EXPERT PATTERNS:
+├─ System-level inefficiencies (meta)
+├─ Workflow innovation potential (meta)
+└─ Teaching/mentoring patterns (meta)
+```
+
+### Principle 7: Adaptive Questioning
+**How the skill applies it:**
+- Questions match demonstrated competency
+- Scaffolding reduces as performance improves
+- Hints available but fade over time
+- Questions target known gaps
+
+**Adaptive quiz example:**
+```
+Novice Question:
+"Which folder should Plans go in?"
+A) 01_Plans ✓
+B) 02_Structural
+C) 03_Elevations
+
+Intermediate Question:
+"A revised plan set arrives mid-project. Where should it go and what 
+ else needs updating?"
+[Multiple considerations, partially scaffolded]
+
+Expert Question:
+"You notice 40% of plan revisions are uploaded to wrong folders initially. 
+ Design a system improvement to reduce this error rate."
+[Open-ended, systems thinking required]
+```
+
+### Principle 8: Error-Driven Learning
+**How the skill applies it:**
+- Errors trigger explanations, not just "wrong"
+- Near-misses celebrated as progress
+- Common misconceptions diagnosed
+- Corrective practice offered immediately
+
+**Generated error feedback:**
+```
+User uploads Truss documents to "01_Plans"
+
+❌ Not quite! This is a really common mistake.
+
+📚 WHY IT'S WRONG:
+Trusses are engineering documents (structural), not architectural plans.
+They're created AFTER plans are approved and involve load calculations.
+
+💡 THE PATTERN:
+If a document has engineering stamps or calculations, it's likely
+structural (02_) not plans (01_).
+
+✅ CORRECTIVE PRACTICE:
+Here are 5 more documents. Try categorizing them using this pattern...
+
+[User practices immediately with feedback]
+
+🎉 PROGRESS:
+You got 4/5 correct! You're learning to spot engineering documents.
+The one you missed was a soils report—those go in 05_Soils specifically
+because they're geotechnical, not structural design.
+```
+
+### Principle 9: Collaborative Knowledge Building
+**How the skill applies it:**
+- Paths include mentoring/teaching modules for experts
+- Users can contribute discovered patterns
+- Peer learning built into advanced modules
+- Expertise compounds across the organization
+
+**Expert-level content:**
+```
+Module 10: Knowledge Contribution
+
+Activity: Document a Pattern You've Discovered
+1. Describe a recurring situation you've noticed
+2. Explain the pattern structure
+3. Provide examples (good and bad)
+4. Suggest when to apply this pattern
+
+Your contribution will be:
+├─ Reviewed by the pattern library team
+├─ Added to intermediate training if validated
+├─ Attributed to you in the system
+└─ Used to improve everyone's effectiveness
+```
+
+### Principle 10: Evidence-Based Adaptation
+**How the skill applies it:**
+- Metrics tracked for every learning path
+- Time-to-mastery measured
+- Error patterns analyzed
+- Content updated based on performance data
+
+**Built-in metrics:**
+```
+For Each Learning Path:
+├─ Time to complete each module (target vs actual)
+├─ Quiz performance by question type
+├─ Error patterns (where do users struggle?)
+├─ Transfer success (real-world application)
+├─ Retention rates (6-month follow-up)
+└─ Expert progression rate (% reaching mastery)
+
+Adaptation Triggers:
+├─ If >40% fail a concept → Redesign explanation
+├─ If time doubles target → Break into smaller chunks
+├─ If error pattern emerges → Add corrective content
+└─ If no experts after 6 months → Path too hard/soft
+```
+
+## How to Use This Skill
+
+### Basic Usage
+
+**Prompt format:**
+```
+"Using the MindFlow Learning Path Designer skill, create a learning path for [TOPIC/ROLE] 
+ targeting [EXPERTISE LEVEL] over [TIMEFRAME]."
+```
+
+**Examples:**
+
+1. **Onboarding New Coordinators:**
+```
+"Using the MindFlow Learning Path Designer skill, create a complete learning path 
+ for onboarding new construction coordinators from novice to intermediate level 
+ over 8 weeks."
+```
+
+2. **Upskilling Existing Staff:**
+```
+"Using the MindFlow Learning Path Designer skill, design a learning path to take 
+ intermediate coordinators to proficient level in delivery management over 4 weeks."
+```
+
+3. **Role-Specific Training:**
+```
+"Using the MindFlow Learning Path Designer skill, create a learning path for 
+ project managers focusing on file organization and workflow optimization."
+```
+
+### Advanced Usage
+
+**Creating Pattern Libraries:**
+```
+"Using the MindFlow Learning Path Designer skill, identify 10 technical patterns 
+ for construction file management and create pattern recognition exercises for 
+ each expertise level."
+```
+
+**Generating Assessment Systems:**
+```
+"Using the MindFlow Learning Path Designer skill, design a mastery assessment 
+ system for job creation that includes novice, intermediate, and proficient 
+ evaluation criteria."
+```
+
+**Building Adaptive Content:**
+```
+"Using the MindFlow Learning Path Designer skill, create three versions of 
+ Module 3 (Delivery Coordination) adapted for novice, intermediate, and expert 
+ users showing progressive disclosure in action."
+```
+
+## Output Structure
+
+When you use this skill, it generates a complete learning path package:
+
+### 1. Learning Path Blueprint (Markdown)
+```markdown
+# [Learning Path Title]
+
+## Overview
+- Target Audience: [Who this is for]
+- Prerequisites: [What users must know]
+- Time Commitment: [Duration]
+- Expertise Progression: [Novice → Intermediate → Proficient → Expert]
+
+## Learning Objectives
+By completing this path, users will be able to:
+1. [Objective 1 - tied to expertise level]
+2. [Objective 2 - tied to expertise level]
+...
+
+## Module Structure
+[Detailed breakdown of all modules]
+
+## Mastery Checkpoints
+[Assessment criteria at each level]
+
+## Pattern Library
+[Patterns taught in this path]
+
+## Implementation Guide
+[How to deploy this training]
+
+## Metrics to Track
+[Success indicators]
+```
+
+### 2. Training Modules (HTML - Universal Training Framework Format)
+```html
+<!-- Complete, ready-to-deploy HTML files -->
+<!-- Each module includes: -->
+- Module header with meta info
+- Learning objectives
+- Lessons with progressive disclosure
+- Activities with timers and construction scenarios
+- Quizzes with error-driven feedback
+- Pattern recognition exercises
+- Key takeaways
+- Navigation to next module
+```
+
+### 3. Pattern Library (Markdown)
+```markdown
+# Pattern Library for [Topic]
+
+## Technical Patterns (Novice Level)
+### Pattern 1: [Name]
+- Description: [What it is]
+- Recognition Cues: [How to spot it]
+- When to Apply: [Context]
+- Examples: [Good and bad]
+- Common Mistakes: [What to avoid]
+
+## Process Patterns (Intermediate Level)
+[Same structure for process patterns]
+
+## Cognitive Patterns (Proficient/Expert Level)
+[Same structure for cognitive patterns]
+```
+
+### 4. Assessment Rubrics (Markdown)
+```markdown
+# Mastery Assessment Rubric
+
+## Novice → Intermediate Gate
+- Accuracy: 80%+ on basic tasks
+- Speed: Complete job creation in <20 minutes
+- Understanding: Can explain job code logic
+- Pattern Recognition: Identifies 3/5 obvious patterns
+- Transfer: Successfully applies to novel scenarios
+
+## Intermediate → Proficient Gate
+[Criteria for next level]
+
+## Proficient → Expert Gate
+[Criteria for mastery level]
+```
+
+### 5. Implementation Checklist (Markdown)
+```markdown
+# Implementation Checklist
+
+## Before Launch
+- [ ] Review learning objectives with stakeholders
+- [ ] Ensure all HTML modules tested in browsers
+- [ ] Set up progress tracking system
+- [ ] Prepare facilitator guide
+- [ ] Schedule mastery checkpoints
+
+## During Delivery
+- [ ] Monitor time-to-mastery metrics
+- [ ] Track error patterns
+- [ ] Collect learner feedback
+- [ ] Adjust difficulty as needed
+
+## After Completion
+- [ ] Measure transfer to real work
+- [ ] Update content based on evidence
+- [ ] Capture expert contributions
+- [ ] Plan next iteration
+```
+
+## Construction Management Patterns (Built-In)
+
+The skill comes pre-loaded with common construction management patterns:
+
+### Technical Patterns
+1. **Job Code Structure** - Understanding BUILDER-COMMUNITY-#### format
+2. **12-Folder System** - Why each folder exists and what goes where
+3. **File Naming Conventions** - Consistent naming for findability
+4. **Delivery Phases** - Standard construction sequence
+5. **Document Types** - Plans vs Structural vs Elevations vs Soils
+
+### Process Patterns
+6. **Coordination Workflows** - How trades interact
+7. **Revision Management** - Handling updated documents
+8. **Delivery Scheduling** - Phase dependencies
+9. **Error Diagnosis** - Systematic troubleshooting
+10. **Optimization Strategies** - Efficiency improvements
+
+### Cognitive Patterns
+11. **Systems Thinking** - Seeing interconnections
+12. **Pattern Recognition Meta-skill** - Learning to learn patterns
+13. **Decision-Making Under Uncertainty** - Handling incomplete information
+14. **Teaching/Mentoring** - Knowledge transfer
+15. **Innovation Identification** - Spotting improvement opportunities
+
+## Example: Complete Learning Path Generation
+
+### Input Prompt:
+```
+"Using the MindFlow Learning Path Designer skill, create a complete learning path 
+ for onboarding new construction coordinators from novice to intermediate level 
+ over 8 weeks. Focus on job management, file organization, and delivery tracking."
+```
+
+### Output Generated:
+
+**1. Learning Path Blueprint** (`New_Coordinator_Onboarding_Path.md`)
+- Complete 8-week curriculum map
+- Week-by-week module breakdown
+- Mastery checkpoints at weeks 3 and 6
+- Pattern library with 12 patterns
+- Assessment rubrics for novice and intermediate
+
+**2. Eight HTML Training Modules**
+```
+Module_1_Construction_Management_Fundamentals.html
+Module_2_Job_Creation_Mastery.html
+Module_3_File_Organization_System.html
+Module_4_Delivery_Coordination_Basics.html
+Module_5_Pattern_Recognition_Introduction.html
+Module_6_Multi-Job_Management.html
+Module_7_Problem_Solving_Strategies.html
+Module_8_Intermediate_Mastery_Assessment.html
+```
+
+**3. Pattern Library** (`Coordinator_Pattern_Library.md`)
+- 12 patterns (5 technical, 4 process, 3 cognitive)
+- Each with examples, recognition cues, and exercises
+
+**4. Implementation Package**
+- Facilitator guide
+- Setup checklist (using pedagogical framework)
+- Metrics tracking template
+- Feedback collection forms
+
+**5. Deployment Instructions**
+- How to host the modules
+- How to track learner progress
+- How to adapt content based on evidence
+- Migration path to LMS if needed
+
+## Best Practices
+
+### When Creating Learning Paths
+
+1. **Start with the End**
+   - Define expert behavior first
+   - Work backward to novice starting point
+   - Identify prerequisite chains
+
+2. **Honor Cognitive Load**
+   - 60-90 minutes per module maximum
+   - 3-5 core concepts per module
+   - Build complexity gradually
+
+3. **Make Patterns Explicit**
+   - Don't assume users will "figure it out"
+   - Teach pattern recognition as a skill
+   - Progress from obvious to subtle
+
+4. **Design for Transfer**
+   - Include novel scenarios in assessments
+   - Require explanation, not just execution
+   - Test real-world application
+
+5. **Build in Adaptation**
+   - Plan metrics from day one
+   - Create feedback loops
+   - Update based on evidence
+
+### When Generating Content
+
+1. **Use Real Construction Scenarios**
+   - Base activities on actual job situations
+   - Include realistic complexity
+   - Show consequences of decisions
+
+2. **Embed Transparency**
+   - Always explain "why"
+   - Show system reasoning
+   - Make logic inspectable
+
+3. **Create Error-Rich Environments**
+   - Mistakes are learning opportunities
+   - Provide diagnostic feedback
+   - Offer immediate corrective practice
+
+4. **Enable Collaboration**
+   - Include peer learning activities
+   - Create pattern contribution pathways
+   - Build toward mentoring roles
+
+## Integration with Universal Training Framework
+
+This skill generates content that directly plugs into your Universal Training Framework:
+
+### File Compatibility
+- All HTML modules use your template structure
+- CSS variables match your branding system
+- JavaScript functions align with your progress tracking
+- Folder structure follows your conventions
+
+### Customization Points
+```javascript
+// Branding colors (auto-applied to generated modules)
+--brand-primary: #FF6A00;
+--brand-secondary: #78d4ff;
+--brand-navy: #103A56;
+
+// Progress tracking (integrated)
+localStorage.setItem('mindflow-progress-[module]', completionData);
+
+// Pattern library (linked)
+<a href="../patterns/job-code-structure.html">Learn about job code patterns →</a>
+```
+
+### Deployment Options
+1. **Standalone** - Generated modules work independently
+2. **Integrated** - Links to Training Central hub
+3. **LMS** - SCORM-exportable with your existing system
+4. **Hybrid** - Local + cloud deployment ready
+
+## Metrics and Evidence
+
+The skill automatically includes tracking for:
+
+### Leading Indicators
+- Time per module (target vs actual)
+- Help requests (frequency and type)
+- Error rates during learning
+- Pattern recognition accuracy
+- Feature adoption rates
+
+### Lagging Indicators
+- 30-day retention
+- Transfer to novel scenarios
+- Real-world error reduction
+- Productivity gains
+- Expert progression rate
+
+### Continuous Improvement
+```markdown
+If metrics show:
+├─ High error rate on specific concept
+│   └─ Regenerate with more scaffolding
+├─ Module takes 2x expected time
+│   └─ Split into smaller chunks
+├─ Low transfer rate
+│   └─ Add more real-world scenarios
+└─ No experts after 6 months
+    └─ Adjust mastery criteria or path difficulty
+```
+
+## Troubleshooting
+
+### "Learning path feels too easy/hard"
+**Solution:** The skill adapts based on target expertise level. Regenerate with:
+- Different starting level (novice vs intermediate)
+- Adjusted timeframe (compress or extend)
+- More/fewer prerequisites specified
+
+### "Content doesn't match our specific workflow"
+**Solution:** Provide more context in your prompt:
+```
+"Create a learning path for coordinators at [COMPANY] where we use 
+ [SPECIFIC PROCESS] and prioritize [SPECIFIC SKILLS]."
+```
+
+### "Need more hands-on activities"
+**Solution:** Request activity-heavy version:
+```
+"Generate this learning path with 70% hands-on activities and 30% 
+ theory, focused on real job scenarios."
+```
+
+### "Patterns aren't relevant to our construction type"
+**Solution:** Specify construction context:
+```
+"Create this path for residential/commercial/industrial construction 
+ with patterns specific to [TYPE]."
+```
+
+## Advanced Features
+
+### Custom Pattern Creation
+```
+"Using the MindFlow Learning Path Designer skill, help me document a 
+ new pattern I've discovered: [PATTERN DESCRIPTION]. Create a pattern 
+ library entry with recognition cues, examples, and teaching materials."
+```
+
+### Assessment System Design
+```
+"Using the MindFlow Learning Path Designer skill, design a comprehensive 
+ mastery assessment system for [TOPIC] that includes performance-based 
+ evaluation at novice, intermediate, and proficient levels."
+```
+
+### Multi-Role Path Coordination
+```
+"Using the MindFlow Learning Path Designer skill, create coordinated 
+ learning paths for coordinators, project managers, and superintendents 
+ that share common foundational modules but diverge for role-specific 
+ expertise."
+```
+
+### Adaptive Content Variants
+```
+"Using the MindFlow Learning Path Designer skill, generate three versions 
+ of Module 5 demonstrating progressive disclosure: one for novices with 
+ heavy scaffolding, one for intermediates with moderate support, and one 
+ for experts with full complexity."
+```
+
+## Skill Maintenance
+
+As MindFlow evolves, update this skill by:
+
+1. **Adding New Patterns**
+   - Document patterns discovered by expert users
+   - Integrate into appropriate expertise levels
+   - Create teaching materials
+
+2. **Refining Based on Evidence**
+   - Review metrics from deployed paths
+   - Update content that underperforms
+   - Amplify what works well
+
+3. **Expanding Domains**
+   - Add new construction management topics
+   - Create specialized role paths
+   - Build advanced certification tracks
+
+4. **Improving Pedagogy**
+   - Test new teaching approaches
+   - Incorporate learning science research
+   - Adapt based on user feedback
+
+## Remember
+
+**The goal of every learning path is to create Flow Architects—**
+construction professionals who don't just execute tasks faster,
+but who understand the entire system and can teach others,
+identify patterns, solve novel problems, and continuously improve
+the construction process.
+
+Every module, activity, quiz, and pattern should ask:
+"Does this help someone become a better thinker and teacher,
+or just a faster button-clicker?"
+
+---
+
+## Quick Reference Card
+
+### Generating a Learning Path
+```
+Prompt: "Using the MindFlow Learning Path Designer skill, create [PATH TYPE] 
+         for [AUDIENCE] covering [TOPICS] over [TIMEFRAME]"
+
+Output: Blueprint + HTML Modules + Patterns + Assessments + Implementation Guide
+```
+
+### Key Principles Applied
+1. Learning-First (teach understanding)
+2. Progressive Disclosure (adapt to expertise)
+3. Spaced Repetition (concepts reappear)
+4. Cognitive Load (chunk appropriately)
+5. Transparency (show reasoning)
+6. Patterns (teach recognition)
+7. Adaptive (match ability)
+8. Error-Driven (mistakes teach)
+9. Collaborative (build together)
+10. Evidence-Based (measure and improve)
+
+### File Outputs
+- `[Path_Name]_Blueprint.md` - Overall curriculum
+- `Module_[N]_[Topic].html` - Training modules (8-12 typical)
+- `[Topic]_Pattern_Library.md` - Pattern recognition guide
+- `[Path]_Assessment_Rubric.md` - Mastery criteria
+- `[Path]_Implementation_Guide.md` - Deployment instructions
+
+---
+
+**Built with ❤️ for the MindFlow Philosophy:**
+*"Tools that teach, transparency over mystery, and building Flow Architects rather than button-clickers."*
+
+Version: 1.0.0
+Last Updated: November 2024
