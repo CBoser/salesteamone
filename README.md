@@ -32,7 +32,60 @@ npm run dev                             # Launch frontend + backend
 
 Access the app at **http://localhost:5173**
 
-For detailed instructions, see [LAUNCH_GUIDE.md](./docs/LAUNCH_GUIDE.md)
+For detailed instructions, see [docs/LAUNCH_GUIDE.md](./docs/LAUNCH_GUIDE.md)
+
+---
+
+## Development Framework
+
+This project uses the **Corey Dev Framework** for sustainable, high-quality development.
+
+### Framework Tools
+
+Located in `tools/`:
+- **create_sprint.py** - Create sprint structure with documentation
+- **log_time.py** - Track 30-minute development sessions
+- **run_validation.py** - Run automated quality checks
+- **sql_practice.py** - Track SQL learning progress
+
+```bash
+# Create a sprint
+python tools/create_sprint.py 1
+
+# Track development time
+python tools/log_time.py start
+python tools/log_time.py end "What you accomplished"
+
+# Validate code quality
+python tools/run_validation.py quick
+```
+
+**Learn More:**
+- [Framework Tools Guide](./docs/framework/FRAMEWORK_TOOLS.md)
+- [Tools README](./tools/README.md)
+- [Learning Materials](./learning/)
+
+---
+
+## Project Structure
+
+```
+ConstructionPlatform/
+├── tools/              # Development framework tools
+├── docs/               # All documentation
+│   ├── framework/      # Framework guides and tools docs
+│   ├── sessions/       # Development session notes
+│   ├── skills/         # Skill definitions
+│   ├── analysis/       # System analysis documents
+│   └── sprints/        # Sprint planning and tracking
+├── learning/           # Learning materials and roadmaps
+│   └── sql/           # SQL curriculum (8-week program)
+├── scripts/           # Deployment and setup scripts
+├── backend/           # Backend API (Node.js + Express)
+├── frontend/          # Frontend UI (React + TypeScript)
+├── database/          # Database schemas and migrations
+└── shared/            # Shared types and utilities
+```
 
 ---
 
