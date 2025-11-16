@@ -594,8 +594,8 @@ WHERE bid_number = 'BID-2025-001';
 ## Documentation Pages
 
 ### Summary
-- **Total Documents:** 6 comprehensive guides
-- **Total Pages:** ~200 pages of documentation
+- **Total Documents:** 8 comprehensive guides
+- **Total Pages:** ~280 pages of documentation
 - **Format:** Markdown (.md files)
 
 ### Documentation Files
@@ -607,6 +607,8 @@ WHERE bid_number = 'BID-2025-001';
 | `LEARNING_PRINCIPLES.md` | First principles guide | 40 | ✅ Complete |
 | `SERVICES_EXPLAINED.md` | Service layer deep dive | 60 | ✅ Complete |
 | `SYSTEM_OVERVIEW.md` | This document | 30 | ✅ Complete |
+| `PARALLEL_DEVELOPMENT_PLAN.md` | Excel→Python→Web roadmap | 50 | ✅ Complete |
+| `THREE_PLATFORM_COMPARISON.md` | Side-by-side examples | 40 | ✅ Complete |
 | `DATABASE_SCHEMA_EXPLAINED.md` | Table documentation | 20 | ⏳ Pending |
 
 ---
