@@ -29,7 +29,7 @@ from create_improved_bat import (
 )
 
 SOURCE_FILE = "./docs/Migration Strategy/Migration Files/HOLT BAT NOVEMBER 2025 10-28-25.xlsm"
-OUTPUT_FILE = "./BAT Files/IMPROVED_HOLT_BAT_NOVEMBER_2025.xlsx"
+OUTPUT_FILE = "./BAT Files/IMPROVED_HOLT_BAT_NOVEMBER_2025.xlsm"
 
 def improve_margin_formulas(ws, sheet_name):
     """Fix margin% formulas with division-by-zero protection"""
@@ -226,8 +226,8 @@ def main():
     print("   The file is large (15MB) with macros, please wait...\n")
 
     try:
-        # Load with data_only=False to keep formulas, keep_vba=False to strip macros (faster)
-        wb = load_workbook(SOURCE_FILE, data_only=False, keep_vba=False)
+        # Load with data_only=False to keep formulas, keep_vba=True to preserve macros
+        wb = load_workbook(SOURCE_FILE, data_only=False, keep_vba=True)
         print(f"✅ Loaded {len(wb.sheetnames)} sheets\n")
     except Exception as e:
         print(f"❌ Error loading file: {e}")
